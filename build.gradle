@@ -25,9 +25,11 @@ lombok {
     sha256 = ""
 }
 
-version = '1.0'
 group = "${groupid}.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Interactio'
+
+def buildNo = "1.0.0";
+version="${mc_ver}-${buildNo}";
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 

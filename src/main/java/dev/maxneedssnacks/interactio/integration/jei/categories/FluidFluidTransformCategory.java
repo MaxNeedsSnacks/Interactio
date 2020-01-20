@@ -1,7 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import dev.maxneedssnacks.interactio.Interactio;
+import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
@@ -14,6 +14,7 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
@@ -140,10 +141,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     @Override
     public void draw(FluidFluidTransformRecipe recipe, double mouseX, double mouseY) {
 
-        GlStateManager.enableAlphaTest();
-        GlStateManager.enableBlend();
-
-        overlay.draw();
+        CompatUtil.drawWithAlpha(overlay);
 
         if (recipe.consumesItems()) {
             IconConsume info = new IconConsume();
@@ -154,8 +152,6 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 24, center.y);
 
-        GlStateManager.disableBlend();
-        GlStateManager.disableAlphaTest();
     }
 
     /**
@@ -200,9 +196,9 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             if (hoverChecker.checkHover(mx, my)) {
                 List<String> tooltip = Collections.singletonList(TextFormatting.RED.toString() + "Consumes Items");
                 Minecraft mc = Minecraft.getInstance();
-                int scaledWidth = mc.mainWindow.getScaledWidth();
-                int scaledHeight = mc.mainWindow.getScaledHeight();
-                GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, scaledWidth, scaledHeight, -1, mc.fontRenderer);
+                MainWindow window = CompatUtil.getMainWindow();
+                if (window == null) return;
+                GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, window.getScaledWidth(), window.getScaledHeight(), -1, mc.fontRenderer);
             }
         }
     }

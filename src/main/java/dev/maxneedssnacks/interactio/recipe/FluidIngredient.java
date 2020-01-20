@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -121,7 +122,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return new SingleFluidList(fluid);
         } else if (json.has("tag")) {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "tag"));
-            Tag<Fluid> tag = FluidTags.getCollection().get(id);
+            Tag<Fluid> tag = CompatUtil.getFluidTags().get(id);
             if (tag == null) {
                 throw new JsonSyntaxException("Unknown fluid tag '" + id + "'");
             }

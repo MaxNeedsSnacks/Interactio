@@ -5,6 +5,8 @@ import net.minecraft.server.MinecraftServer;
 
 public interface IProxy {
 
+    String getVersion();
+
     MinecraftServer getServer();
 
     RecipeManager getRecipeManager();

@@ -16,6 +16,7 @@ import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SharedConstants;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -105,6 +106,11 @@ public abstract class ModProxy implements IProxy {
     @Override
     public RecipeManager getRecipeManager() {
         return server.getRecipeManager();
+    }
+
+    @Override
+    public String getVersion() {
+        return SharedConstants.getVersion().getName();
     }
 
     public static class Client extends ModProxy {

@@ -169,13 +169,11 @@ public final class Utils {
     // region network
     // TODO: add custom particle support for datapacks
     public static void sendParticlePacket(World world, Entity entity) {
-        PacketCraftingParticle packet = new PacketCraftingParticle(entity.posX, entity.posY, entity.posZ);
-        sendPacketNear(packet, world, entity);
+        sendParticlePacket(world, entity.getPositionVec());
     }
 
     public static void sendParticlePacket(World world, BlockPos pos) {
-        PacketCraftingParticle packet = new PacketCraftingParticle(pos.getX(), pos.getY(), pos.getZ());
-        sendPacketNear(packet, world, pos);
+        sendParticlePacket(world, new Vec3d(pos));
     }
 
     public static void sendParticlePacket(World world, Vec3d pos) {
