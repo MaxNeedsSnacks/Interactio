@@ -1,6 +1,6 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -181,37 +181,37 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     @Override
     public void draw(ItemFluidTransformRecipe recipe, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
-        RenderSystem.enableBlend();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableBlend();
 
         overlay.draw();
 
         if (recipe.consumesFluid()) {
             IconConsume info = new IconConsume();
             info.draw(width - 48, height - 36);
-            info.drawTooltip((int)mouseX, (int)mouseY);
+            info.drawTooltip((int) mouseX, (int) mouseY);
         }
 
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
-        RenderSystem.disableBlend();
-        RenderSystem.disableAlphaTest();
+        GlStateManager.disableBlend();
+        GlStateManager.disableAlphaTest();
     }
 
     /**
      * NOTE: This method originally stems from the Botania mod by Vazkii, which is Open Source
      * and distributed under the Botania License (see http://botaniamod.net/license.php)
-     *
+     * <p>
      * Find the original Botania GitHub repository here: https://github.com/Vazkii/Botania
-     *
+     * <p>
      * (Original class: vazkii.botania.client.integration.jei.petalapothecary.PetalApothecaryRecipeCategory, created by <williewillus>)
      */
     private Point rotatePointAbout(Point in, Point about, double degrees) {
         double rad = degrees * Math.PI / 180.0;
         double newX = Math.cos(rad) * (in.x - about.x) - Math.sin(rad) * (in.y - about.y) + about.x;
         double newY = Math.sin(rad) * (in.x - about.x) + Math.cos(rad) * (in.y - about.y) + about.y;
-        return new Point((int)Math.round(newX), (int)Math.round(newY));
+        return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
 
     private class IconConsume implements IDrawable {
@@ -241,8 +241,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
             if (hoverChecker.checkHover(mx, my)) {
                 List<String> tooltip = Collections.singletonList(TextFormatting.RED.toString() + "Consumes Fluid");
                 Minecraft mc = Minecraft.getInstance();
-                int scaledWidth = mc.getWindow().getScaledWidth();
-                int scaledHeight = mc.getWindow().getScaledHeight();
+                int scaledWidth = mc.mainWindow.getScaledWidth();
+                int scaledHeight = mc.mainWindow.getScaledHeight();
                 GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, scaledWidth, scaledHeight, -1, mc.fontRenderer);
             }
         }

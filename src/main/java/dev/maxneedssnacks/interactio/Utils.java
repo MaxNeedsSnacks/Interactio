@@ -169,7 +169,7 @@ public final class Utils {
     // region network
     // TODO: add custom particle support for datapacks
     public static void sendParticlePacket(World world, Entity entity) {
-        PacketCraftingParticle packet = new PacketCraftingParticle(entity.getX(), entity.getY(), entity.getZ());
+        PacketCraftingParticle packet = new PacketCraftingParticle(entity.posX, entity.posY, entity.posZ);
         sendPacketNear(packet, world, entity);
     }
 

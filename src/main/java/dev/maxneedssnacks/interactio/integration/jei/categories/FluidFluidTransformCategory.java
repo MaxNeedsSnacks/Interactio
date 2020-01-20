@@ -1,6 +1,6 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -140,8 +140,8 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     @Override
     public void draw(FluidFluidTransformRecipe recipe, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
-        RenderSystem.enableBlend();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableBlend();
 
         overlay.draw();
 
@@ -154,8 +154,8 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 24, center.y);
 
-        RenderSystem.disableBlend();
-        RenderSystem.disableAlphaTest();
+        GlStateManager.disableBlend();
+        GlStateManager.disableAlphaTest();
     }
 
     /**
@@ -200,8 +200,8 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             if (hoverChecker.checkHover(mx, my)) {
                 List<String> tooltip = Collections.singletonList(TextFormatting.RED.toString() + "Consumes Items");
                 Minecraft mc = Minecraft.getInstance();
-                int scaledWidth = mc.getWindow().getScaledWidth();
-                int scaledHeight = mc.getWindow().getScaledHeight();
+                int scaledWidth = mc.mainWindow.getScaledWidth();
+                int scaledHeight = mc.mainWindow.getScaledHeight();
                 GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, scaledWidth, scaledHeight, -1, mc.fontRenderer);
             }
         }

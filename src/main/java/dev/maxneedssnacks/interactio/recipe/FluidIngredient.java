@@ -121,7 +121,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return new SingleFluidList(fluid);
         } else if (json.has("tag")) {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "tag"));
-            Tag<Fluid> tag = FluidTags.getContainer().get(id);
+            Tag<Fluid> tag = FluidTags.getCollection().get(id);
             if (tag == null) {
                 throw new JsonSyntaxException("Unknown fluid tag '" + id + "'");
             }
