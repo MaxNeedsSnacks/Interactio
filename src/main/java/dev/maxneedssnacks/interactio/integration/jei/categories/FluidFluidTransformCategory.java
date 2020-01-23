@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
+import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
@@ -14,17 +15,12 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.Minecraft;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.client.config.HoverChecker;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -147,7 +143,9 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         guiHelper.getSlotDrawable().draw(width - 24, center.y);
 
         if (recipe.consumesItems()) {
-            IconConsume info = new IconConsume();
+            IconRecipeInfo info = new IconRecipeInfo(guiHelper, Collections.singletonList(
+                    TextFormatting.UNDERLINE + "Consumes Items"
+            ));
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);
         }
@@ -169,39 +167,4 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
 
-    private class IconConsume implements IDrawable {
-        private final IDrawable icon;
-        private final HoverChecker hoverChecker;
-
-        public IconConsume() {
-            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
-            this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
-        }
-
-        public int getWidth() {
-            return icon.getWidth();
-        }
-
-        public int getHeight() {
-            return icon.getHeight();
-        }
-
-        @Override
-        public void draw(int xOffset, int yOffset) {
-            icon.draw(xOffset, yOffset);
-            hoverChecker.updateBounds(yOffset, yOffset + icon.getHeight(), xOffset, xOffset + icon.getWidth());
-        }
-
-        public void drawTooltip(int mx, int my) {
-            if (hoverChecker.checkHover(mx, my)) {
-                List<String> tooltip = Collections.singletonList(
-                        TextFormatting.UNDERLINE + "Consumes Items"
-                );
-                Minecraft mc = Minecraft.getInstance();
-                MainWindow window = CompatUtil.getMainWindow();
-                if (window == null) return;
-                GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, window.getScaledWidth(), window.getScaledHeight(), -1, mc.fontRenderer);
-            }
-        }
-    }
 }

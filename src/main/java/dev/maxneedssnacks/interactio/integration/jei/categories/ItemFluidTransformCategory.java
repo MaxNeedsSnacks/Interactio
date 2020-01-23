@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
+import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
@@ -14,16 +15,12 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.client.config.HoverChecker;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -188,7 +185,10 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
         if (recipe.consumeChance() > 0) {
-            IconConsume info = new IconConsume(recipe.consumeChance());
+            IconRecipeInfo info = new IconRecipeInfo(guiHelper,
+                    TextFormatting.UNDERLINE + "May consume Fluid",
+                    "Consumption Chance: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.consumeChance() * 100.0)
+            );
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);
         }
@@ -210,42 +210,4 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
 
-    private class IconConsume implements IDrawable {
-        private final IDrawable icon;
-        private final HoverChecker hoverChecker;
-        private final double chance;
-
-        public IconConsume(double chance) {
-            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
-            this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
-            this.chance = chance;
-        }
-
-        public int getWidth() {
-            return icon.getWidth();
-        }
-
-        public int getHeight() {
-            return icon.getHeight();
-        }
-
-        @Override
-        public void draw(int xOffset, int yOffset) {
-            icon.draw(xOffset, yOffset);
-            hoverChecker.updateBounds(yOffset, yOffset + icon.getHeight(), xOffset, xOffset + icon.getWidth());
-        }
-
-        public void drawTooltip(int mx, int my) {
-            if (hoverChecker.checkHover(mx, my)) {
-                List<String> tooltip = Arrays.asList(
-                        TextFormatting.UNDERLINE + "May consume Fluid",
-                        "Consumption Chance: " + TextFormatting.ITALIC + String.format("%.2f%%", chance * 100.0)
-                );
-                Minecraft mc = Minecraft.getInstance();
-                MainWindow window = CompatUtil.getMainWindow();
-                if (window == null) return;
-                GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltip, mx, my, window.getScaledWidth(), window.getScaledHeight(), -1, mc.fontRenderer);
-            }
-        }
-    }
 }
