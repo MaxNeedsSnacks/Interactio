@@ -184,14 +184,14 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
         CompatUtil.drawWithAlpha(overlay);
 
+        guiHelper.getSlotDrawable().draw(center.x, center.y);
+        guiHelper.getSlotDrawable().draw(width - 20, center.y);
+
         if (recipe.consumeChance() > 0) {
             IconConsume info = new IconConsume(recipe.consumeChance());
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);
         }
-
-        guiHelper.getSlotDrawable().draw(center.x, center.y);
-        guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
     }
 
