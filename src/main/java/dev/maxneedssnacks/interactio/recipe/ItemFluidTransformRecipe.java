@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.recipe;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dev.maxneedssnacks.interactio.Utils;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
@@ -39,9 +40,9 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
     private final ItemStack result;
     private final Object2IntLinkedOpenHashMap<Ingredient> inputs;
     private final FluidIngredient fluid;
-    private final boolean consume;
+    private final double consume;
 
-    public ItemFluidTransformRecipe(ResourceLocation id, ItemStack result, FluidIngredient fluid, Object2IntLinkedOpenHashMap<Ingredient> inputs, boolean consume) {
+    public ItemFluidTransformRecipe(ResourceLocation id, ItemStack result, FluidIngredient fluid, Object2IntLinkedOpenHashMap<Ingredient> inputs, double consume) {
         super(id);
         this.result = result;
         this.fluid = fluid;
@@ -53,7 +54,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
     public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
 
         if (!fluid.test(state.getFluid())) return false;
-        if (consume && !state.isSource()) return false;
+        if (consume > 0 && !state.isSource()) return false;
 
         return compareStacks(entities, inputs);
     }
@@ -86,7 +87,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
             });
 
             // consume block if set
-            if (consume) {
+            if (world.rand.nextDouble() < consume) {
                 world.setBlockState(pos, Blocks.AIR.getDefaultState());
             }
 
@@ -118,7 +119,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
         return inputs;
     }
 
-    public boolean consumesFluid() {
+    public double consumeChance() {
         return consume;
     }
 
@@ -162,7 +163,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
                 throw new JsonParseException("No valid inputs specified for item fluid transform recipe!");
             }
 
-            boolean consume = JSONUtils.getBoolean(json, "consume", false);
+            double consume = Utils.parseChance(json, "consume");
 
             return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
         }
@@ -182,7 +183,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
                 inputs.put(ingredient, count);
             }
 
-            boolean consume = buffer.readBoolean();
+            double consume = buffer.readDouble();
 
             return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
         }
@@ -200,7 +201,7 @@ public class ItemFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
                 buffer.writeVarInt(count);
             }));
 
-            buffer.writeBoolean(recipe.consume);
+            buffer.writeDouble(recipe.consume);
 
         }
     }

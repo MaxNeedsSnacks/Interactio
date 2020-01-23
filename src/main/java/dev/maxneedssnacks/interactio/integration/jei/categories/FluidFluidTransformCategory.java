@@ -194,7 +194,9 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         public void drawTooltip(int mx, int my) {
             if (hoverChecker.checkHover(mx, my)) {
-                List<String> tooltip = Collections.singletonList(TextFormatting.RED.toString() + "Consumes Items");
+                List<String> tooltip = Collections.singletonList(
+                        TextFormatting.UNDERLINE + "Consumes Items"
+                );
                 Minecraft mc = Minecraft.getInstance();
                 MainWindow window = CompatUtil.getMainWindow();
                 if (window == null) return;

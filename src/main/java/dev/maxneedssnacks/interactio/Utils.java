@@ -1,5 +1,8 @@
 package dev.maxneedssnacks.interactio;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
 import dev.maxneedssnacks.interactio.recipe.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
@@ -17,6 +20,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -201,6 +205,30 @@ public final class Utils {
                     .filter(p -> p.getDistanceSq(pos.getX(), pos.getY(), pos.getZ()) < radius * radius)
                     .forEach(p -> NETWORK.send(PacketDistributor.PLAYER.with(() -> p), packet));
         }
+    }
+
+    public static double parseChance(JsonObject object, String key) {
+        return parseChance(object, key, 0);
+    }
+
+    public static double parseChance(JsonObject object, String key, double dv) {
+        double chance;
+
+        if (!object.has(key)) return dv;
+
+        JsonElement e = object.get(key);
+        if (!e.isJsonPrimitive()) {
+            Interactio.LOGGER.warn("Could not parse chance from " + key + " as it's not a primitive type!");
+            return dv;
+        }
+
+        JsonPrimitive p = (JsonPrimitive) e;
+        try {
+            return MathHelper.clamp(p.getAsDouble(), 0, 1);
+        } catch (Exception ex) {
+            return p.getAsBoolean() ? 1 : 0;
+        }
+
     }
 
     // shouldn't be needed, but who knows

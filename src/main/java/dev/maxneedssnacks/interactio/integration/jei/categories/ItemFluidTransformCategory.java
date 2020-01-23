@@ -184,8 +184,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
         CompatUtil.drawWithAlpha(overlay);
 
-        if (recipe.consumesFluid()) {
-            IconConsume info = new IconConsume();
+        if (recipe.consumeChance() > 0) {
+            IconConsume info = new IconConsume(recipe.consumeChance());
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);
         }
@@ -213,10 +213,12 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     private class IconConsume implements IDrawable {
         private final IDrawable icon;
         private final HoverChecker hoverChecker;
+        private final double chance;
 
-        public IconConsume() {
+        public IconConsume(double chance) {
             this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BARRIER));
             this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
+            this.chance = chance;
         }
 
         public int getWidth() {
@@ -235,7 +237,10 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
         public void drawTooltip(int mx, int my) {
             if (hoverChecker.checkHover(mx, my)) {
-                List<String> tooltip = Collections.singletonList(TextFormatting.RED.toString() + "Consumes Fluid");
+                List<String> tooltip = Arrays.asList(
+                        TextFormatting.UNDERLINE + "May consume Fluid",
+                        "Consumption Chance: " + TextFormatting.ITALIC + String.format("%.2f%%", chance * 100.0)
+                );
                 Minecraft mc = Minecraft.getInstance();
                 MainWindow window = CompatUtil.getMainWindow();
                 if (window == null) return;
