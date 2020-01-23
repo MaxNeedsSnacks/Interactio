@@ -29,11 +29,19 @@ public enum CompatUtil {
     @OnlyIn(Dist.CLIENT)
     public static void drawWithAlpha(IDrawable element) {
 
-        //luckily these two class names aren't obfuscated, so we can just use Class.forName() on them
-        Class<?> renderer = getClass("com.mojang.blaze3d.platform.GlStateManager")
-                .orElseGet(() -> getClass("com.mojang.blaze3d.systems.RenderSystem")
-                        .orElseThrow(() -> new RuntimeException("Neither GlStateManager nor RenderSystem are present, are you sure you're on the right version?")));
+        // depending on the version, we need to call from different classes
+        Class<?> renderer;
+        if (version.startsWith("1.14")) {
+            renderer = getClass("com.mojang.blaze3d.platform.GlStateManager")
+                    .orElseThrow(() -> new RuntimeException("GlStateManager isn't present, but we're on 1.14 -- something is not right."));
+        } else if (version.startsWith("1.15")) {
+            renderer = getClass("com.mojang.blaze3d.systems.RenderSystem")
+                    .orElseThrow(() -> new RuntimeException("RenderSystem isn't present, but we're on 1.15 -- something is not right."));
+        } else {
+            throw new RuntimeException("Unsupported version!");
+        }
 
+        // the methods aren't obfuscated, so we can just invoke them like this
         try {
             renderer.getMethod("enableAlphaTest").invoke(null);
             renderer.getMethod("enableBlend").invoke(null);
@@ -43,6 +51,7 @@ public enum CompatUtil {
         } catch (Exception e) {
             throw new RuntimeException("Enabling and/or disabling alpha and blending failed, this is bad...");
         }
+
     }
 
     @OnlyIn(Dist.CLIENT)
