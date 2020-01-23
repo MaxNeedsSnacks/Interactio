@@ -216,7 +216,7 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         private final double chance;
 
         public IconConsume(double chance) {
-            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BARRIER));
+            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
             this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
             this.chance = chance;
         }

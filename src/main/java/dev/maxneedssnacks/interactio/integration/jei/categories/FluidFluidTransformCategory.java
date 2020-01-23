@@ -174,7 +174,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         private final HoverChecker hoverChecker;
 
         public IconConsume() {
-            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BARRIER));
+            this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
             this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
         }
 
