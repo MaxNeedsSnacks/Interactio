@@ -66,7 +66,6 @@ public enum CompatUtil {
 
     @Nullable
     public static TagCollection<Fluid> getFluidTags() {
-        Interactio.LOGGER.info(version);
         try {
             if (version.startsWith("1.14")) {
                 return (TagCollection<Fluid>) FluidTags.class.getMethod("getCollection").invoke(null);
