@@ -4,8 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.recipe.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
@@ -144,12 +144,12 @@ public final class Utils {
         return required.isEmpty();
     }
 
-    public static <T extends InWorldRecipe<?, ?>> Optional<List<T>> getInWorldRecipeList(Class<T> clz) {
+    public static <T extends InWorldRecipe<?, ?, ?>> Optional<List<T>> getInWorldRecipeList(Class<T> clz) {
         return getInWorldRecipeStream(clz).map(s -> s.collect(Collectors.toList()));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends InWorldRecipe<?, ?>> Optional<Stream<T>> getInWorldRecipeStream(Class<T> clz) {
+    public static <T extends InWorldRecipe<?, ?, ?>> Optional<Stream<T>> getInWorldRecipeStream(Class<T> clz) {
         try {
             return Optional.of(ModRecipes.RECIPE_MAP
                     .get((IRecipeType<T>) clz.getField("RECIPE_TYPE").get(null))

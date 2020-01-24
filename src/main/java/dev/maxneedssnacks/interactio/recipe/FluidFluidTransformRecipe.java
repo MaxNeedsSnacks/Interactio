@@ -2,6 +2,8 @@ package dev.maxneedssnacks.interactio.recipe;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -58,7 +60,10 @@ public class FluidFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
     }
 
     @Override
-    public void craft(List<ItemEntity> entities, World world, BlockPos pos) {
+    public void craft(List<ItemEntity> entities, DefaultInfo info) {
+
+        World world = info.getWorld();
+        BlockPos pos = info.getPos();
 
         if (!canCraft(entities, world.getFluidState(pos))) {
             throw new IllegalStateException("Attempted to perform illegal craft on input input transform recipe!");

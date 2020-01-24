@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.recipe;
 
 import com.google.common.collect.ArrayListMultimap;
 import dev.maxneedssnacks.interactio.Interactio;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
@@ -15,7 +16,7 @@ public final class ModRecipes {
     public static final ResourceLocation ITEM_EXPLODE = Interactio.id("item_explode");
 
     public static Ingredient ANY_VALID = Ingredient.EMPTY;
-    public static ArrayListMultimap<IRecipeType<?>, InWorldRecipe> RECIPE_MAP = ArrayListMultimap.create();
+    public static ArrayListMultimap<IRecipeType<?>, InWorldRecipe<?, ?, ?>> RECIPE_MAP = ArrayListMultimap.create();
 
     public static void init() {
         register(ITEM_FLUID_TRANSFORM, ItemFluidTransformRecipe.RECIPE_TYPE, ItemFluidTransformRecipe.SERIALIZER);

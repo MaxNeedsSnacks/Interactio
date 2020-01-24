@@ -7,8 +7,8 @@ import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.recipe.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
@@ -95,7 +95,7 @@ public abstract class ModProxy implements IProxy {
                                 .parallelStream()
                                 .filter(Objects::nonNull)
                                 .filter(InWorldRecipe.class::isInstance)
-                                .map(InWorldRecipe.class::cast)
+                                .map(r -> (InWorldRecipe<?, ?, ?>) r)
                                 .forEach(r -> ModRecipes.RECIPE_MAP.put(r.getType(), r));
                     }
                 });

@@ -5,8 +5,8 @@ import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.integration.jei.categories.FluidFluidTransformCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.ItemFluidTransformCategory;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -49,7 +49,7 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipes(getRecipes(FluidFluidTransformRecipe.class), FluidFluidTransformCategory.UID);
     }
 
-    private static <T extends InWorldRecipe<?, ?>> List<T> getRecipes(Class<T> clz) {
+    private static <T extends InWorldRecipe<?, ?, ?>> List<T> getRecipes(Class<T> clz) {
         return Utils.getInWorldRecipeList(clz).orElse(Collections.emptyList());
     }
 }

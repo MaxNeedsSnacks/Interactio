@@ -3,6 +3,7 @@ package dev.maxneedssnacks.interactio.event;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -35,7 +36,7 @@ public class DroppedItemHandler {
                     .ifPresent(stream -> {
                         stream.filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
                                 .findFirst()
-                                .ifPresent(recipe -> recipe.craft(items, world, pos));
+                                .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
                     });
         });
 
@@ -45,7 +46,7 @@ public class DroppedItemHandler {
                     .ifPresent(stream -> {
                         stream.filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
                                 .findFirst()
-                                .ifPresent(recipe -> recipe.craft(items, world, pos));
+                                .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
                     });
         });
 

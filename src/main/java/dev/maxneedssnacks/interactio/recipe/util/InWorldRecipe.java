@@ -1,8 +1,8 @@
-package dev.maxneedssnacks.interactio.recipe;
+package dev.maxneedssnacks.interactio.recipe.util;
 
-import net.minecraft.block.BlockState;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -17,9 +17,9 @@ import java.util.List;
 
 /**
  * @param <T> A type of input or inputs. This will be what the recipe uses during crafts.
- * @param <S> Some kind of object that will be used to check whether a craft should be performed.
+ * @param <S> Some kind of state that will be used to check whether a craft should be performed.
  */
-public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
+public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingInfo> implements IRecipe<IInventory> {
 
     protected final ResourceLocation id;
 
@@ -29,7 +29,7 @@ public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * In-world recipes do not make use of any actual inventories.
      * This only exists is so we can have {@link net.minecraft.item.crafting.RecipeManager}
      * load all of our recipes correctly.
@@ -43,12 +43,11 @@ public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
     }
 
     /**
-     *
      * This is our analogue version to {@link IRecipe#matches(IInventory, World)}.
      * Use this to determine whether an in-world craft should be performed or not.
      *
      * @param inputs Collection (or otherwise) of inputs (for example item entities)
-     * @param state Object we want to check our inputs against.
+     * @param state  State we want to check our inputs against.
      * @return Should this in-world craft be performed?
      */
     public abstract boolean canCraft(T inputs, S state);
@@ -61,10 +60,9 @@ public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
      * @param inputs Collection (or otherwise) of inputs (for example item entities).
      *               This object WILL be manipulated by this method,
      *               use {@link #canCraft(T, S)} if you don't want that to happen.
-     * @param world  World which the craft is happening in, we use this to manipulate the world (for example setting blocks to air).
-     * @param pos    Block position where the craft is happening. This is the block we are going to manipulate.
+     * @param info   Additional information on the craft, like the world the craft is happening in or the affected Block's position
      */
-    public abstract void craft(T inputs, World world, BlockPos pos);
+    public abstract void craft(T inputs, U info);
 
     /**
      * {@inheritDoc}
@@ -103,7 +101,7 @@ public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
     //          recipe types below          //
     // ------------------------------------ //
 
-    public static abstract class ItemsInFluid extends InWorldRecipe<List<ItemEntity>, IFluidState> {
+    public static abstract class ItemsInFluid extends InWorldRecipe<List<ItemEntity>, IFluidState, DefaultInfo> {
         public ItemsInFluid(ResourceLocation id) {
             super(id);
         }
@@ -111,5 +109,37 @@ public abstract class InWorldRecipe<T, S> implements IRecipe<IInventory> {
         public abstract FluidIngredient getFluid();
     }
 
+    public static abstract class Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, IStateHolder<?>, U> {
+
+        public Stateless(ResourceLocation id) {
+            super(id);
+        }
+
+        @Override
+        @Deprecated // don't use this, obviously
+        public final boolean canCraft(R inputs, IStateHolder<?> state) {
+            return canCraft(inputs);
+        }
+
+        public abstract boolean canCraft(R inputs);
+    }
+
+    public static abstract class Items<U extends CraftingInfo> extends Stateless<List<ItemEntity>, U> {
+        public Items(ResourceLocation id) {
+            super(id);
+        }
+    }
+
+    // ------------------------------------ //
+    //       "Default" crafting info        //
+    //         (World and BlockPos)         //
+    // ------------------------------------ //
+
+    @Getter
+    @AllArgsConstructor
+    public static class DefaultInfo implements CraftingInfo {
+        final World world;
+        final BlockPos pos;
+    }
 
 }

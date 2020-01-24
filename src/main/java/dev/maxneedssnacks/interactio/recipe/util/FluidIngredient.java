@@ -1,4 +1,4 @@
-package dev.maxneedssnacks.interactio.recipe;
+package dev.maxneedssnacks.interactio.recipe.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,7 +9,6 @@ import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
