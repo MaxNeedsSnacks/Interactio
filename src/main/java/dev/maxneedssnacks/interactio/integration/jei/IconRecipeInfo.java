@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei;
 
 import com.google.common.collect.Lists;
+import dev.maxneedssnacks.interactio.compat.CompatHoverChecker;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -8,8 +9,6 @@ import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import net.minecraftforge.fml.client.config.HoverChecker;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 public class IconRecipeInfo implements IDrawable {
 
     private final IDrawable icon;
-    private final HoverChecker hoverChecker;
+    private final CompatHoverChecker hoverChecker;
     private final List<String> tooltips;
 
     public IconRecipeInfo(IGuiHelper guiHelper, String... tooltips) {
@@ -26,7 +25,7 @@ public class IconRecipeInfo implements IDrawable {
 
     public IconRecipeInfo(IGuiHelper guiHelper, Iterable<String> tooltips) {
         this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
-        this.hoverChecker = new HoverChecker(0, 0, 0, 0, 0);
+        this.hoverChecker = new CompatHoverChecker();
         this.tooltips = Lists.newArrayList(tooltips);
     }
 
@@ -49,7 +48,7 @@ public class IconRecipeInfo implements IDrawable {
             Minecraft mc = Minecraft.getInstance();
             MainWindow window = CompatUtil.getMainWindow();
             if (window == null) return;
-            GuiUtils.drawHoveringText(ItemStack.EMPTY, tooltips, mx, my, window.getScaledWidth(), window.getScaledHeight(), -1, mc.fontRenderer);
+            CompatUtil.drawHoveringText(tooltips, mx, my, window.getScaledWidth(), window.getScaledHeight(), -1, mc.fontRenderer);
         }
     }
 

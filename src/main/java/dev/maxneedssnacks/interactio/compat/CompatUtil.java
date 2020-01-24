@@ -1,9 +1,11 @@
 package dev.maxneedssnacks.interactio.compat;
 
+import com.google.common.annotations.Beta;
 import dev.maxneedssnacks.interactio.Interactio;
 import mezz.jei.api.gui.drawable.IDrawable;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagCollection;
@@ -12,13 +14,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * This class uses means such as reflection to bridge method calls
- * between the 1.14 and 1.15 version of this mod. It is considered
- * rather volatile and may change every time a mapping updates.
+ * between the 1.14, 1.15.1 and 1.15.2+ versions of this mod. It is
+ * considered volatile and may change every time a mapping updates.
  */
+
+@Beta
 @SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
 public enum CompatUtil {
 
@@ -96,5 +101,28 @@ public enum CompatUtil {
             return Optional.empty();
         }
     }
+
+    public static void drawHoveringText(List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font) {
+        // similar to CompatHoverChecker, but we don't need a delegate
+        final Class<?> clazz;
+
+        try {
+            // version <= 1.15.1
+            if (version.startsWith("1.14") || version.matches("1\\.15(\\.1)?")) {
+                clazz = Class.forName("net.minecraftforge.fml.client.config.GuiUtils");
+            } else if (/* >= 1.15.2 */ version.startsWith("1.15")) {
+                clazz = Class.forName("net.minecraftforge.fml.client.gui.GuiUtils");
+            } else {
+                throw new RuntimeException("Unsupported version!");
+            }
+
+            clazz.getMethod("drawHoveringText", List.class, int.class, int.class, int.class, int.class, int.class, FontRenderer.class)
+                    .invoke(null, textLines, mouseX, mouseY, screenWidth, screenHeight, maxTextWidth, font);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to draw tooltip with GuiUtils!", e);
+        }
+
+    }
+
 
 }
