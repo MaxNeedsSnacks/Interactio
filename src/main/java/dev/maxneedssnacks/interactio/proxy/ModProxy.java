@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.Interactio;
+import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
 import dev.maxneedssnacks.interactio.recipe.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
@@ -21,6 +22,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.Map;
@@ -41,6 +43,7 @@ public abstract class ModProxy implements IProxy {
 
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener(this::serverAboutToStart);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -96,6 +99,10 @@ public abstract class ModProxy implements IProxy {
                                 .forEach(r -> ModRecipes.RECIPE_MAP.put(r.getType(), r));
                     }
                 });
+    }
+
+    private void serverStarting(FMLServerStartingEvent event) {
+        CommandItemInfo.register(event.getCommandDispatcher());
     }
 
     @Override
