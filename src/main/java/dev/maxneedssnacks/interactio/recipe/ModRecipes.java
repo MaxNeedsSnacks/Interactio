@@ -21,6 +21,7 @@ public final class ModRecipes {
     public static void init() {
         register(ITEM_FLUID_TRANSFORM, ItemFluidTransformRecipe.RECIPE_TYPE, ItemFluidTransformRecipe.SERIALIZER);
         register(FLUID_FLUID_TRANSFORM, FluidFluidTransformRecipe.RECIPE_TYPE, FluidFluidTransformRecipe.SERIALIZER);
+        register(ITEM_EXPLODE, ItemExplosionRecipe.RECIPE_TYPE, ItemExplosionRecipe.SERIALIZER);
     }
 
     public static void register(ResourceLocation name, IRecipeType<?> type, IRecipeSerializer<?> serializer) {

@@ -30,6 +30,8 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -239,4 +241,18 @@ public final class Utils {
     }
     // endregion network
 
+    /**
+     * NOTE: This method originally stems from the Botania mod by Vazkii, which is Open Source
+     * and distributed under the Botania License (see http://botaniamod.net/license.php)
+     * <p>
+     * Find the original Botania GitHub repository here: https://github.com/Vazkii/Botania
+     * <p>
+     * (Original class: vazkii.botania.client.integration.jei.petalapothecary.PetalApothecaryRecipeCategory, created by <williewillus>)
+     */
+    public static Point rotatePointAbout(Point in, Point about, double degrees) {
+        double rad = degrees * Math.PI / 180.0;
+        double newX = Math.cos(rad) * (in.x - about.x) - Math.sin(rad) * (in.y - about.y) + about.x;
+        double newY = Math.sin(rad) * (in.x - about.x) + Math.cos(rad) * (in.y - about.y) + about.y;
+        return new Point((int) Math.round(newX), (int) Math.round(newY));
+    }
 }

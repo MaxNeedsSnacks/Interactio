@@ -1,14 +1,12 @@
 package dev.maxneedssnacks.interactio.recipe.util;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Value;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.state.IStateHolder;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -19,13 +17,7 @@ import java.util.List;
  * @param <T> A type of input or inputs. This will be what the recipe uses during crafts.
  * @param <S> Some kind of state that will be used to check whether a craft should be performed.
  */
-public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingInfo> implements IRecipe<IInventory> {
-
-    protected final ResourceLocation id;
-
-    public InWorldRecipe(ResourceLocation id) {
-        this.id = id;
-    }
+public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingInfo> extends IRecipe<IInventory> {
 
     /**
      * {@inheritDoc}
@@ -38,7 +30,7 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
      */
     @Override
     @Deprecated
-    public final boolean matches(IInventory inv, World worldIn) {
+    default boolean matches(IInventory inv, World worldIn) {
         return true;
     }
 
@@ -50,7 +42,7 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
      * @param state  State we want to check our inputs against.
      * @return Should this in-world craft be performed?
      */
-    public abstract boolean canCraft(T inputs, S state);
+    boolean canCraft(T inputs, S state);
 
     /**
      * Attempts to perform an in-world crafting recipe with the given parameters.
@@ -62,7 +54,7 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
      *               use {@link #canCraft(T, S)} if you don't want that to happen.
      * @param info   Additional information on the craft, like the world the craft is happening in or the affected Block's position
      */
-    public abstract void craft(T inputs, U info);
+    void craft(T inputs, U info);
 
     /**
      * {@inheritDoc}
@@ -71,7 +63,7 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
      */
     @Override
     @Deprecated
-    public ItemStack getCraftingResult(@Nullable IInventory inv) {
+    default ItemStack getCraftingResult(@Nullable IInventory inv) {
         return getRecipeOutput().copy();
     }
 
@@ -82,17 +74,12 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
      */
     @Override
     @Deprecated
-    public final boolean canFit(int width, int height) {
+    default boolean canFit(int width, int height) {
         return false;
     }
 
     @Override
-    public final ResourceLocation getId() {
-        return id;
-    }
-
-    @Override
-    public final boolean isDynamic() {
+    default boolean isDynamic() {
         return true;
     }
 
@@ -101,33 +88,21 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
     //          recipe types below          //
     // ------------------------------------ //
 
-    public static abstract class ItemsInFluid extends InWorldRecipe<List<ItemEntity>, IFluidState, DefaultInfo> {
-        public ItemsInFluid(ResourceLocation id) {
-            super(id);
-        }
-
-        public abstract FluidIngredient getFluid();
+    interface ItemsInFluid extends InWorldRecipe<List<ItemEntity>, IFluidState, DefaultInfo> {
+        FluidIngredient getFluid();
     }
 
-    public static abstract class Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, IStateHolder<?>, U> {
-
-        public Stateless(ResourceLocation id) {
-            super(id);
-        }
-
+    interface Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, IStateHolder<?>, U> {
         @Override
         @Deprecated // don't use this, obviously
-        public final boolean canCraft(R inputs, IStateHolder<?> state) {
+        default boolean canCraft(R inputs, IStateHolder<?> state) {
             return canCraft(inputs);
         }
 
-        public abstract boolean canCraft(R inputs);
+        boolean canCraft(R inputs);
     }
 
-    public static abstract class Items<U extends CraftingInfo> extends Stateless<List<ItemEntity>, U> {
-        public Items(ResourceLocation id) {
-            super(id);
-        }
+    interface Items<U extends CraftingInfo> extends Stateless<List<ItemEntity>, U> {
     }
 
     // ------------------------------------ //
@@ -135,9 +110,8 @@ public abstract class InWorldRecipe<T, S extends IStateHolder<?>, U extends Craf
     //         (World and BlockPos)         //
     // ------------------------------------ //
 
-    @Getter
-    @AllArgsConstructor
-    public static class DefaultInfo implements CraftingInfo {
+    @Value
+    class DefaultInfo implements CraftingInfo {
         final World world;
         final BlockPos pos;
     }

@@ -1,9 +1,11 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import dev.maxneedssnacks.interactio.Interactio;
+import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.ModRecipes;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import mezz.jei.api.constants.VanillaTypes;
@@ -31,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTransformRecipe> {
 
-    public static final ResourceLocation UID = Interactio.id("fluid_fluid_transform");
+    public static final ResourceLocation UID = ModRecipes.FLUID_FLUID_TRANSFORM;
 
     private final IGuiHelper guiHelper;
 
@@ -99,7 +101,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluid().getMatchingStacks())));
 
         // fluid output
-        ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(recipe.getOutputFluid(), 1000));
+        ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(recipe.getResult(), 1000));
     }
 
     private final Point center = new Point(45, 52);
@@ -123,13 +125,13 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             itemStackGroup.init(i, true, point.x, point.y);
             itemStackGroup.set(i, input);
             i++;
-            point = rotatePointAbout(point, center, angleDelta);
+            point = Utils.rotatePointAbout(point, center, angleDelta);
         }
 
         fluidStackGroup.init(0, true, center.x + 1, center.y + 1);
         fluidStackGroup.set(0, fluid.get(0));
 
-        fluidStackGroup.init(1, false, width - 24 + 1, center.y + 1);
+        fluidStackGroup.init(1, false, width - 20 + 1, center.y + 1);
         fluidStackGroup.set(1, outputs.get(0));
 
     }
@@ -140,7 +142,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         CompatUtil.drawWithAlpha(overlay);
 
         guiHelper.getSlotDrawable().draw(center.x, center.y);
-        guiHelper.getSlotDrawable().draw(width - 24, center.y);
+        guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
         if (recipe.consumesItems()) {
             IconRecipeInfo info = new IconRecipeInfo(guiHelper, Collections.singletonList(
@@ -150,21 +152,6 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             info.drawTooltip((int) mouseX, (int) mouseY);
         }
 
-    }
-
-    /**
-     * NOTE: This method originally stems from the Botania mod by Vazkii, which is Open Source
-     * and distributed under the Botania License (see http://botaniamod.net/license.php)
-     * <p>
-     * Find the original Botania GitHub repository here: https://github.com/Vazkii/Botania
-     * <p>
-     * (Original class: vazkii.botania.client.integration.jei.petalapothecary.PetalApothecaryRecipeCategory, created by <williewillus>)
-     */
-    private Point rotatePointAbout(Point in, Point about, double degrees) {
-        double rad = degrees * Math.PI / 180.0;
-        double newX = Math.cos(rad) * (in.x - about.x) - Math.sin(rad) * (in.y - about.y) + about.x;
-        double newY = Math.sin(rad) * (in.x - about.x) + Math.cos(rad) * (in.y - about.y) + about.y;
-        return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
 
 }

@@ -4,7 +4,7 @@ import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
-import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.ItemExplosionRecipe;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
@@ -12,7 +12,6 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
-import mezz.jei.api.gui.ingredient.IGuiFluidStackGroup;
 import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
@@ -22,18 +21,16 @@ import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTransformRecipe> {
+public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecipe> {
 
-    public static final ResourceLocation UID = ModRecipes.ITEM_FLUID_TRANSFORM;
+    public static final ResourceLocation UID = ModRecipes.ITEM_EXPLODE;
 
     private final IGuiHelper guiHelper;
 
@@ -45,13 +42,13 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     private final int width = 160;
     private final int height = 120;
 
-    public ItemFluidTransformCategory(IGuiHelper guiHelper) {
+    public ItemExplosionCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
         background = guiHelper.createBlankDrawable(width, height);
-        overlay = guiHelper.createDrawable(Interactio.id("textures/gui/fluid_transform.png"), 0, 0, width, height);
+        overlay = guiHelper.createDrawable(Interactio.id("textures/gui/explode.png"), 0, 0, width, height);
 
-        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BUCKET));
+        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.GUNPOWDER));
     }
 
     @Override
@@ -60,14 +57,14 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     }
 
     @Override
-    public Class<ItemFluidTransformRecipe> getRecipeClass() {
-        return ItemFluidTransformRecipe.class;
+    public Class<ItemExplosionRecipe> getRecipeClass() {
+        return ItemExplosionRecipe.class;
     }
 
     @Override
     public String getTitle() {
         // FIXME: localisation
-        return "Fluid to Item Crafting";
+        return "Exploding Items";
     }
 
     @Override
@@ -81,7 +78,7 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     }
 
     @Override
-    public void setIngredients(ItemFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setIngredients(ItemExplosionRecipe recipe, IIngredients ingredients) {
 
         Object2IntMap<Ingredient> inputs = Object2IntMaps.unmodifiable(recipe.getInputs());
 
@@ -96,9 +93,6 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         // item inputs
         ingredients.setInputLists(VanillaTypes.ITEM, mappedInputs);
 
-        // fluid input
-        ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluid().getMatchingStacks())));
-
         // item output
         ingredients.setOutput(VanillaTypes.ITEM, recipe.getRecipeOutput());
     }
@@ -106,20 +100,21 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     private final Point center = new Point(45, 52);
 
     @Override
-    public void setRecipe(IRecipeLayout layout, ItemFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayout layout, ItemExplosionRecipe recipe, IIngredients ingredients) {
 
         List<List<ItemStack>> inputs = ingredients.getInputs(VanillaTypes.ITEM);
-        List<List<FluidStack>> fluid = ingredients.getInputs(VanillaTypes.FLUID);
         List<List<ItemStack>> outputs = ingredients.getOutputs(VanillaTypes.ITEM);
 
         IGuiItemStackGroup itemStackGroup = layout.getItemStacks();
-        IGuiFluidStackGroup fluidStackGroup = layout.getFluidStacks();
 
         double angleDelta = 360.0 / inputs.size();
 
         Point point = new Point(center.x, 8);
 
-        int i = 0;
+        itemStackGroup.init(0, true, center.x, center.y);
+        itemStackGroup.set(0, new ItemStack(Items.TNT));
+
+        int i = 1;
         for (List<ItemStack> input : inputs) {
             itemStackGroup.init(i, true, point.x, point.y);
             itemStackGroup.set(i, input);
@@ -130,23 +125,20 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         itemStackGroup.init(++i, false, width - 20, center.y);
         itemStackGroup.set(i, outputs.get(0));
 
-        fluidStackGroup.init(0, true, center.x + 1, center.y + 1);
-        fluidStackGroup.set(0, fluid.get(0));
-
     }
 
     @Override
-    public void draw(ItemFluidTransformRecipe recipe, double mouseX, double mouseY) {
+    public void draw(ItemExplosionRecipe recipe, double mouseX, double mouseY) {
 
         CompatUtil.drawWithAlpha(overlay);
 
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
-        if (recipe.consumeChance() > 0) {
+        if (recipe.getChance() < 1) {
             IconRecipeInfo info = new IconRecipeInfo(guiHelper,
-                    TextFormatting.UNDERLINE + "May consume Fluid",
-                    "Consumption Chance: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.consumeChance() * 100.0)
+                    TextFormatting.UNDERLINE + "Recipe might fail",
+                    "Chance of Success: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.getChance() * 100.0)
             );
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);

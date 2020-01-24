@@ -7,6 +7,7 @@ import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import lombok.Value;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;
@@ -29,7 +30,8 @@ import java.util.Random;
 
 import static dev.maxneedssnacks.interactio.Utils.*;
 
-public class FluidFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
+@Value
+public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
 
     public static final IRecipeType<FluidFluidTransformRecipe> RECIPE_TYPE = new IRecipeType<FluidFluidTransformRecipe>() {
         @Override
@@ -40,18 +42,12 @@ public class FluidFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    private final Fluid result;
-    private final Object2IntLinkedOpenHashMap<Ingredient> items;
-    private final FluidIngredient input;
-    private final boolean consumeItems;
+    ResourceLocation id;
 
-    public FluidFluidTransformRecipe(ResourceLocation id, Fluid result, FluidIngredient input, Object2IntLinkedOpenHashMap<Ingredient> items, boolean consumeItems) {
-        super(id);
-        this.result = result;
-        this.input = input;
-        this.items = items;
-        this.consumeItems = consumeItems;
-    }
+    Fluid result;
+    FluidIngredient input;
+    Object2IntLinkedOpenHashMap<Ingredient> items;
+    boolean consumeItems;
 
     @Override
     public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
@@ -111,10 +107,6 @@ public class FluidFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
         return NonNullList.from(Ingredient.EMPTY, items.keySet().toArray(new Ingredient[0]));
     }
 
-    public Object2IntLinkedOpenHashMap<Ingredient> getItems() {
-        return items;
-    }
-
     public boolean consumesItems() {
         return consumeItems;
     }
@@ -122,10 +114,6 @@ public class FluidFluidTransformRecipe extends InWorldRecipe.ItemsInFluid {
     @Override
     public FluidIngredient getFluid() {
         return input;
-    }
-
-    public Fluid getOutputFluid() {
-        return result;
     }
 
     @Override

@@ -1,15 +1,14 @@
 package dev.maxneedssnacks.interactio.recipe;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
+import dev.maxneedssnacks.interactio.recipe.util.CraftingInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import lombok.Value;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
@@ -19,7 +18,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -30,12 +30,12 @@ import java.util.Random;
 import static dev.maxneedssnacks.interactio.Utils.*;
 
 @Value
-public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
+public final class ItemExplosionRecipe implements InWorldRecipe.Items<ItemExplosionRecipe.ExplosionInfo> {
 
     public static final IRecipeType<ItemFluidTransformRecipe> RECIPE_TYPE = new IRecipeType<ItemFluidTransformRecipe>() {
         @Override
         public String toString() {
-            return ModRecipes.ITEM_FLUID_TRANSFORM.toString();
+            return ModRecipes.ITEM_EXPLODE.toString();
         }
     };
 
@@ -44,35 +44,29 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
     ResourceLocation id;
 
     ItemStack result;
-    FluidIngredient fluid;
     Object2IntLinkedOpenHashMap<Ingredient> inputs;
-    double consume;
+    double chance;
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
-
-        if (!fluid.test(state.getFluid())) return false;
-        if (consume > 0 && !state.isSource()) return false;
-
+    public boolean canCraft(List<ItemEntity> entities) {
         return compareStacks(entities, inputs);
     }
 
     @Override
-    public void craft(List<ItemEntity> entities, DefaultInfo info) {
-
+    public void craft(List<ItemEntity> entities, ExplosionInfo info) {
+        Explosion explosion = info.getExplosion();
         World world = info.getWorld();
-        BlockPos pos = info.getPos();
-
-        if (!canCraft(entities, world.getFluidState(pos))) {
-            throw new IllegalStateException("Attempted to perform illegal craft on item fluid transform recipe!");
-        }
 
         Object2IntLinkedOpenHashMap<ItemEntity> used = new Object2IntLinkedOpenHashMap<>();
 
-        if (compareStacks(entities, used, inputs)) {
+        List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(entities);
 
+        int spawnAmt = 0;
+
+        while (compareStacks(loopingEntities, used, inputs)) {
             // shrink and update items
             used.forEach((entity, count) -> {
+                entity.setInvulnerable(true);
                 entity.setInfinitePickupDelay();
 
                 ItemStack item = entity.getItem().copy();
@@ -87,42 +81,45 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
                 entity.setDefaultPickupDelay();
             });
 
-            // consume block if set
-            if (world.rand.nextDouble() < consume) {
-                world.setBlockState(pos, Blocks.AIR.getDefaultState());
+            // only actually craft the item if the recipe is successful
+            if (chance == 1 || world.rand.nextDouble() < chance) {
+                spawnAmt += result.getCount();
             }
 
-            // spawn recipe output as item entity
-            Random rand = world.rand;
+            loopingEntities.removeIf(e -> !e.isAlive());
+            used.clear();
+        }
+
+        Random rand = world.rand;
+        Vec3d pos = explosion.getPosition();
+
+        while (spawnAmt > 0) {
+            int c = Math.min(spawnAmt, 64);
+
+            ItemStack stack = result.copy();
+            stack.setCount(c);
+
             double x = pos.getX() + randomBetween(0.25, 0.75, rand);
             double y = pos.getY() + randomBetween(0.5, 1, rand);
             double z = pos.getZ() + randomBetween(0.25, 0.75, rand);
 
-            double vel = randomBetween(0.1, 0.25, rand);
-
-            ItemEntity newItem = new ItemEntity(world, x, y, z, getRecipeOutput());
-            newItem.setVelocity(0, vel, 0);
+            ItemEntity newItem = new ItemEntity(world, x, y, z, stack);
             newItem.setPickupDelay(20);
             world.addEntity(newItem);
 
-            // spawn fancy(TM) particles
             sendParticlePacket(world, newItem);
+
+            spawnAmt -= c;
         }
+
+        // set any leftover entities to be vulnerable again
+        loopingEntities.forEach(e -> e.setInvulnerable(false));
 
     }
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
         return NonNullList.from(Ingredient.EMPTY, inputs.keySet().toArray(new Ingredient[0]));
-    }
-
-    public double consumeChance() {
-        return consume;
-    }
-
-    @Override
-    public FluidIngredient getFluid() {
-        return fluid;
     }
 
     @Override
@@ -140,13 +137,10 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
         return RECIPE_TYPE;
     }
 
-    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemFluidTransformRecipe> {
+    public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemExplosionRecipe> {
         @Override
-        public ItemFluidTransformRecipe read(ResourceLocation recipeId, JsonObject json) {
-
+        public ItemExplosionRecipe read(ResourceLocation id, JsonObject json) {
             ItemStack result = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result"));
-
-            FluidIngredient fluid = FluidIngredient.deserialize(json.get("fluid"));
 
             Object2IntLinkedOpenHashMap<Ingredient> inputs = new Object2IntLinkedOpenHashMap<>();
             JSONUtils.getJsonArray(json, "inputs").forEach(input -> {
@@ -160,17 +154,15 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
                 throw new JsonParseException("No valid inputs specified for item fluid transform recipe!");
             }
 
-            double consume = Utils.parseChance(json, "consume");
+            double chance = Utils.parseChance(json, "chance", 1);
 
-            return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
+            return new ItemExplosionRecipe(id, result, inputs, chance);
         }
 
         @Nullable
         @Override
-        public ItemFluidTransformRecipe read(ResourceLocation recipeId, PacketBuffer buffer) {
-
+        public ItemExplosionRecipe read(ResourceLocation id, PacketBuffer buffer) {
             ItemStack result = buffer.readItemStack();
-            FluidIngredient fluid = FluidIngredient.read(buffer);
 
             Object2IntLinkedOpenHashMap<Ingredient> inputs = new Object2IntLinkedOpenHashMap<>();
             int ingrCount = buffer.readVarInt();
@@ -180,17 +172,14 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
                 inputs.put(ingredient, count);
             }
 
-            double consume = buffer.readDouble();
+            double chance = buffer.readDouble();
 
-            return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
+            return new ItemExplosionRecipe(id, result, inputs, chance);
         }
 
         @Override
-        public void write(PacketBuffer buffer, ItemFluidTransformRecipe recipe) {
-
+        public void write(PacketBuffer buffer, ItemExplosionRecipe recipe) {
             buffer.writeItemStack(recipe.result);
-
-            recipe.fluid.write(buffer);
 
             buffer.writeVarInt(recipe.inputs.size());
             recipe.inputs.forEach(((ingredient, count) -> {
@@ -198,9 +187,14 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
                 buffer.writeVarInt(count);
             }));
 
-            buffer.writeDouble(recipe.consume);
+            buffer.writeDouble(recipe.chance);
 
         }
     }
 
+    @Value
+    public static class ExplosionInfo implements CraftingInfo {
+        World world;
+        Explosion explosion;
+    }
 }

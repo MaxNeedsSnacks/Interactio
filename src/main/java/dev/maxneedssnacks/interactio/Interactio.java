@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio;
 
 import dev.maxneedssnacks.interactio.event.DroppedItemHandler;
+import dev.maxneedssnacks.interactio.event.ExplosionHandler;
 import dev.maxneedssnacks.interactio.proxy.IProxy;
 import dev.maxneedssnacks.interactio.proxy.ModProxy;
 import net.minecraft.util.ResourceLocation;
@@ -38,6 +39,7 @@ public class Interactio {
         NETWORK = NetworkRegistry.newSimpleChannel(id("particles"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
         // static event handlers
+        MinecraftForge.EVENT_BUS.register(ExplosionHandler.class);
 
         // non-static event handlers
         MinecraftForge.EVENT_BUS.register(new DroppedItemHandler());
