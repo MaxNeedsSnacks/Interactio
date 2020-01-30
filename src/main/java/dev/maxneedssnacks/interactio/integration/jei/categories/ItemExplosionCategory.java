@@ -111,10 +111,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
         Point point = new Point(center.x, 8);
 
-        itemStackGroup.init(0, true, center.x, center.y);
-        itemStackGroup.set(0, new ItemStack(Items.TNT));
-
-        int i = 1;
+        int i = 0;
         for (List<ItemStack> input : inputs) {
             itemStackGroup.init(i, true, point.x, point.y);
             itemStackGroup.set(i, input);
@@ -132,7 +129,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
         CompatUtil.drawWithAlpha(overlay);
 
-        guiHelper.getSlotDrawable().draw(center.x, center.y);
+        guiHelper.createDrawableIngredient(new ItemStack(Items.TNT)).draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
         if (recipe.getChance() < 1) {

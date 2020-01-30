@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * @param <T> A type of input or inputs. This will be what the recipe uses during crafts.
  * @param <S> Some kind of state that will be used to check whether a craft should be performed.
+ * @param <U> A recipe info wrapper that will be used to provide information to {@link #craft(T, U)}
  */
 public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingInfo> extends IRecipe<IInventory> {
 
@@ -102,7 +103,7 @@ public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingI
         boolean canCraft(R inputs);
     }
 
-    interface Items<U extends CraftingInfo> extends Stateless<List<ItemEntity>, U> {
+    interface ItemsStateless<U extends CraftingInfo> extends Stateless<List<ItemEntity>, U> {
     }
 
     // ------------------------------------ //

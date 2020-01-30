@@ -23,8 +23,16 @@ public class IconRecipeInfo implements IDrawable {
         this(guiHelper, Arrays.asList(tooltips));
     }
 
+    public IconRecipeInfo(ItemStack stack, IGuiHelper guiHelper, String... tooltips) {
+        this(stack, guiHelper, Arrays.asList(tooltips));
+    }
+
     public IconRecipeInfo(IGuiHelper guiHelper, Iterable<String> tooltips) {
-        this.icon = guiHelper.createDrawableIngredient(new ItemStack(Items.MOJANG_BANNER_PATTERN));
+        this(new ItemStack(Items.MOJANG_BANNER_PATTERN), guiHelper, tooltips);
+    }
+
+    public IconRecipeInfo(ItemStack stack, IGuiHelper guiHelper, Iterable<String> tooltips) {
+        this.icon = guiHelper.createDrawableIngredient(stack);
         this.hoverChecker = new CompatHoverChecker();
         this.tooltips = Lists.newArrayList(tooltips);
     }

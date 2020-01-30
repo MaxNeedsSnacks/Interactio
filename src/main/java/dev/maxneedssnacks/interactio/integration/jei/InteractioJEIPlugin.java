@@ -2,9 +2,11 @@ package dev.maxneedssnacks.interactio.integration.jei;
 
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.integration.jei.categories.BlockExplosionCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.FluidFluidTransformCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.ItemExplosionCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.ItemFluidTransformCategory;
+import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.ItemExplosionRecipe;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
@@ -42,7 +44,8 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipeCategories(
                 new ItemFluidTransformCategory(guiHelper),
                 new FluidFluidTransformCategory(guiHelper),
-                new ItemExplosionCategory(guiHelper)
+                new ItemExplosionCategory(guiHelper),
+                new BlockExplosionCategory(guiHelper)
         );
     }
 
@@ -51,6 +54,7 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipes(getRecipes(ItemFluidTransformRecipe.class), ItemFluidTransformCategory.UID);
         registration.addRecipes(getRecipes(FluidFluidTransformRecipe.class), FluidFluidTransformCategory.UID);
         registration.addRecipes(getRecipes(ItemExplosionRecipe.class), ItemExplosionCategory.UID);
+        registration.addRecipes(getRecipes(BlockExplosionRecipe.class), BlockExplosionCategory.UID);
     }
 
     private static <T extends InWorldRecipe<?, ?, ?>> List<T> getRecipes(Class<T> clz) {

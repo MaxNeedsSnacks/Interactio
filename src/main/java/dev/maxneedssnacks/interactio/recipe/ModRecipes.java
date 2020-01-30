@@ -14,6 +14,7 @@ public final class ModRecipes {
     public static final ResourceLocation FLUID_FLUID_TRANSFORM = Interactio.id("fluid_fluid_transform");
     public static final ResourceLocation ITEM_FLUID_TRANSFORM = Interactio.id("item_fluid_transform");
     public static final ResourceLocation ITEM_EXPLODE = Interactio.id("item_explode");
+    public static final ResourceLocation BLOCK_EXPLODE = Interactio.id("block_explode");
 
     public static Ingredient ANY_VALID = Ingredient.EMPTY;
     public static ArrayListMultimap<IRecipeType<?>, InWorldRecipe<?, ?, ?>> RECIPE_MAP = ArrayListMultimap.create();
@@ -22,6 +23,7 @@ public final class ModRecipes {
         register(ITEM_FLUID_TRANSFORM, ItemFluidTransformRecipe.RECIPE_TYPE, ItemFluidTransformRecipe.SERIALIZER);
         register(FLUID_FLUID_TRANSFORM, FluidFluidTransformRecipe.RECIPE_TYPE, FluidFluidTransformRecipe.SERIALIZER);
         register(ITEM_EXPLODE, ItemExplosionRecipe.RECIPE_TYPE, ItemExplosionRecipe.SERIALIZER);
+        register(BLOCK_EXPLODE, BlockExplosionRecipe.RECIPE_TYPE, BlockExplosionRecipe.SERIALIZER);
     }
 
     public static void register(ResourceLocation name, IRecipeType<?> type, IRecipeSerializer<?> serializer) {

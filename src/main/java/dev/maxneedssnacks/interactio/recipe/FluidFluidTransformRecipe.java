@@ -62,7 +62,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
         BlockPos pos = info.getPos();
 
         if (!canCraft(entities, world.getFluidState(pos))) {
-            throw new IllegalStateException("Attempted to perform illegal craft on input input transform recipe!");
+            throw new IllegalStateException("Attempted to perform illegal craft on fluid transform recipe!");
         }
 
         Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
@@ -148,7 +148,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
                 }
             });
             if (items.isEmpty()) {
-                throw new JsonParseException("No valid items specified for input input transform recipe!");
+                throw new JsonParseException("No valid items specified for fluid transform recipe!");
             }
 
             boolean consumeItems = JSONUtils.getBoolean(json, "consume_items", false);

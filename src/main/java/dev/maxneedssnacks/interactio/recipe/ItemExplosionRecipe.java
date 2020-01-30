@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.recipe.util.CraftingInfo;
+import dev.maxneedssnacks.interactio.event.ExplosionHandler.ExplosionInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import lombok.Value;
@@ -30,9 +30,9 @@ import java.util.Random;
 import static dev.maxneedssnacks.interactio.Utils.*;
 
 @Value
-public final class ItemExplosionRecipe implements InWorldRecipe.Items<ItemExplosionRecipe.ExplosionInfo> {
+public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
 
-    public static final IRecipeType<ItemFluidTransformRecipe> RECIPE_TYPE = new IRecipeType<ItemFluidTransformRecipe>() {
+    public static final IRecipeType<ItemExplosionRecipe> RECIPE_TYPE = new IRecipeType<ItemExplosionRecipe>() {
         @Override
         public String toString() {
             return ModRecipes.ITEM_EXPLODE.toString();
@@ -151,7 +151,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.Items<ItemExplos
                 }
             });
             if (inputs.isEmpty()) {
-                throw new JsonParseException("No valid inputs specified for item fluid transform recipe!");
+                throw new JsonParseException("No valid inputs specified for item explosion recipe!");
             }
 
             double chance = Utils.parseChance(json, "chance", 1);
@@ -192,9 +192,4 @@ public final class ItemExplosionRecipe implements InWorldRecipe.Items<ItemExplos
         }
     }
 
-    @Value
-    public static class ExplosionInfo implements CraftingInfo {
-        World world;
-        Explosion explosion;
-    }
 }
