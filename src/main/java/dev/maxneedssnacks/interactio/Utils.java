@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
@@ -32,14 +31,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toMap;
 
 public final class Utils {
 
@@ -72,45 +68,6 @@ public final class Utils {
     public static Optional<Fluid> parseFluid(ResourceLocation id) {
         return Optional.ofNullable(ForgeRegistries.FLUIDS.getValue(id));
     }
-
-    // region entityconverters
-    public static ObjectArrayList<ItemStack> entitiesToItemList(Collection<ItemEntity> entities) {
-        return mapEntitiesToItems(entities)
-                .collect(Collectors.toCollection(ObjectArrayList::new));
-    }
-
-    public static ObjectArrayList<ItemStack> copyEntitiesToItemList(Collection<ItemEntity> entities) {
-        return mapEntitiesToItems(entities)
-                .map(ItemStack::copy)
-                .collect(Collectors.toCollection(ObjectArrayList::new));
-    }
-
-    public static Object2IntOpenHashMap<ItemStack> entitiesToItemMap(Collection<ItemEntity> entities) {
-        return mapEntitiesToItems(entities)
-                .collect(collectingAndThen(
-                        toMap(Function.identity(), ItemStack::getCount, Integer::sum, Object2IntOpenHashMap::new),
-                        (m -> {
-                            m.keySet().forEach(s -> s.setCount(1));
-                            return m;
-                        })));
-    }
-
-    public static Object2IntOpenHashMap<ItemStack> copyEntitiesToItemMap(Collection<ItemEntity> entities) {
-        return mapEntitiesToItems(entities)
-                .collect(collectingAndThen(
-                        toMap(ItemStack::copy, ItemStack::getCount, Integer::sum, Object2IntOpenHashMap::new),
-                        (m -> {
-                            m.keySet().forEach(s -> s.setCount(1));
-                            return m;
-                        })));
-    }
-
-    private static Stream<ItemStack> mapEntitiesToItems(Collection<ItemEntity> entities) {
-        return entities.parallelStream()
-                .filter(Objects::nonNull)
-                .map(ItemEntity::getItem);
-    }
-    // endregion entityconverters
 
     // region recipe
     public static boolean compareStacks(List<ItemEntity> entities, Object2IntLinkedOpenHashMap<Ingredient> ingredients) {
@@ -163,14 +120,6 @@ public final class Utils {
         }
     }
     //endregion recipe
-
-    public static double randomBetween(double origin, double bound, Random rand) {
-        return origin + (bound - origin) * rand.nextDouble();
-    }
-
-    public static int randomBetween(int origin, int bound, Random rand) {
-        return rand.nextInt(bound + origin) - origin;
-    }
 
     // region network
     // TODO: add custom particle support for datapacks

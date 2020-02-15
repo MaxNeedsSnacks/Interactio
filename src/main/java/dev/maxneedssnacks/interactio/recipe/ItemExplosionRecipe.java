@@ -18,6 +18,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
@@ -27,7 +28,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-import static dev.maxneedssnacks.interactio.Utils.*;
+import static dev.maxneedssnacks.interactio.Utils.compareStacks;
+import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
 
 @Value
 public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
@@ -99,9 +101,9 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
             ItemStack stack = result.copy();
             stack.setCount(c);
 
-            double x = pos.getX() + randomBetween(0.25, 0.75, rand);
-            double y = pos.getY() + randomBetween(0.5, 1, rand);
-            double z = pos.getZ() + randomBetween(0.25, 0.75, rand);
+            double x = pos.getX() + MathHelper.nextDouble(rand, 0.25, 0.75);
+            double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
+            double z = pos.getZ() + MathHelper.nextDouble(rand, 0.25, 0.75);
 
             ItemEntity newItem = new ItemEntity(world, x, y, z, stack);
             newItem.setPickupDelay(20);

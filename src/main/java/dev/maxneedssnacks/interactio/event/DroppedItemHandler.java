@@ -33,21 +33,19 @@ public class DroppedItemHandler {
         // item fluid transform
         matchers.add((items, world, pos) -> {
             getInWorldRecipeStream(ItemFluidTransformRecipe.class)
-                    .ifPresent(stream -> {
-                        stream.filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
-                                .findFirst()
-                                .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
-                    });
+                    .flatMap(stream -> stream
+                            .filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
+                            .findFirst())
+                    .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
         });
 
         // fluid fluid transform
         matchers.add((items, world, pos) -> {
             getInWorldRecipeStream(FluidFluidTransformRecipe.class)
-                    .ifPresent(stream -> {
-                        stream.filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
-                                .findFirst()
-                                .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
-                    });
+                    .flatMap(stream -> stream
+                            .filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
+                            .findFirst())
+                    .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
         });
 
     }

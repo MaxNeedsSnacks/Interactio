@@ -13,6 +13,7 @@ buildscript {
 
 plugins {
     id 'io.franzbecker.gradle-lombok' version '2.0'
+    id "com.wynprice.cursemaven" version "2.1.1"
 
     id 'maven-publish'
 }
@@ -28,8 +29,10 @@ lombok {
 group = "${groupid}.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Interactio'
 
-def buildNo = "1.2.0";
-version = "${mc_ver}-${buildNo}";
+def test_mods = true
+
+def buildNo = "1.2.0"
+version = "${mc_ver}-${buildNo}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
@@ -106,6 +109,11 @@ dependencies {
         compileOnly fg.deobf("mezz.jei:jei-${mc_ver}:${jei_version}:api")
         // at runtime, use the full JEI jar
         runtimeOnly fg.deobf("mezz.jei:jei-${mc_ver}:${jei_version}")
+    }
+
+    if (test_mods) {
+        runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
+        runtimeOnly fg.deobf("curse.maven:titanium:2873789")
     }
 
 }

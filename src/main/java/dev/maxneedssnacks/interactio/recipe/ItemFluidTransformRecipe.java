@@ -20,6 +20,7 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -27,7 +28,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-import static dev.maxneedssnacks.interactio.Utils.*;
+import static dev.maxneedssnacks.interactio.Utils.compareStacks;
+import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
 
 @Value
 public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
@@ -94,11 +96,11 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
             // spawn recipe output as item entity
             Random rand = world.rand;
-            double x = pos.getX() + randomBetween(0.25, 0.75, rand);
-            double y = pos.getY() + randomBetween(0.5, 1, rand);
-            double z = pos.getZ() + randomBetween(0.25, 0.75, rand);
+            double x = pos.getX() + MathHelper.nextDouble(rand, 0.25, 0.75);
+            double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
+            double z = pos.getZ() + MathHelper.nextDouble(rand, 0.25, 0.75);
 
-            double vel = randomBetween(0.1, 0.25, rand);
+            double vel = MathHelper.nextDouble(rand, 0.1, 0.25);
 
             ItemEntity newItem = new ItemEntity(world, x, y, z, getRecipeOutput());
             newItem.setVelocity(0, vel, 0);

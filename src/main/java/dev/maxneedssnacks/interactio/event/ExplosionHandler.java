@@ -46,7 +46,9 @@ public class ExplosionHandler {
             BlockState state = event.getWorld().getBlockState(pos);
             if (state.getBlock().equals(Blocks.AIR)) return;
             Utils.getInWorldRecipeStream(BlockExplosionRecipe.class)
-                    .flatMap(recipes -> recipes.filter(recipe -> recipe.canCraft(pos, state)).findFirst())
+                    .flatMap(stream -> stream
+                            .filter(recipe -> recipe.canCraft(pos, state))
+                            .findFirst())
                     .ifPresent(recipe -> recipe.craft(pos, new ExplosionInfo(event.getWorld(), event.getExplosion())));
         });
 

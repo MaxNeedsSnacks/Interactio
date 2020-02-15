@@ -5,7 +5,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
@@ -21,7 +20,7 @@ public class CommandItemInfo {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
 
         // only register this if no other item_info command exists
-        if(dispatcher.findNode(Collections.singletonList("item_info")) != null) return;
+        if (dispatcher.findNode(Collections.singletonList("item_info")) != null) return;
 
         dispatcher.register(Commands.literal("item_info")
                 .executes(context -> printItem(context.getSource().asPlayer()))
@@ -35,8 +34,6 @@ public class CommandItemInfo {
                 .appendSibling(stack.getDisplayName())
                 .appendText(" --").applyTextStyle(TextFormatting.GREEN)
         );
-
-        ;
 
         player.sendMessage(new StringTextComponent("- ID: ").applyTextStyle(TextFormatting.YELLOW)
                 .appendText(Objects.toString(stack.getItem().getRegistryName())));

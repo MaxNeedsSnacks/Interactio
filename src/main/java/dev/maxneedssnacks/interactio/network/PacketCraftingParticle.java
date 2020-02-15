@@ -6,6 +6,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkEvent.Context;
@@ -93,7 +94,7 @@ public class PacketCraftingParticle {
                     world.addParticle(
                             particle,
                             msg.x - dx,
-                            msg.y + Utils.randomBetween(0, 1 - dy, rand),
+                            msg.y + MathHelper.nextDouble(rand, 0, 1 - dy),
                             msg.z - dz,
                             dx,
                             dy,

@@ -96,7 +96,7 @@ public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingI
     interface Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, IStateHolder<?>, U> {
         @Override
         @Deprecated // don't use this, obviously
-        default boolean canCraft(R inputs, IStateHolder<?> state) {
+        default boolean canCraft(R inputs, @Nullable IStateHolder<?> state) {
             return canCraft(inputs);
         }
 

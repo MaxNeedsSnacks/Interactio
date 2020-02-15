@@ -1,11 +1,10 @@
 package dev.maxneedssnacks.interactio.proxy;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
+import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
 import dev.maxneedssnacks.interactio.recipe.ModRecipes;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
@@ -16,18 +15,17 @@ import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class ModProxy implements IProxy {
 
@@ -61,48 +59,32 @@ public abstract class ModProxy implements IProxy {
         server.getResourceManager().addReloadListener(
                 new JsonReloadListener(new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create(), "recipes") {
                     @Override
-                    protected void apply(Map<ResourceLocation, JsonObject> splashList, IResourceManager resourceManagerIn, IProfiler profilerIn) {
-                        Set<Ingredient> allInputs = Sets.newHashSet();
-
-                        Map<ResourceLocation, JsonObject> filtered = Maps.filterKeys(splashList, (loc) -> loc != null && Interactio.MOD_ID.equals(loc.getNamespace()));
-
-                        filtered.forEach((loc, json) -> {
-                            try {
-                                if (CraftingHelper.processConditions(json, "conditions")) {
-                                    IRecipe<?> recipe = RecipeManager.deserializeRecipe(loc, json);
-                                    allInputs.addAll(recipe.getIngredients());
-                                }
-                            } catch (Exception e) {
-                                Interactio.LOGGER.debug("Exception caught while reloading datapacks: ", e);
-                            }
-                        });
-
-                        ModRecipes.ANY_VALID = Ingredient.merge(allInputs);
-
-                        /*
-                            ModRecipes.RECIPE_MAP = server.getRecipeManager()
-                                    .getRecipes()
-                                    .parallelStream()
-                                    .filter(Objects::nonNull)
-                                    .filter(InWorldRecipe.class::isInstance)
-                                    .map(InWorldRecipe.class::cast)
-                                    .collect(Multimaps.toMultimap(IRecipe::getType, Function.identity(), ArrayListMultimap::create));
-                        */
+                    protected void apply(Map<ResourceLocation, JsonObject> _0, IResourceManager _1, IProfiler _2) {
 
                         ModRecipes.RECIPE_MAP.clear();
 
                         server.getRecipeManager().getRecipes()
                                 .parallelStream()
-                                .filter(Objects::nonNull)
                                 .filter(InWorldRecipe.class::isInstance)
                                 .map(r -> (InWorldRecipe<?, ?, ?>) r)
                                 .forEach(r -> ModRecipes.RECIPE_MAP.put(r.getType(), r));
+
+                        ModRecipes.ANY_VALID = Ingredient.merge(
+                                ModRecipes.RECIPE_MAP
+                                        .values()
+                                        .parallelStream()
+                                        .map(IRecipe::getIngredients)
+                                        .flatMap(NonNullList::stream)
+                                        .collect(Collectors.toSet())
+                        );
+
                     }
                 });
     }
 
     private void serverStarting(FMLServerStartingEvent event) {
         CommandItemInfo.register(event.getCommandDispatcher());
+        CommandRegistryDump.register(event.getCommandDispatcher());
     }
 
     @Override
