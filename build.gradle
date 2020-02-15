@@ -112,8 +112,21 @@ dependencies {
     }
 
     if (test_mods) {
-        runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
-        runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+        if (mc_ver.startsWith("1.15")) {
+            runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
+            runtimeOnly fg.deobf("curse.maven:silentlib:2851111")
+
+            runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
+            runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+        } else {
+            runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875004")
+            runtimeOnly fg.deobf("curse.maven:silentlib:2783899")
+
+            runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2843466")
+            runtimeOnly fg.deobf("curse.maven:titanium:2843374")
+
+            runtimeOnly fg.deobf("curse.maven:ultimate-car-mod:2882148")
+        }
     }
 
 }
