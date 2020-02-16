@@ -87,7 +87,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
                 Arrays.stream(input.getIngredient()
                         .getMatchingStacks())
                         .map(ItemStack::copy)
-                        .peek(i -> i.setCount(i.getCount() * input.getCount()))
+                        .peek(i -> i.setCount(input.getCount()))
                         .collect(Collectors.toList())));
 
         // item inputs

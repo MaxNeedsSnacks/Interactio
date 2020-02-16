@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.recipe.util;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
@@ -60,12 +61,24 @@ public class IngredientStack {
 
     public static IngredientStack deserialize(@Nullable JsonElement json) {
         if (json != null && !json.isJsonNull()) {
-            Ingredient ingredient = Ingredient.deserialize(json);
-            int count = JSONUtils.getInt(json.getAsJsonObject(), "count", 1);
-            return new IngredientStack(ingredient, count);
+
+            if (json.isJsonObject()) {
+                JsonObject obj = json.getAsJsonObject();
+
+                Ingredient ingredient = obj.has("ingredient") ? Ingredient.deserialize(obj.get("ingredient")) : Ingredient.deserialize(obj);
+                int count = JSONUtils.getInt(obj, "count", 1);
+
+                return new IngredientStack(ingredient, count);
+            } else {
+                Ingredient ingredient = Ingredient.deserialize(json);
+
+                return new IngredientStack(ingredient, 1);
+            }
+
         } else {
             throw new JsonSyntaxException("Ingredient stack cannot be null!");
         }
+
     }
 
     public static IngredientStack read(PacketBuffer buffer) {
