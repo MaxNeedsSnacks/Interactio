@@ -7,7 +7,9 @@ import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.event.ExplosionHandler.ExplosionInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Value;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -26,6 +28,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -40,7 +43,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
     ResourceLocation id;
 
     ItemStack result;
-    Object2IntLinkedOpenHashMap<Ingredient> inputs;
+    List<IngredientStack> inputs;
     double chance;
 
     @Override
@@ -53,7 +56,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
         Explosion explosion = info.getExplosion();
         World world = info.getWorld();
 
-        Object2IntLinkedOpenHashMap<ItemEntity> used = new Object2IntLinkedOpenHashMap<>();
+        Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
 
         List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(entities);
 
@@ -115,7 +118,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
-        return NonNullList.from(Ingredient.EMPTY, inputs.keySet().toArray(new Ingredient[0]));
+        return NonNullList.from(Ingredient.EMPTY, inputs.stream().map(IngredientStack::getIngredient).toArray(Ingredient[]::new));
     }
 
     @Override
@@ -138,12 +141,11 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
         public ItemExplosionRecipe read(ResourceLocation id, JsonObject json) {
             ItemStack result = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result"));
 
-            Object2IntLinkedOpenHashMap<Ingredient> inputs = new Object2IntLinkedOpenHashMap<>();
+            List<IngredientStack> inputs = new ArrayList<>();
             JSONUtils.getJsonArray(json, "inputs").forEach(input -> {
-                Ingredient ingredient = Ingredient.deserialize(input);
-                int count = JSONUtils.getInt(input.getAsJsonObject(), "count", 1);
-                if (!ingredient.hasNoMatchingItems()) {
-                    inputs.put(ingredient, count);
+                IngredientStack stack = IngredientStack.deserialize(input);
+                if (!stack.getIngredient().hasNoMatchingItems()) {
+                    inputs.add(stack);
                 }
             });
             if (inputs.isEmpty()) {
@@ -160,12 +162,11 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
         public ItemExplosionRecipe read(ResourceLocation id, PacketBuffer buffer) {
             ItemStack result = buffer.readItemStack();
 
-            Object2IntLinkedOpenHashMap<Ingredient> inputs = new Object2IntLinkedOpenHashMap<>();
+            List<IngredientStack> inputs = new ArrayList<>();
             int ingrCount = buffer.readVarInt();
             for (int i = 0; i < ingrCount; ++i) {
-                Ingredient ingredient = Ingredient.read(buffer);
-                int count = buffer.readVarInt();
-                inputs.put(ingredient, count);
+                IngredientStack stack = IngredientStack.read(buffer);
+                inputs.add(stack);
             }
 
             double chance = buffer.readDouble();
@@ -178,10 +179,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
             buffer.writeItemStack(recipe.result);
 
             buffer.writeVarInt(recipe.inputs.size());
-            recipe.inputs.forEach(((ingredient, count) -> {
-                ingredient.write(buffer);
-                buffer.writeVarInt(count);
-            }));
+            recipe.inputs.forEach(item -> item.write(buffer));
 
             buffer.writeDouble(recipe.chance);
 

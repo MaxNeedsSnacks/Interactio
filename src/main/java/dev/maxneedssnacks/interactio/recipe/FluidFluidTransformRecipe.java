@@ -5,7 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Value;
@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -41,7 +42,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
     Fluid result;
     FluidIngredient input;
-    Object2IntLinkedOpenHashMap<Ingredient> items;
+    List<IngredientStack> items;
     boolean consumeItems;
 
     @Override
@@ -99,7 +100,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
-        return NonNullList.from(Ingredient.EMPTY, items.keySet().toArray(new Ingredient[0]));
+        return NonNullList.from(Ingredient.EMPTY, items.stream().map(IngredientStack::getIngredient).toArray(Ingredient[]::new));
     }
 
     public boolean consumesItems() {
@@ -134,12 +135,11 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
             FluidIngredient input = FluidIngredient.deserialize(json.get("input"));
 
-            Object2IntLinkedOpenHashMap<Ingredient> items = new Object2IntLinkedOpenHashMap<>();
+            List<IngredientStack> items = new ArrayList<>();
             JSONUtils.getJsonArray(json, "items").forEach(item -> {
-                Ingredient ingredient = Ingredient.deserialize(item);
-                int count = JSONUtils.getInt(item.getAsJsonObject(), "count", 1);
-                if (!ingredient.hasNoMatchingItems()) {
-                    items.put(ingredient, count);
+                IngredientStack stack = IngredientStack.deserialize(item);
+                if (!stack.getIngredient().hasNoMatchingItems()) {
+                    items.add(stack);
                 }
             });
             if (items.isEmpty()) {
@@ -158,12 +158,11 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
             Fluid result = parseFluidStrict(buffer.readResourceLocation());
             FluidIngredient input = FluidIngredient.read(buffer);
 
-            Object2IntLinkedOpenHashMap<Ingredient> items = new Object2IntLinkedOpenHashMap<>();
+            List<IngredientStack> items = new ArrayList<>();
             int ingrCount = buffer.readVarInt();
             for (int i = 0; i < ingrCount; ++i) {
-                Ingredient ingredient = Ingredient.read(buffer);
-                int count = buffer.readVarInt();
-                items.put(ingredient, count);
+                IngredientStack stack = IngredientStack.read(buffer);
+                items.add(stack);
             }
 
             boolean consumeItems = buffer.readBoolean();
@@ -184,10 +183,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
             recipe.input.write(buffer);
 
             buffer.writeVarInt(recipe.items.size());
-            recipe.items.forEach(((ingredient, count) -> {
-                ingredient.write(buffer);
-                buffer.writeVarInt(count);
-            }));
+            recipe.items.forEach(item -> item.write(buffer));
 
             buffer.writeBoolean(recipe.consumeItems);
 

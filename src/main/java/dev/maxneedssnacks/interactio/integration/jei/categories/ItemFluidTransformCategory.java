@@ -1,13 +1,13 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
+import com.google.common.collect.ImmutableList;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -19,7 +19,6 @@ import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
@@ -83,15 +82,16 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     @Override
     public void setIngredients(ItemFluidTransformRecipe recipe, IIngredients ingredients) {
 
-        Object2IntMap<Ingredient> inputs = Object2IntMaps.unmodifiable(recipe.getInputs());
+        List<IngredientStack> inputs = ImmutableList.copyOf(recipe.getInputs());
 
         List<List<ItemStack>> mappedInputs = new ArrayList<>();
 
-        inputs.forEach(((ingr, count) -> mappedInputs.add(
-                Arrays.stream(ingr.getMatchingStacks())
+        inputs.forEach(input -> mappedInputs.add(
+                Arrays.stream(input.getIngredient()
+                        .getMatchingStacks())
                         .map(ItemStack::copy)
-                        .peek(i -> i.setCount(count))
-                        .collect(Collectors.toList()))));
+                        .peek(i -> i.setCount(i.getCount() * input.getCount()))
+                        .collect(Collectors.toList())));
 
         // item inputs
         ingredients.setInputLists(VanillaTypes.ITEM, mappedInputs);

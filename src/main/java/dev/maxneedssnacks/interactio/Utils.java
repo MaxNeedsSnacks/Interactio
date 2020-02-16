@@ -4,9 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -29,6 +28,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
 
@@ -65,34 +65,31 @@ public final class Utils {
     }
 
     // region recipe
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntLinkedOpenHashMap<Ingredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, List<IngredientStack> ingredients) {
         return compareStacks(entities, new Object2IntOpenHashMap<>(), ingredients);
     }
 
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Object2IntLinkedOpenHashMap<Ingredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, List<IngredientStack> ingredients) {
 
-        Object2IntLinkedOpenHashMap<Ingredient> required = ingredients.clone();
+        List<IngredientStack> required = ingredients.stream().map(IngredientStack::copy).collect(Collectors.toList());
 
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
 
             if (!entity.isAlive()) return false;
 
-            for (Entry<Ingredient> req : required.object2IntEntrySet()) {
-                Ingredient ingredient = req.getKey();
-                int needed = req.getIntValue();
+            for (IngredientStack req : required) {
+                Ingredient ingredient = req.getIngredient();
+                int needed = req.getCount();
 
                 if (ingredient.test(item)) {
-                    if (item.getCount() >= needed) {
-                        used.put(entity, needed);
-                        required.removeInt(ingredient);
-                    } else {
-                        used.put(entity, item.getCount());
-                        required.put(ingredient, needed - item.getCount());
-                    }
+                    used.put(entity, Math.min(needed, item.getCount()));
+                    req.shrink(item.getCount());
                     break;
                 }
             }
+
+            required.removeIf(IngredientStack::isEmpty);
         }
 
         return required.isEmpty();
