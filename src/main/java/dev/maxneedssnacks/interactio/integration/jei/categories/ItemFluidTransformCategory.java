@@ -5,7 +5,7 @@ import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMaps;
 import mezz.jei.api.constants.VanillaTypes;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTransformRecipe> {
 
-    public static final ResourceLocation UID = ModRecipes.ITEM_FLUID_TRANSFORM;
+    public static final ResourceLocation UID = InWorldRecipeType.ITEM_FLUID_TRANSFORM.registryName;
 
     private final IGuiHelper guiHelper;
 

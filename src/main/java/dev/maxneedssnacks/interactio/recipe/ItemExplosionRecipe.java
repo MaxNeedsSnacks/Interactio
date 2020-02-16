@@ -6,6 +6,7 @@ import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.event.ExplosionHandler.ExplosionInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import lombok.Value;
 import net.minecraft.entity.item.ItemEntity;
@@ -33,13 +34,6 @@ import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
 
 @Value
 public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
-
-    public static final IRecipeType<ItemExplosionRecipe> RECIPE_TYPE = new IRecipeType<ItemExplosionRecipe>() {
-        @Override
-        public String toString() {
-            return ModRecipes.ITEM_EXPLODE.toString();
-        }
-    };
 
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -136,7 +130,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
 
     @Override
     public IRecipeType<?> getType() {
-        return RECIPE_TYPE;
+        return InWorldRecipeType.ITEM_EXPLODE;
     }
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemExplosionRecipe> {

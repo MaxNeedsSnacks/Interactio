@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import lombok.Value;
 import net.minecraft.block.Blocks;
@@ -33,13 +34,6 @@ import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
 
 @Value
 public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
-
-    public static final IRecipeType<ItemFluidTransformRecipe> RECIPE_TYPE = new IRecipeType<ItemFluidTransformRecipe>() {
-        @Override
-        public String toString() {
-            return ModRecipes.ITEM_FLUID_TRANSFORM.toString();
-        }
-    };
 
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -139,7 +133,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
     @Override
     public IRecipeType<?> getType() {
-        return RECIPE_TYPE;
+        return InWorldRecipeType.ITEM_FLUID_TRANSFORM;
     }
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemFluidTransformRecipe> {

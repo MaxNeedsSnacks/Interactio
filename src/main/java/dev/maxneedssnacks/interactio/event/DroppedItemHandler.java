@@ -1,9 +1,7 @@
 package dev.maxneedssnacks.interactio.event;
 
-import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -18,7 +16,6 @@ import org.apache.logging.log4j.util.TriConsumer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.maxneedssnacks.interactio.Utils.getInWorldRecipeStream;
 import static dev.maxneedssnacks.interactio.Utils.isItem;
 
 public class DroppedItemHandler {
@@ -32,20 +29,16 @@ public class DroppedItemHandler {
 
         // item fluid transform
         matchers.add((items, world, pos) -> {
-            getInWorldRecipeStream(ItemFluidTransformRecipe.class)
-                    .flatMap(stream -> stream
-                            .filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
-                            .findFirst())
-                    .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+            InWorldRecipeType.ITEM_FLUID_TRANSFORM
+                    .apply(recipe -> recipe.canCraft(items, world.getFluidState(pos)),
+                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
         });
 
         // fluid fluid transform
         matchers.add((items, world, pos) -> {
-            getInWorldRecipeStream(FluidFluidTransformRecipe.class)
-                    .flatMap(stream -> stream
-                            .filter(recipe -> recipe.canCraft(items, world.getFluidState(pos)))
-                            .findFirst())
-                    .ifPresent(recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+            InWorldRecipeType.FLUID_FLUID_TRANSFORM
+                    .apply(recipe -> recipe.canCraft(items, world.getFluidState(pos)),
+                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
         });
 
     }
@@ -57,7 +50,8 @@ public class DroppedItemHandler {
         ItemEntity entity = (ItemEntity) event.getEntity();
         ItemStack stack = entity.getItem();
 
-        if (ModRecipes.ANY_VALID.test(stack)) {
+        if (InWorldRecipeType.ITEM_FLUID_TRANSFORM.isValidInput(stack)
+                || InWorldRecipeType.FLUID_FLUID_TRANSFORM.isValidInput(stack)) {
             watching.add(entity);
         }
     }

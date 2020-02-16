@@ -114,7 +114,7 @@ dependencies {
     if (test_mods) {
         if (mc_ver.startsWith("1.15")) {
             runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
-            runtimeOnly fg.deobf("curse.maven:silentlib:2851111")
+            runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
 
             runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
             runtimeOnly fg.deobf("curse.maven:titanium:2873789")

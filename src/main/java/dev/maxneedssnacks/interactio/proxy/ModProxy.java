@@ -6,16 +6,12 @@ import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
-import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.client.resources.JsonReloadListener;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,7 +21,6 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class ModProxy implements IProxy {
 
@@ -37,7 +32,7 @@ public abstract class ModProxy implements IProxy {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
 
         // init methods
-        ModRecipes.init();
+        InWorldRecipeType.registerTypes();
 
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener(this::serverAboutToStart);
@@ -60,24 +55,7 @@ public abstract class ModProxy implements IProxy {
                 new JsonReloadListener(new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create(), "recipes") {
                     @Override
                     protected void apply(Map<ResourceLocation, JsonObject> _0, IResourceManager _1, IProfiler _2) {
-
-                        ModRecipes.RECIPE_MAP.clear();
-
-                        server.getRecipeManager().getRecipes()
-                                .parallelStream()
-                                .filter(InWorldRecipe.class::isInstance)
-                                .map(r -> (InWorldRecipe<?, ?, ?>) r)
-                                .forEach(r -> ModRecipes.RECIPE_MAP.put(r.getType(), r));
-
-                        ModRecipes.ANY_VALID = Ingredient.merge(
-                                ModRecipes.RECIPE_MAP
-                                        .values()
-                                        .parallelStream()
-                                        .map(IRecipe::getIngredients)
-                                        .flatMap(NonNullList::stream)
-                                        .collect(Collectors.toSet())
-                        );
-
+                        InWorldRecipeType.clearCache();
                     }
                 });
     }
@@ -94,7 +72,7 @@ public abstract class ModProxy implements IProxy {
 
     @Override
     public RecipeManager getRecipeManager() {
-        return server.getRecipeManager();
+        return server == null ? null : server.getRecipeManager();
     }
 
     @Override

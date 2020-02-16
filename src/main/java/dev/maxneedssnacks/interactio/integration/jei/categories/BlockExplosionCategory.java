@@ -3,7 +3,7 @@ package dev.maxneedssnacks.interactio.integration.jei.categories;
 import com.google.common.collect.Lists;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRecipe> {
 
-    public static final ResourceLocation UID = ModRecipes.BLOCK_EXPLODE;
+    public static final ResourceLocation UID = InWorldRecipeType.BLOCK_EXPLODE.registryName;
 
     private final IGuiHelper guiHelper;
 

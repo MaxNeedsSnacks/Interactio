@@ -2,10 +2,8 @@ package dev.maxneedssnacks.interactio.event;
 
 import com.google.common.collect.Lists;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
 import dev.maxneedssnacks.interactio.recipe.util.CraftingInfo;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import lombok.Value;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -29,27 +27,24 @@ public class ExplosionHandler {
                 .stream()
                 .filter(Utils::isItem)
                 .map(ItemEntity.class::cast)
-                .filter(e -> ModRecipes.ANY_VALID.test(e.getItem()))
+                .filter(e -> InWorldRecipeType.ITEM_EXPLODE.isValidInput(e.getItem()))
                 .collect(Collectors.toList());
 
         List<BlockPos> blocks = event.getAffectedBlocks();
 
-        Utils.getInWorldRecipeStream(ItemExplosionRecipe.class)
-                .ifPresent(stream -> {
-                    stream.filter(recipe -> recipe.canCraft(entities))
-                            .forEach(recipe -> recipe.craft(entities, new ExplosionInfo(event.getWorld(), event.getExplosion())));
-                });
+        InWorldRecipeType.ITEM_EXPLODE
+                .applyAll(recipe -> recipe.canCraft(entities),
+                        recipe -> recipe.craft(entities, new ExplosionInfo(event.getWorld(), event.getExplosion())));
 
         // since we're removing blocks from the affected block list, we need to do this
         Lists.newArrayList(blocks).forEach(pos -> {
             if (!blocks.contains(pos)) return;
             BlockState state = event.getWorld().getBlockState(pos);
             if (state.getBlock().equals(Blocks.AIR)) return;
-            Utils.getInWorldRecipeStream(BlockExplosionRecipe.class)
-                    .flatMap(stream -> stream
-                            .filter(recipe -> recipe.canCraft(pos, state))
-                            .findFirst())
-                    .ifPresent(recipe -> recipe.craft(pos, new ExplosionInfo(event.getWorld(), event.getExplosion())));
+
+            InWorldRecipeType.BLOCK_EXPLODE
+                    .apply(recipe -> recipe.canCraft(pos, state),
+                            recipe -> recipe.craft(pos, new ExplosionInfo(event.getWorld(), event.getExplosion())));
         });
 
     }

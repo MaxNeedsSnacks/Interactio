@@ -4,8 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.recipe.ModRecipes;
-import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
@@ -14,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -32,8 +29,6 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
 
@@ -101,23 +96,6 @@ public final class Utils {
         }
 
         return required.isEmpty();
-    }
-
-    public static <T extends InWorldRecipe<?, ?, ?>> Optional<List<T>> getInWorldRecipeList(Class<T> clz) {
-        return getInWorldRecipeStream(clz).map(s -> s.collect(Collectors.toList()));
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends InWorldRecipe<?, ?, ?>> Optional<Stream<T>> getInWorldRecipeStream(Class<T> clz) {
-        try {
-            return Optional.of(ModRecipes.RECIPE_MAP
-                    .get((IRecipeType<T>) clz.getField("RECIPE_TYPE").get(null))
-                    .stream()
-                    .filter(clz::isInstance)
-                    .map(clz::cast));
-        } catch (Exception e) {
-            return Optional.empty();
-        }
     }
     //endregion recipe
 

@@ -1,16 +1,11 @@
 package dev.maxneedssnacks.interactio.integration.jei;
 
 import dev.maxneedssnacks.interactio.Interactio;
-import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.integration.jei.categories.BlockExplosionCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.FluidFluidTransformCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.ItemExplosionCategory;
 import dev.maxneedssnacks.interactio.integration.jei.categories.ItemFluidTransformCategory;
-import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -18,9 +13,6 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.util.ResourceLocation;
-
-import java.util.Collections;
-import java.util.List;
 
 @JeiPlugin
 public class InteractioJEIPlugin implements IModPlugin {
@@ -51,13 +43,9 @@ public class InteractioJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(getRecipes(ItemFluidTransformRecipe.class), ItemFluidTransformCategory.UID);
-        registration.addRecipes(getRecipes(FluidFluidTransformRecipe.class), FluidFluidTransformCategory.UID);
-        registration.addRecipes(getRecipes(ItemExplosionRecipe.class), ItemExplosionCategory.UID);
-        registration.addRecipes(getRecipes(BlockExplosionRecipe.class), BlockExplosionCategory.UID);
-    }
-
-    private static <T extends InWorldRecipe<?, ?, ?>> List<T> getRecipes(Class<T> clz) {
-        return Utils.getInWorldRecipeList(clz).orElse(Collections.emptyList());
+        registration.addRecipes(InWorldRecipeType.ITEM_FLUID_TRANSFORM.getRecipes(), ItemFluidTransformCategory.UID);
+        registration.addRecipes(InWorldRecipeType.FLUID_FLUID_TRANSFORM.getRecipes(), FluidFluidTransformCategory.UID);
+        registration.addRecipes(InWorldRecipeType.ITEM_EXPLODE.getRecipes(), ItemExplosionCategory.UID);
+        registration.addRecipes(InWorldRecipeType.BLOCK_EXPLODE.getRecipes(), BlockExplosionCategory.UID);
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.event.ExplosionHandler.ExplosionInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
+import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import lombok.Value;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -27,13 +28,6 @@ import java.util.Objects;
 
 @Value
 public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState, ExplosionInfo> {
-
-    public static final IRecipeType<BlockExplosionRecipe> RECIPE_TYPE = new IRecipeType<BlockExplosionRecipe>() {
-        @Override
-        public String toString() {
-            return ModRecipes.ITEM_EXPLODE.toString();
-        }
-    };
 
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -85,7 +79,7 @@ public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState,
 
     @Override
     public IRecipeType<?> getType() {
-        return RECIPE_TYPE;
+        return InWorldRecipeType.BLOCK_EXPLODE;
     }
 
     private static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<BlockExplosionRecipe> {
