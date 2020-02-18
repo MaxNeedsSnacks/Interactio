@@ -75,31 +75,36 @@ public class PacketCraftingParticle {
             Context ctx = contextSupplier.get();
             Utils.ensureClientSide(ctx);
 
-            ctx.enqueueWork(() -> {
-                Minecraft mc = Minecraft.getInstance();
+            // this NEEDS to be an anonymous class, apparently
+            //noinspection Convert2Lambda
+            ctx.enqueueWork(new Runnable() {
+                @Override
+                public void run() {
+                    Minecraft mc = Minecraft.getInstance();
 
-                World world = mc.world;
-                if (world == null) return;
+                    World world = mc.world;
+                    if (world == null) return;
 
-                int count = msg.count;
+                    int count = msg.count;
 
-                BasicParticleType particle = (BasicParticleType) ForgeRegistries.PARTICLE_TYPES.getValue(msg.type);
+                    BasicParticleType particle = (BasicParticleType) ForgeRegistries.PARTICLE_TYPES.getValue(msg.type);
 
-                Random rand = world.rand;
+                    Random rand = world.rand;
 
-                for (int i = 0; i < count; i++) {
-                    double dx = rand.nextGaussian() / 50;
-                    double dy = rand.nextGaussian() / 50;
-                    double dz = rand.nextGaussian() / 50;
-                    world.addParticle(
-                            particle,
-                            msg.x - dx,
-                            msg.y + MathHelper.nextDouble(rand, 0, 1 - dy),
-                            msg.z - dz,
-                            dx,
-                            dy,
-                            dz
-                    );
+                    for (int i = 0; i < count; i++) {
+                        double dx = rand.nextGaussian() / 50;
+                        double dy = rand.nextGaussian() / 50;
+                        double dz = rand.nextGaussian() / 50;
+                        world.addParticle(
+                                particle,
+                                msg.x - dx,
+                                msg.y + MathHelper.nextDouble(rand, 0, 1 - dy),
+                                msg.z - dz,
+                                dx,
+                                dy,
+                                dz
+                        );
+                    }
                 }
             });
 
