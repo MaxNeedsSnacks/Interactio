@@ -20,6 +20,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -41,6 +42,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
     private final IDrawable icon;
 
+    private final String localizedName;
+
     private final int width = 160;
     private final int height = 120;
 
@@ -51,6 +54,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         overlay = guiHelper.createDrawable(Interactio.id("textures/gui/fluid_transform.png"), 0, 0, width, height);
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BUCKET));
+
+        localizedName = Utils.translate("interactio.jei.item_fluid_transform", null);
     }
 
     @Override
@@ -65,8 +70,7 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
     @Override
     public String getTitle() {
-        // FIXME: localisation
-        return "Fluid to Item Crafting";
+        return localizedName;
     }
 
     @Override
@@ -145,8 +149,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
 
         if (recipe.consumeChance() > 0) {
             IconRecipeInfo info = new IconRecipeInfo(guiHelper,
-                    TextFormatting.UNDERLINE + "May consume Fluid",
-                    "Consumption Chance: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.consumeChance() * 100.0)
+                    Utils.translate("interactio.jei.item_fluid_transform.info", new Style().setUnderlined(true)),
+                    Utils.translate("interactio.jei.item_fluid_transform.chance", null, Utils.formatChance(recipe.consumeChance(), TextFormatting.ITALIC))
             );
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);

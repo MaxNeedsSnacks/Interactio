@@ -19,6 +19,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
 import java.awt.*;
@@ -38,6 +39,8 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
     private final IDrawable icon;
 
+    private final String localizedName;
+
     private final int width = 160;
     private final int height = 120;
 
@@ -48,6 +51,8 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
         overlay = guiHelper.createDrawable(Interactio.id("textures/gui/explode.png"), 0, 0, width, height);
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.GUNPOWDER));
+
+        localizedName = Utils.translate("interactio.jei.item_explode", null);
     }
 
     @Override
@@ -62,8 +67,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
     @Override
     public String getTitle() {
-        // FIXME: localisation
-        return "Exploding Items";
+        return localizedName;
     }
 
     @Override
@@ -134,8 +138,8 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
         if (recipe.getChance() < 1) {
             IconRecipeInfo info = new IconRecipeInfo(guiHelper,
-                    TextFormatting.UNDERLINE + "Recipe might fail",
-                    "Chance of Success: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.getChance() * 100.0)
+                    Utils.translate("interactio.jei.item_explode.info", new Style().setUnderlined(true)),
+                    Utils.translate("interactio.jei.item_explode.chance", null, Utils.formatChance(recipe.getChance(), TextFormatting.ITALIC))
             );
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);

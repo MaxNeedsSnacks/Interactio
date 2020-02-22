@@ -49,7 +49,7 @@ public class CommandItemInfo {
                 .stream()
                 .sorted()
                 .forEachOrdered(id -> {
-                    ITextComponent component = new StringTextComponent("• " + id);
+                    ITextComponent component = new StringTextComponent("\u2022 " + id);
                     component.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, id.toString()));
                     player.sendMessage(component);
                 });

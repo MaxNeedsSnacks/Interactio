@@ -20,7 +20,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.Style;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
@@ -41,6 +41,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
     private final IDrawable icon;
 
+    private final String localizedName;
 
     private final int width = 160;
     private final int height = 120;
@@ -52,6 +53,8 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         overlay = guiHelper.createDrawable(Interactio.id("textures/gui/fluid_transform.png"), 0, 0, width, height);
 
         icon = guiHelper.createDrawableIngredient(new FluidStack(Fluids.FLOWING_WATER, 1000));
+
+        localizedName = Utils.translate("interactio.jei.fluid_fluid_transform", null);
     }
 
     @Override
@@ -66,8 +69,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
     @Override
     public String getTitle() {
-        // FIXME: localisation
-        return "Fluid Transformation";
+        return localizedName;
     }
 
     @Override
@@ -146,7 +148,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         if (recipe.consumesItems()) {
             IconRecipeInfo info = new IconRecipeInfo(guiHelper, Collections.singletonList(
-                    TextFormatting.UNDERLINE + "Consumes Items"
+                    Utils.translate("interactio.jei.fluid_fluid_transform.info", new Style().setUnderlined(true))
             ));
             info.draw(width - 48, height - 36);
             info.drawTooltip((int) mouseX, (int) mouseY);

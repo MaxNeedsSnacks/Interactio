@@ -15,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
@@ -36,6 +37,22 @@ public class CommandRegistryDump {
         dispatcher.register(literal("dump_registry")
                 .then(argument("registry", RegistryArgument.registry())
                         .executes(ctx -> dumpRegistry(RegistryArgument.getRegistry(ctx, "registry"), ctx.getSource())))
+                .executes(ctx -> {
+                    CommandSource s = ctx.getSource();
+                    s.sendFeedback(new StringTextComponent("-- Available Registries --").applyTextStyle(TextFormatting.YELLOW), false);
+                    RegistryManager.getRegistryNamesForSyncToClient().forEach(loc -> {
+                        s.sendFeedback(
+                                new StringTextComponent("- ")
+                                        .appendText(Objects.toString(loc))
+                                        .setStyle(new Style()
+                                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                                        new StringTextComponent("Click to view dump of ")
+                                                                .appendSibling(new StringTextComponent(Objects.toString(loc)).applyTextStyle(TextFormatting.AQUA))))
+                                                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dump_registry " + loc)))
+                                , false);
+                    });
+                    return Command.SINGLE_SUCCESS;
+                })
         );
     }
 
@@ -77,10 +94,9 @@ public class CommandRegistryDump {
             int i = reader.getCursor();
             ResourceLocation resLoc = ResourceLocation.read(reader);
 
-            ForgeRegistry<?> reg = RegistryManager.FROZEN.getRegistry(resLoc);
+            ForgeRegistry<?> reg = RegistryManager.ACTIVE.getRegistry(resLoc);
 
             if (reg == null) {
-                reader.setCursor(i);
                 throw BAD_REGISTRY.createWithContext(reader);
             }
 

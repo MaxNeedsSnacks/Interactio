@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.Lists;
+import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
@@ -15,6 +16,7 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.List;
@@ -31,12 +33,16 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
     private final IDrawable icon;
 
+    private final String localizedName;
+
     public BlockExplosionCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
         background = guiHelper.createBlankDrawable(82, 34);
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
+
+        localizedName = Utils.translate("interactio.jei.block_explode", null);
     }
 
     @Override
@@ -51,8 +57,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
     @Override
     public String getTitle() {
-        // FIXME: localisation
-        return "Exploding Blocks";
+        return localizedName;
     }
 
     @Override
@@ -90,12 +95,12 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     public void draw(BlockExplosionRecipe recipe, double mouseX, double mouseY) {
 
         List<String> tooltips = Lists.newArrayList(
-                TextFormatting.UNDERLINE + "Explosion Recipe",
-                "Chance of Success: " + TextFormatting.ITALIC + String.format("%.2f%%", recipe.getChance() * 100.0)
+                Utils.translate("interactio.jei.block_explode.info", new Style().setUnderlined(true)),
+                Utils.translate("interactio.jei.block_explode.chance", null, Utils.formatChance(recipe.getChance(), TextFormatting.ITALIC))
         );
 
         if (recipe.isDestroy()) {
-            tooltips.add(TextFormatting.ITALIC + "Destroys Blocks");
+            tooltips.add(Utils.translate("interactio.jei.block_explode.destroy", new Style().setBold(true).setItalic(true)));
         }
 
         IconRecipeInfo info = new IconRecipeInfo(new ItemStack(Items.TNT), guiHelper, tooltips);

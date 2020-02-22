@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -138,8 +139,6 @@ public final class Utils {
     }
 
     public static double parseChance(JsonObject object, String key, double dv) {
-        double chance;
-
         if (!object.has(key)) return dv;
 
         JsonElement e = object.get(key);
@@ -154,7 +153,6 @@ public final class Utils {
         } catch (Exception ex) {
             return p.getAsBoolean() ? 1 : 0;
         }
-
     }
 
     // shouldn't be needed, but who knows
@@ -164,6 +162,14 @@ public final class Utils {
         }
     }
     // endregion network
+
+    public static String translate(String langKey, @Nullable Style style, Object... replacements) {
+        return new TranslationTextComponent(langKey, replacements).setStyle(style == null ? new Style() : style).getFormattedText();
+    }
+
+    public static ITextComponent formatChance(double chance, TextFormatting... styles) {
+        return new StringTextComponent(String.format("%.2f%%", chance * 100.0)).applyTextStyles(styles);
+    }
 
     /**
      * NOTE: This method originally stems from the Botania mod by Vazkii, which is Open Source

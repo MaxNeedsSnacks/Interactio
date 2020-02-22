@@ -1,0 +1,14 @@
+{
+  "interactio.jei.item_fluid_transform": "Fluid to Item Recipe",
+  "interactio.jei.item_fluid_transform.info": "May consume Fluid",
+  "interactio.jei.item_fluid_transform.chance": "Consumption Chance: %s",
+  "interactio.jei.fluid_fluid_transform": "Fluid Transformation Recipe",
+  "interactio.jei.fluid_fluid_transform.info": "Consumes Items",
+  "interactio.jei.item_explode": "Exploding Items",
+  "interactio.jei.item_explode.info": "Recipe might fail",
+  "interactio.jei.item_explode.chance": "Chance of Success: %s",
+  "interactio.jei.block_explode": "Exploding Blocks",
+  "interactio.jei.block_explode.info": "Explosion Recipe",
+  "interactio.jei.block_explode.chance": "Chance of Success: %s",
+  "interactio.jei.block_explode.destroy": "Destroys Blocks"
+}
