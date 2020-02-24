@@ -71,20 +71,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
         if (compareStacks(entities, used, inputs)) {
 
             // shrink and update items
-            used.forEach((entity, count) -> {
-                entity.setInfinitePickupDelay();
-
-                ItemStack item = entity.getItem().copy();
-                item.shrink(count);
-
-                if (item.isEmpty()) {
-                    entity.remove();
-                } else {
-                    entity.setItem(item);
-                }
-
-                entity.setDefaultPickupDelay();
-            });
+            Utils.shrinkAndUpdate(used);
 
             // consume block if set
             if (world.rand.nextDouble() < consume) {
@@ -141,8 +128,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemFluidTransformRecipe> {
         @Override
-        public ItemFluidTransformRecipe read(ResourceLocation recipeId, JsonObject json) {
-
+        public ItemFluidTransformRecipe read(ResourceLocation id, JsonObject json) {
             ItemStack result = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result"));
 
             FluidIngredient fluid = FluidIngredient.deserialize(json.get("fluid"));
@@ -155,18 +141,17 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
                 }
             });
             if (inputs.isEmpty()) {
-                throw new JsonParseException("No valid inputs specified for item fluid transform recipe!");
+                throw new JsonParseException(String.format("No valid inputs specified for recipe %s!", id));
             }
 
             double consume = Utils.parseChance(json, "consume");
 
-            return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
+            return new ItemFluidTransformRecipe(id, result, fluid, inputs, consume);
         }
 
         @Nullable
         @Override
-        public ItemFluidTransformRecipe read(ResourceLocation recipeId, PacketBuffer buffer) {
-
+        public ItemFluidTransformRecipe read(ResourceLocation id, PacketBuffer buffer) {
             ItemStack result = buffer.readItemStack();
             FluidIngredient fluid = FluidIngredient.read(buffer);
 
@@ -179,12 +164,11 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
             double consume = buffer.readDouble();
 
-            return new ItemFluidTransformRecipe(recipeId, result, fluid, inputs, consume);
+            return new ItemFluidTransformRecipe(id, result, fluid, inputs, consume);
         }
 
         @Override
         public void write(PacketBuffer buffer, ItemFluidTransformRecipe recipe) {
-
             buffer.writeItemStack(recipe.result);
 
             recipe.fluid.write(buffer);
@@ -193,7 +177,6 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
             recipe.inputs.forEach(stack -> stack.write(buffer));
 
             buffer.writeDouble(recipe.consume);
-
         }
     }
 

@@ -95,6 +95,29 @@ public final class Utils {
 
         return required.isEmpty();
     }
+
+    public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities) {
+        shrinkAndUpdate(entities, false);
+    }
+
+    public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities, boolean protect) {
+        entities.forEach((entity, count) -> {
+            if(protect) entity.setInvulnerable(true);
+            entity.setInfinitePickupDelay();
+
+            ItemStack item = entity.getItem().copy();
+            item.shrink(count);
+
+            if (item.isEmpty()) {
+                entity.remove();
+            } else {
+                entity.setItem(item);
+            }
+
+            entity.setDefaultPickupDelay();
+        });
+
+    }
     //endregion recipe
 
     // region network

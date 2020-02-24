@@ -87,7 +87,7 @@ public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState,
         public BlockExplosionRecipe read(ResourceLocation id, JsonObject json) {
 
             Block result;
-            if (Objects.requireNonNull(json.get("result"), "Result cannot be null!").isJsonObject()) {
+            if (Objects.requireNonNull(json.get("result"), String.format("Invalid result specified for recipe %s -- Result cannot be null!", id)).isJsonObject()) {
                 ItemStack stack = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "result"));
                 result = Block.getBlockFromItem(stack.getItem());
             } else {
@@ -96,11 +96,11 @@ public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState,
             }
 
             if (result == null || result.equals(Blocks.AIR)) {
-                throw new JsonParseException("Result is not a block!");
+                throw new JsonParseException(String.format("Invalid result specified for recipe %s -- Result is not a block!", id));
             }
 
             Block input;
-            if (Objects.requireNonNull(json.get("input"), "Input cannot be null!").isJsonObject()) {
+            if (Objects.requireNonNull(json.get("input"), String.format("Invalid input specified for recipe %s -- Input cannot be null!", id)).isJsonObject()) {
                 ItemStack stack = ShapedRecipe.deserializeItem(JSONUtils.getJsonObject(json, "input"));
                 input = Block.getBlockFromItem(stack.getItem());
             } else {
@@ -109,7 +109,7 @@ public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState,
             }
 
             if (input == null || input.equals(Blocks.AIR)) {
-                throw new JsonParseException("Input is not a block!");
+                throw new JsonParseException(String.format("Invalid input specified for recipe %s -- Input is not a block!", id));
             }
 
             double chance = Utils.parseChance(json, "chance", 1);

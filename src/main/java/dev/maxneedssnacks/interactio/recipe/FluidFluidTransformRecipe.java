@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.recipe;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
@@ -66,22 +67,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
         if (compareStacks(entities, used, items)) {
 
             // shrink and update items if recipe is set to consumeItems
-            if (consumeItems) {
-                used.forEach((entity, count) -> {
-                    entity.setInfinitePickupDelay();
-
-                    ItemStack item = entity.getItem().copy();
-                    item.shrink(count);
-
-                    if (item.isEmpty()) {
-                        entity.remove();
-                    } else {
-                        entity.setItem(item);
-                    }
-
-                    entity.setDefaultPickupDelay();
-                });
-            }
+            if (consumeItems) Utils.shrinkAndUpdate(used);
 
             // set block state at position to new input
             world.setBlockState(pos, result.getDefaultState().getBlockState());
@@ -129,7 +115,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FluidFluidTransformRecipe> {
         @Override
-        public FluidFluidTransformRecipe read(ResourceLocation recipeId, JsonObject json) {
+        public FluidFluidTransformRecipe read(ResourceLocation id, JsonObject json) {
 
             Fluid result = parseFluidStrict(JSONUtils.getString(json, "result"));
 
@@ -143,17 +129,17 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
                 }
             });
             if (items.isEmpty()) {
-                throw new JsonParseException("No valid items specified for fluid transform recipe!");
+                throw new JsonParseException(String.format("No valid items specified for recipe %s!", id));
             }
 
             boolean consumeItems = JSONUtils.getBoolean(json, "consume_items", false);
 
-            return new FluidFluidTransformRecipe(recipeId, result, input, items, consumeItems);
+            return new FluidFluidTransformRecipe(id, result, input, items, consumeItems);
         }
 
         @Nullable
         @Override
-        public FluidFluidTransformRecipe read(ResourceLocation recipeId, PacketBuffer buffer) {
+        public FluidFluidTransformRecipe read(ResourceLocation id, PacketBuffer buffer) {
 
             Fluid result = parseFluidStrict(buffer.readResourceLocation());
             FluidIngredient input = FluidIngredient.read(buffer);
@@ -167,7 +153,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
             boolean consumeItems = buffer.readBoolean();
 
-            return new FluidFluidTransformRecipe(recipeId, result, input, items, consumeItems);
+            return new FluidFluidTransformRecipe(id, result, input, items, consumeItems);
         }
 
         @Override

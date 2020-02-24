@@ -63,22 +63,9 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
         int spawnAmt = 0;
 
         while (compareStacks(loopingEntities, used, inputs)) {
-            // shrink and update items
-            used.forEach((entity, count) -> {
-                entity.setInvulnerable(true);
-                entity.setInfinitePickupDelay();
 
-                ItemStack item = entity.getItem().copy();
-                item.shrink(count);
-
-                if (item.isEmpty()) {
-                    entity.remove();
-                } else {
-                    entity.setItem(item);
-                }
-
-                entity.setDefaultPickupDelay();
-            });
+            // shrink and update items, protecting them from the explosion
+            Utils.shrinkAndUpdate(used, true);
 
             // only actually craft the item if the recipe is successful
             if (chance == 1 || world.rand.nextDouble() < chance) {
@@ -149,7 +136,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
                 }
             });
             if (inputs.isEmpty()) {
-                throw new JsonParseException("No valid inputs specified for item explosion recipe!");
+                throw new JsonParseException(String.format("No valid inputs specified for recipe %s!", id));
             }
 
             double chance = Utils.parseChance(json, "chance", 1);
