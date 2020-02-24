@@ -87,7 +87,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
             double vel = MathHelper.nextDouble(rand, 0.1, 0.25);
 
             ItemEntity newItem = new ItemEntity(world, x, y, z, getRecipeOutput());
-            newItem.setVelocity(0, vel, 0);
+            newItem.setMotion(0, vel, 0);
             newItem.setPickupDelay(20);
             world.addEntity(newItem);
 
