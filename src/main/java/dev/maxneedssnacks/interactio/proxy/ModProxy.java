@@ -78,9 +78,6 @@ public abstract class ModProxy implements IProxy {
         return server;
     }
 
-    @Nullable
-    public abstract World getClientWorld();
-
     @Override
     public String getVersion() {
         return SharedConstants.getVersion().getName();
