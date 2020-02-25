@@ -1,9 +1,9 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.GlStateManager;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.compat.CompatUtil;
 import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
@@ -141,7 +141,13 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     @Override
     public void draw(FluidFluidTransformRecipe recipe, double mouseX, double mouseY) {
 
-        CompatUtil.drawWithAlpha(overlay);
+        GlStateManager.enableAlphaTest();
+        GlStateManager.enableBlend();
+
+        overlay.draw();
+
+        GlStateManager.disableAlphaTest();
+        GlStateManager.disableBlend();
 
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
