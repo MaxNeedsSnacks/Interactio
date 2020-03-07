@@ -23,7 +23,6 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
@@ -89,7 +88,10 @@ public abstract class ModProxy implements IProxy {
 
         @Override
         public RecipeManager getRecipeManager() {
-            return getClientWorld() == null ? null : getClientWorld().getRecipeManager();
+            return getClientWorld() == null ?
+                    (getServer() == null ?
+                            null : getServer().getRecipeManager())
+                    : getClientWorld().getRecipeManager();
         }
 
         @Override
