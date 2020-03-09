@@ -1,12 +1,11 @@
-package dev.maxneedssnacks.interactio.recipe.util;
+package dev.maxneedssnacks.interactio.recipe.ingredient;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.Tag;
@@ -117,7 +116,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         if (json.has("fluid") && json.has("tag")) {
             throw new JsonSyntaxException("Fluid ingredient should have either 'tag' or 'fluid', not both!");
         } else if (json.has("fluid")) {
-            Fluid fluid = Utils.parseFluidStrict(JSONUtils.getString(json, "fluid"));
+            Fluid fluid = IEntrySerializer.FLUID.read(json);
             return new SingleFluidList(fluid);
         } else if (json.has("tag")) {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "tag"));
@@ -139,12 +138,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
      */
     public static FluidIngredient read(PacketBuffer buffer) {
         int size = buffer.readVarInt();
-        return new FluidIngredient(Stream.generate(() -> {
-            Fluid fluid = Utils.parseFluidStrict(buffer.readResourceLocation());
-            int amount = buffer.readVarInt();
-            CompoundNBT tag = buffer.readCompoundTag();
-            return new SingleFluidList(new FluidStack(fluid, amount, tag));
-        }).limit((long) size));
+        return new FluidIngredient(Stream.generate(() -> new SingleFluidList(FluidStack.readFromPacket(buffer))).limit(size));
     }
 
     /**
@@ -155,17 +149,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
     public void write(PacketBuffer buffer) {
         this.determineMatchingStacks();
         buffer.writeVarInt(matchingStacks.size());
-        matchingStacks.forEach(fluidStack -> {
-
-            Fluid fluid = fluidStack.getFluid();
-            if (fluid == null || fluid.getRegistryName() == null) {
-                buffer.writeResourceLocation(new ResourceLocation("null"));
-            } else {
-                buffer.writeResourceLocation(fluid.getRegistryName());
-            }
-            buffer.writeVarInt(fluidStack.getAmount());
-            buffer.writeCompoundTag(fluidStack.getTag());
-        });
+        matchingStacks.forEach(fluidStack -> fluidStack.writeToPacket(buffer));
     }
 
     public interface IFluidList {

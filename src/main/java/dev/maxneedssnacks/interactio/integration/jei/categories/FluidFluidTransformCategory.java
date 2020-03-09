@@ -4,10 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
+import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -17,10 +17,12 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
@@ -85,7 +87,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     @Override
     public void setIngredients(FluidFluidTransformRecipe recipe, IIngredients ingredients) {
 
-        List<IngredientStack> items = ImmutableList.copyOf(recipe.getItems());
+        List<RecipeIngredient> items = ImmutableList.copyOf(recipe.getItems());
 
         List<List<ItemStack>> mappedItems = new ArrayList<>();
 
@@ -103,7 +105,12 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluid().getMatchingStacks())));
 
         // fluid output
-        ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(recipe.getResult(), 1000));
+        ingredients.setOutputLists(VanillaTypes.FLUID, Collections.singletonList(recipe.getOutput().stream()
+                .map(WeightedOutput.WeightedEntry::getResult)
+                .map(fluid -> new FluidStack(fluid, 1000))
+                .collect(Collectors.toList())));
+
+        //ingredients.setOutput(VanillaTypes.FLUID, new FluidStack(recipe.getResult(), 1000));
     }
 
     private final Point center = new Point(45, 52);
@@ -122,6 +129,11 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         Point point = new Point(center.x, 8);
 
+        List<Double> returnChances = recipe.getItems().stream().map(RecipeIngredient::getReturnChance).collect(Collectors.toList());
+
+        WeightedOutput<Fluid> output = recipe.getOutput();
+        WeightedOutput.WeightedEntry<Fluid> empty = new WeightedOutput.WeightedEntry<>(Fluids.EMPTY, output.emptyWeight);
+
         int i = 0;
         for (List<ItemStack> input : inputs) {
             itemStackGroup.init(i, true, point.x, point.y);
@@ -130,12 +142,39 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             point = Utils.rotatePointAbout(point, center, angleDelta);
         }
 
+        itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
+            if (input) {
+                if (idx >= 0 && idx < returnChances.size()) {
+                    double returnChance = returnChances.get(idx);
+                    if (returnChance != 0) {
+                        tooltip.add(Utils.translate("interactio.jei.return_chance", null, Utils.formatChance(returnChance, TextFormatting.ITALIC)));
+                    }
+                }
+            }
+        });
+
         fluidStackGroup.init(0, true, center.x + 1, center.y + 1);
         fluidStackGroup.set(0, fluid.get(0));
 
         fluidStackGroup.init(1, false, width - 20 + 1, center.y + 1);
+        outputs.get(0).add(new FluidStack(empty.getResult(), 1000));
         fluidStackGroup.set(1, outputs.get(0));
 
+        fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
+            if (!input) {
+                WeightedOutput.WeightedEntry<Fluid> match = output.stream()
+                        .filter(entry -> entry.getResult() == stack.getFluid())
+                        .findFirst()
+                        .orElse(empty);
+
+                if (match == empty) {
+                    tooltip.clear();
+                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", new Style().setBold(true)));
+                }
+
+                tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
+            }
+        });
     }
 
     @Override
@@ -151,14 +190,6 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
-
-        if (recipe.consumesItems()) {
-            IconRecipeInfo info = new IconRecipeInfo(guiHelper, Collections.singletonList(
-                    Utils.translate("interactio.jei.fluid_fluid_transform.info", new Style().setUnderlined(true))
-            ));
-            info.draw(width - 48, height - 36);
-            info.drawTooltip((int) mouseX, (int) mouseY);
-        }
 
     }
 

@@ -54,6 +54,8 @@ minecraft {
     mappings channel: 'snapshot', version: project.mappings_ver
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
+    accessTransformer = file('src/main/resources/META-INF/at.cfg')
+
     runs {
         client {
             workingDirectory project.file('run')
@@ -112,11 +114,13 @@ dependencies {
     }
 
     if (test_mods) {
-            runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
-            runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
+        runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
+        runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
 
-            runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
-            runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+        runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
+        runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+
+        runtimeOnly fg.deobf("curse.maven:nbt-tooltips:2844123")
     }
 
 }
