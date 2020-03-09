@@ -11,8 +11,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -84,10 +82,6 @@ public class RecipeIngredient implements Predicate<ItemStack> {
     @Override
     public boolean test(ItemStack stack) {
         return ingredient.test(stack);
-    }
-
-    public List<ItemStack> getMatchingStacks() {
-        return Arrays.asList(ingredient.getMatchingStacks());
     }
 
     public Ingredient getIngredient() {

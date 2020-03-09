@@ -70,12 +70,7 @@ public final class Utils {
     }
 
     public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities) {
-        shrinkAndUpdate(entities, false);
-    }
-
-    public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities, boolean protect) {
         entities.forEach((entity, count) -> {
-            if (protect) entity.setInvulnerable(true);
             entity.setInfinitePickupDelay();
 
             ItemStack item = entity.getItem().copy();
@@ -89,7 +84,6 @@ public final class Utils {
 
             entity.setDefaultPickupDelay();
         });
-
     }
 
     public static <T> WeightedOutput<T> singleOrWeighted(JsonObject json, IEntrySerializer<T> serializer) {
@@ -105,25 +99,9 @@ public final class Utils {
 
     // region network
     // TODO: add custom particle support for datapacks
-    public static void sendParticlePacket(World world, Entity entity) {
-        sendParticlePacket(world, entity.getPositionVec());
-    }
-
-    public static void sendParticlePacket(World world, BlockPos pos) {
-        sendParticlePacket(world, new Vec3d(pos));
-    }
-
     public static void sendParticlePacket(World world, Vec3d pos) {
         PacketCraftingParticle packet = new PacketCraftingParticle(pos.x, pos.y, pos.z);
         sendPacketNear(packet, world, pos);
-    }
-
-    public static void sendPacketNear(Object packet, World world, Entity entity) {
-        sendPacketNear(packet, world, entity.getPositionVec());
-    }
-
-    public static void sendPacketNear(Object packet, World world, BlockPos pos) {
-        sendPacketNear(packet, world, new Vec3d(pos));
     }
 
     public static void sendPacketNear(Object packet, World world, Vec3d pos) {

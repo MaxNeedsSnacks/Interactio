@@ -66,17 +66,9 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
         Vec3d pos = explosion.getPosition();
 
         while (compareStacks(loopingEntities, used, inputs)) {
-
             // shrink and update items, protecting them from the explosion
-            Utils.shrinkAndUpdate(used, true);
-
-            // only actually craft the item if the recipe is successful
-            /*if (chance == 1 || world.rand.nextDouble() < chance) {
-                spawnAmt += result.getCount();
-            }*/
-
-            //ItemStack stack = result.copy();
-            //stack.setCount(c);
+            loopingEntities.forEach(e -> e.setInvulnerable(true));
+            Utils.shrinkAndUpdate(used);
 
             double x = pos.getX() + MathHelper.nextDouble(rand, 0.25, 0.75);
             double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
@@ -165,7 +157,6 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
             recipe.inputs.forEach(item -> item.write(buffer));
 
             buffer.writeDouble(recipe.chance);
-
         }
     }
 

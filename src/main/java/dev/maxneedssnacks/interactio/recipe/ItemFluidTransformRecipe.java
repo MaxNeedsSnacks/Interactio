@@ -61,7 +61,6 @@ public class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
 
     @Override
     public void craft(List<ItemEntity> entities, DefaultInfo info) {
-
         World world = info.getWorld();
         BlockPos pos = info.getPos();
 

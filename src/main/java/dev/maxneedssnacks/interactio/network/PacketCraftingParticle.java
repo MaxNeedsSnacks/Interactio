@@ -33,10 +33,6 @@ public class PacketCraftingParticle {
         this(x, y, z, type, DEFAULT_COUNT);
     }
 
-    public PacketCraftingParticle(double x, double y, double z, int count) {
-        this(x, y, z, DEFAULT_PARTICLE.getRegistryName(), count);
-    }
-
     public PacketCraftingParticle(double x, double y, double z, ResourceLocation type, int count) {
         this.x = x;
         this.y = y;

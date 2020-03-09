@@ -91,12 +91,6 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
         return modified;
     }
 
-    public WeightedOutput<E> withEmptyWeight(double emptyWeight) {
-        WeightedOutput<E> updated = new WeightedOutput<>(this.random, emptyWeight, this.rolls, this.unique);
-        updated.addAll(this);
-        return updated;
-    }
-
     public double getChance(WeightedEntry<E> entry) {
         return entry.getWeight() / totalWeight;
     }
@@ -125,10 +119,6 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
         Map.Entry<Double, WeightedEntry<E>> ceil = chanceMap.ceilingEntry(d);
         if (ceil == null) return null;
         return ceil.getValue().getResult();
-        /*return stream()
-                .min(Comparator.comparingDouble(...))
-                .orElse(empty)
-                .getResult();*/
     }
 
     @Nullable
