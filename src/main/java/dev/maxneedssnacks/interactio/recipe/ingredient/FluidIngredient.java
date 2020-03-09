@@ -177,7 +177,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         @SuppressWarnings("deprecation")
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty("item", Registry.FLUID.getKey(this.stack.getFluid()).toString());
+            jsonobject.addProperty("fluid", Registry.FLUID.getKey(this.stack.getFluid()).toString());
             return jsonobject;
         }
     }
