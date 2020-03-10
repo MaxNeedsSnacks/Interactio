@@ -5,6 +5,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.text.ITextComponent;
@@ -53,6 +55,12 @@ public class CommandItemInfo {
                     component.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, id.toString()));
                     player.sendMessage(component);
                 });
+
+        Item item = stack.getItem();
+        if (item instanceof BlockItem && !Objects.equals(((BlockItem) item).getBlock().getRegistryName(), item.getRegistryName())) {
+            player.sendMessage(new StringTextComponent("- Block ID (when placed in World): ").applyTextStyle(TextFormatting.YELLOW)
+                    .appendText(Objects.toString(((BlockItem) item).getBlock().getRegistryName())));
+        }
 
         player.sendMessage(new StringTextComponent("-----------------------------").applyTextStyle(TextFormatting.GREEN));
 
