@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
 import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.network.PacketInvalidateCache;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.JsonReloadListener;
@@ -16,12 +15,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.Map;
 
@@ -42,17 +41,12 @@ public abstract class ModProxy implements IProxy {
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener(this::serverAboutToStart);
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+
+        MinecraftForge.EVENT_BUS.addListener(this::recipesUpdated);
     }
 
-    @SuppressWarnings("UnusedAssignment")
     private void commonSetup(FMLCommonSetupEvent event) {
-
-        // init packet handler for particles (and maybe more in the future)
-        int id = 0;
-
-        NETWORK.registerMessage(id++, PacketCraftingParticle.class, PacketCraftingParticle::write, PacketCraftingParticle::read, PacketCraftingParticle.Handler::handle);
-        NETWORK.registerMessage(id++, PacketInvalidateCache.class, PacketInvalidateCache::write, PacketInvalidateCache::read, PacketInvalidateCache.Handler::handle);
-
+        NETWORK.registerMessage(0, PacketCraftingParticle.class, PacketCraftingParticle::write, PacketCraftingParticle::read, PacketCraftingParticle.Handler::handle);
     }
 
     private void serverAboutToStart(FMLServerAboutToStartEvent event) {
@@ -62,7 +56,6 @@ public abstract class ModProxy implements IProxy {
                     @Override
                     protected void apply(Map<ResourceLocation, JsonObject> _0, IResourceManager _1, IProfiler _2) {
                         InWorldRecipeType.clearCache();
-                        NETWORK.send(PacketDistributor.ALL.noArg(), new PacketInvalidateCache(true));
                     }
                 }
         );
@@ -71,6 +64,10 @@ public abstract class ModProxy implements IProxy {
     private void serverStarting(FMLServerStartingEvent event) {
         CommandItemInfo.register(event.getCommandDispatcher());
         CommandRegistryDump.register(event.getCommandDispatcher());
+    }
+
+    private void recipesUpdated(RecipesUpdatedEvent event) {
+        InWorldRecipeType.clearCache();
     }
 
     @Override
