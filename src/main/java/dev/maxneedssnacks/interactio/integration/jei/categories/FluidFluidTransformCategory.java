@@ -157,11 +157,11 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         fluidStackGroup.set(0, fluid.get(0));
 
         fluidStackGroup.init(1, false, width - 20 + 1, center.y + 1);
-        outputs.get(0).add(new FluidStack(empty.getResult(), 1000));
+        if (output.emptyWeight > 0) outputs.get(0).add(new FluidStack(empty.getResult(), 1000));
         fluidStackGroup.set(1, outputs.get(0));
 
         fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (!input) {
+            if (!input && !output.isSingle()) {
                 WeightedOutput.WeightedEntry<Fluid> match = output.stream()
                         .filter(entry -> entry.getResult() == stack.getFluid())
                         .findFirst()

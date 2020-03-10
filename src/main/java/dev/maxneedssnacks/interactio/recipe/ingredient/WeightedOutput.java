@@ -99,6 +99,10 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
         return stream().mapToDouble(WeightedEntry::getWeight).sum() + emptyWeight;
     }
 
+    public boolean isSingle() {
+        return size() == 1 && emptyWeight == 0;
+    }
+
     // 0.0 - 0.4 empty
     // 0.4 - 0.5 apple
     // 0.5 - 0.7 orange

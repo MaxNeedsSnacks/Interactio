@@ -102,11 +102,11 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
         itemStackGroup.init(0, true, 4, 8);
         itemStackGroup.init(1, false, 72, 8);
 
-        outputs.get(0).add(empty.getResult());
+        if (output.emptyWeight > 0) outputs.get(0).add(empty.getResult());
         itemStackGroup.set(ingredients);
 
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (!input) {
+            if (!input && !output.isSingle()) {
                 WeightedOutput.WeightedEntry<ItemStack> match = output.stream()
                         .filter(entry -> entry.getResult().equals(stack, false))
                         .findFirst()

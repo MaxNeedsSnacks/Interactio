@@ -132,7 +132,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
         }
 
         itemStackGroup.init(++i, false, width - 20, center.y);
-        outputs.get(0).add(empty.getResult());
+        if (output.emptyWeight > 0) outputs.get(0).add(empty.getResult());
         itemStackGroup.set(i, outputs.get(0));
 
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
@@ -143,7 +143,7 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
                         tooltip.add(Utils.translate("interactio.jei.return_chance", null, Utils.formatChance(returnChance, TextFormatting.ITALIC)));
                     }
                 }
-            } else {
+            } else if (!output.isSingle()) {
                 WeightedOutput.WeightedEntry<ItemStack> match = output.stream()
                         .filter(entry -> entry.getResult() == stack)
                         .findFirst()
@@ -155,10 +155,13 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
                 }
 
                 tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
-                tooltip.add(Utils.translate("interactio.jei.weighted_output_roll_count",
-                        new Style().setColor(TextFormatting.GRAY),
-                        output.unique ? Utils.translate("interactio.jei.weighted_output_roll_unique", null, output.rolls)
-                                : output.rolls));
+
+                if (output.rolls > 1) {
+                    tooltip.add(Utils.translate("interactio.jei.weighted_output_roll_count",
+                            new Style().setColor(TextFormatting.GRAY),
+                            output.unique ? Utils.translate("interactio.jei.weighted_output_roll_unique", null, output.rolls)
+                                    : output.rolls));
+                }
             }
         });
 
