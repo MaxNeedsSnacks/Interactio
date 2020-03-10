@@ -192,7 +192,10 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
         buffer.writeBoolean(unique);
 
         buffer.writeVarInt(size());
-        forEach(entry -> serializer.write(buffer, entry.getResult()));
+        forEach(entry -> {
+            serializer.write(buffer, entry.getResult());
+            buffer.writeDouble(entry.getWeight());
+        });
     }
 
     @Value
