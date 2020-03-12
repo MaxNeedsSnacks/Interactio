@@ -20,6 +20,7 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.Random;
 
 import static dev.maxneedssnacks.interactio.Utils.compareStacks;
-import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
+import static dev.maxneedssnacks.interactio.Utils.sendParticle;
 
 @Value
 public class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
@@ -83,7 +84,7 @@ public class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
             double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
             double z = pos.getZ() + MathHelper.nextDouble(rand, 0.25, 0.75);
 
-            sendParticlePacket(world, new Vec3d(x, y, z));
+            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(x, y, z));
 
         }
 

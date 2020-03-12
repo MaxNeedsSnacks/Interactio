@@ -3,7 +3,6 @@ package dev.maxneedssnacks.interactio;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
 import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
@@ -13,23 +12,21 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.particles.IParticleData;
 import net.minecraft.util.JSONUtils;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
-
-import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
 
 public final class Utils {
 
@@ -98,23 +95,25 @@ public final class Utils {
     //endregion recipe
 
     // region network
-    // TODO: add custom particle support for datapacks
-    public static void sendParticlePacket(World world, Vec3d pos) {
-        PacketCraftingParticle packet = new PacketCraftingParticle(pos.x, pos.y, pos.z);
-        sendPacketNear(packet, world, pos);
-    }
-
-    public static void sendPacketNear(Object packet, World world, Vec3d pos) {
-        sendPacketInRadius(packet, world, pos, 64);
-    }
-
-    public static void sendPacketInRadius(Object packet, World world, Vec3d pos, int radius) {
+    public static void sendParticle(IParticleData particle, World world, Vec3d pos) {
         if (world instanceof ServerWorld) {
-            ((ServerWorld) world).getChunkProvider()
-                    .chunkManager
-                    .getTrackingPlayers(new ChunkPos(new BlockPos(pos)), false)
-                    .filter(p -> p.getDistanceSq(pos.getX(), pos.getY(), pos.getZ()) < radius * radius)
-                    .forEach(p -> NETWORK.send(PacketDistributor.PLAYER.with(() -> p), packet));
+            Random rand = world.rand;
+
+            double dx = rand.nextGaussian() / 50;
+            double dy = rand.nextGaussian() / 50;
+            double dz = rand.nextGaussian() / 50;
+
+            ((ServerWorld) world).spawnParticle(
+                    particle,
+                    pos.x - dx,
+                    pos.y + MathHelper.nextDouble(rand, 0, 1 - dy),
+                    pos.z - dz,
+                    5,
+                    dx,
+                    dy,
+                    dz,
+                    rand.nextGaussian() / 50
+            );
         }
     }
 

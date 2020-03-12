@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
-import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.JsonReloadListener;
@@ -17,23 +16,16 @@ import net.minecraft.util.SharedConstants;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.Map;
-
-import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
 
 public abstract class ModProxy implements IProxy {
 
     private MinecraftServer server = null;
 
     public ModProxy() {
-
-        // Mod Event Bus events
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
 
         // init methods
         InWorldRecipeType.registerTypes();
@@ -43,10 +35,6 @@ public abstract class ModProxy implements IProxy {
         MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
 
         MinecraftForge.EVENT_BUS.addListener(this::recipesUpdated);
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        NETWORK.registerMessage(0, PacketCraftingParticle.class, PacketCraftingParticle::write, PacketCraftingParticle::read, PacketCraftingParticle.Handler::handle);
     }
 
     private void serverAboutToStart(FMLServerAboutToStartEvent event) {

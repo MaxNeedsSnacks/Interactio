@@ -44,27 +44,6 @@ public class Interactio {
         // non-static event handlers
         MinecraftForge.EVENT_BUS.register(new DroppedItemHandler());
 
-        /*
-                WeightedOutput<String> x = new WeightedOutput<>(new Random(), 4, 3, true);
-                x.add(null);
-                x.add(null, 0);
-                x.add("tomato", 3);
-                x.add("orange", 2);
-                x.add("apple", 1);
-
-                int t = 1_000;
-                IntStream.range(0, 10)
-                        .mapToObj(_0 -> IntStream.range(0, t).boxed().collect(Collectors.toMap(_1 -> Objects.toString(x.rollOnce()), _1 -> 1, Integer::sum)))
-                        .peek(TreeMap::new)
-                        .forEachOrdered(LOGGER::info);
-                LOGGER.info("jhfsdjhfjhkskjdhfskdj");
-
-                for (int i = 0; i < 10; i++) {
-                    LOGGER.info(x.roll());
-                }
-
-                LOGGER.info("done");
-        */
     }
 
     public static String getVersion() {

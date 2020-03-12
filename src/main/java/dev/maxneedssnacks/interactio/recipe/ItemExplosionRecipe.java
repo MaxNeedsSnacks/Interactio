@@ -19,6 +19,7 @@ import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.Random;
 
 import static dev.maxneedssnacks.interactio.Utils.compareStacks;
-import static dev.maxneedssnacks.interactio.Utils.sendParticlePacket;
+import static dev.maxneedssnacks.interactio.Utils.sendParticle;
 
 @Value
 public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
@@ -84,7 +85,7 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
                 world.addEntity(newItem);
             });
 
-            sendParticlePacket(world, pos);
+            sendParticle(ParticleTypes.END_ROD, world, pos);
 
             loopingEntities.removeIf(e -> !e.isAlive());
             used.clear();
