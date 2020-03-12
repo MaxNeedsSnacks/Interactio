@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "dev.maxneedssnacks.interactio.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "interactio.refmap.json",
+  "mixins": [
+    "RecipeManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

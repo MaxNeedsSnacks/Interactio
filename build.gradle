@@ -1,13 +1,14 @@
 buildscript {
     repositories {
-        maven {
-            url = 'https://files.minecraftforge.net/maven'
-        }
         jcenter()
         mavenCentral()
+        maven { url "https://files.minecraftforge.net/maven" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://dist.creeper.host/Sponge/maven" }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
@@ -20,6 +21,8 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
+
+apply plugin: 'org.spongepowered.mixin'
 
 lombok {
     version = '1.18.10'
@@ -39,13 +42,18 @@ sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = co
 repositories {
 
     maven {
-        url = "https://maven.tterrag.com/" // yarn2mcp
+        name = "yarn2mcp"
+        url = "https://maven.tterrag.com/"
     }
 
     maven {
-        // location of the maven that hosts JEI files
-        name = "Progwml6 maven"
+        name = "Progwml6 (JEI)"
         url = "https://dvs1.progwml6.com/files/maven/"
+    }
+
+    maven {
+        name = "Sponge (Mixins)"
+        url = "https://dist.creeper.host/Sponge/maven"
     }
 }
 
@@ -59,6 +67,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            args '--mixin.config', 'interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -72,6 +81,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
+            args '--mixin.config', 'interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -85,6 +95,7 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
+            args '--mixin.config', 'interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -104,6 +115,8 @@ minecraft {
 dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_ver}-${forge_ver}"
+
+    compile 'org.spongepowered:mixin:0.8-SNAPSHOT'
 
     // JEI
     if (project.hasProperty("jei_version")) {
@@ -129,6 +142,7 @@ dependencies {
 jar {
     manifest {
         attributes([
+                "MixinConfigs"            : "interactio.mixins.json",
                 "Specification-Title"     : "${modid}",
                 "Specification-Vendor"    : "MaxNeedsSnacks",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
@@ -156,4 +170,8 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+mixin {
+    add sourceSets.main, "interactio.refmap.json"
 }
