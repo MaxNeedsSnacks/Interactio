@@ -32,7 +32,7 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
 
     private double totalWeight = 0.0;
 
-    private final NavigableMap<Double, WeightedEntry<E>> chanceMap = new TreeMap<>();
+    private final NavigableMap<Double, E> ranges = new TreeMap<>();
 
     public WeightedOutput(double emptyWeight) {
         this(new Random(), emptyWeight);
@@ -104,15 +104,17 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
     }
 
     // 0.0 - 0.4 empty
-    // 0.4 - 0.5 apple
-    // 0.5 - 0.7 orange
-    // 0.7 - 1 tomato
+    // 0.4 - 0.7 tomato
+    // 0.7 - 0.9 orange
+    // 0.9 - 1 apple
     private void updateChances() {
-        chanceMap.clear();
+        ranges.clear();
+        ranges.put(0.0, null);
+
         totalWeight = totalWeight();
         double acc = emptyWeight / totalWeight;
         for (WeightedEntry<E> entry : this) {
-            chanceMap.put(acc, entry);
+            ranges.put(acc, entry.getResult());
             acc += entry.getWeight() / totalWeight;
         }
     }
@@ -120,9 +122,8 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
     @Nullable
     public E rollOnce() {
         double d = random.nextDouble();
-        Map.Entry<Double, WeightedEntry<E>> ceil = chanceMap.ceilingEntry(d);
-        if (ceil == null) return null;
-        return ceil.getValue().getResult();
+        Map.Entry<Double, E> match = ranges.floorEntry(d);
+        return match.getValue();
     }
 
     @Nullable
@@ -133,7 +134,7 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
     }
 
     public Collection<E> roll() {
-        Set<E> results = new HashSet<>();
+        Collection<E> results = new ArrayList<>();
         for (int i = 0; i < rolls; i++) {
             results.add(unique ? rollFiltered(e -> !results.contains(e.getResult())) : rollOnce());
         }
