@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 @Mixin(LightningBoltEntity.class)
 public abstract class LightningBoltEntityMixin extends Entity {
 
-    @Shadow
-    private int lightningState;
-
     private boolean handled;
 
     public LightningBoltEntityMixin(EntityType<?> p_i48580_1_, World p_i48580_2_) {
@@ -43,7 +40,7 @@ public abstract class LightningBoltEntityMixin extends Entity {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD)
     public void handleLightning(CallbackInfo ci, double d0, List<Entity> list) {
-        if (this.lightningState != 1 || handled) return;
+        if (handled) return;
 
         List<ItemEntity> entities = list.stream()
                 .filter(Utils::isItem)
