@@ -1,18 +1,18 @@
 buildscript {
     repositories {
-        maven {
-            url = 'https://files.minecraftforge.net/maven'
-        }
         jcenter()
         mavenCentral()
+        maven { url "https://files.minecraftforge.net/maven" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://dist.creeper.host/Sponge/maven" }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '2.0'
     id "com.wynprice.cursemaven" version "2.1.1"
 
     id 'maven-publish'
@@ -21,10 +21,7 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 
-lombok {
-    version = '1.18.10'
-    sha256 = ""
-}
+apply plugin: 'org.spongepowered.mixin'
 
 group = "${groupid}.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Interactio'
@@ -37,15 +34,19 @@ version = "${mc_ver}-${buildNo}"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 repositories {
-
     maven {
-        url = "https://maven.tterrag.com/" // yarn2mcp
+        name = "yarn2mcp"
+        url = "https://maven.tterrag.com/"
     }
 
     maven {
-        // location of the maven that hosts JEI files
-        name = "Progwml6 maven"
+        name = "Progwml6 (JEI)"
         url = "https://dvs1.progwml6.com/files/maven/"
+    }
+
+    maven {
+        name = "Sponge (Mixins)"
+        url = "https://dist.creeper.host/Sponge/maven"
     }
 }
 
@@ -54,9 +55,12 @@ minecraft {
     mappings channel: 'snapshot', version: project.mappings_ver
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
+    accessTransformer = file('src/main/resources/META-INF/at.cfg')
+
     runs {
         client {
             workingDirectory project.file('run')
+            arg '-mixin.config=interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -70,6 +74,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
+            arg '-mixin.config=interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -83,6 +88,7 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
+            arg '-mixin.config=interactio.mixins.json'
 
             // property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
@@ -103,6 +109,8 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_ver}-${forge_ver}"
 
+    compile 'org.spongepowered:mixin:0.8-SNAPSHOT'
+
     // JEI
     if (project.hasProperty("jei_version")) {
         // compile against the JEI API but do not include it at runtime
@@ -112,11 +120,13 @@ dependencies {
     }
 
     if (test_mods) {
-            runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
-            runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
+        runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
+        runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
 
-            runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
-            runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+        runtimeOnly fg.deobf("curse.maven:industrial-foregoing:2873796")
+        runtimeOnly fg.deobf("curse.maven:titanium:2873789")
+
+        runtimeOnly fg.deobf("curse.maven:nbt-tooltips:2844123")
     }
 
 }
@@ -125,6 +135,7 @@ dependencies {
 jar {
     manifest {
         attributes([
+                "MixinConfigs"            : "interactio.mixins.json",
                 "Specification-Title"     : "${modid}",
                 "Specification-Vendor"    : "MaxNeedsSnacks",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
@@ -152,4 +163,8 @@ publishing {
             url "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+mixin {
+    add sourceSets.main, "interactio.refmap.json"
 }

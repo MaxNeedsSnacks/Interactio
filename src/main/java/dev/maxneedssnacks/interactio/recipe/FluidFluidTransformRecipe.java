@@ -3,21 +3,23 @@ package dev.maxneedssnacks.interactio.recipe;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.recipe.util.FluidIngredient;
+import dev.maxneedssnacks.interactio.recipe.ingredient.FluidIngredient;
+import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
+import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
+import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import lombok.Value;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.IFluidState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -32,19 +34,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static dev.maxneedssnacks.interactio.Utils.*;
+import static dev.maxneedssnacks.interactio.Utils.compareStacks;
+import static dev.maxneedssnacks.interactio.Utils.sendParticle;
 
-@Value
 public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    ResourceLocation id;
+    private final ResourceLocation id;
 
-    Fluid result;
-    FluidIngredient input;
-    List<IngredientStack> items;
-    boolean consumeItems;
+    private final WeightedOutput<Fluid> output;
+    private final FluidIngredient input;
+    private final List<RecipeIngredient> items;
+
+    public FluidFluidTransformRecipe(ResourceLocation id, WeightedOutput<Fluid> output, FluidIngredient input, List<RecipeIngredient> items) {
+        this.id = id;
+        this.output = output;
+        this.input = input;
+        this.items = items;
+    }
 
     @Override
     public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
@@ -54,7 +62,6 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
     @Override
     public void craft(List<ItemEntity> entities, DefaultInfo info) {
-
         World world = info.getWorld();
         BlockPos pos = info.getPos();
 
@@ -66,11 +73,15 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
         if (compareStacks(entities, used, items)) {
 
-            // shrink and update items if recipe is set to consumeItems
-            if (consumeItems) Utils.shrinkAndUpdate(used);
+            Utils.shrinkAndUpdate(used);
 
-            // set block state at position to new input
-            world.setBlockState(pos, result.getDefaultState().getBlockState());
+            // set block state at position to output
+            Fluid fluid = output.rollOnce(); // we only need one block state, so just ignore unique and rolls here.
+            if (fluid != null) {
+                world.setBlockState(pos, fluid.getDefaultState().getBlockState());
+            } else {
+                world.setBlockState(pos, Blocks.AIR.getDefaultState());
+            }
 
             // spawn fancy(TM) particles(?)
             Random rand = world.rand;
@@ -78,7 +89,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
             double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
             double z = pos.getZ() + MathHelper.nextDouble(rand, 0.25, 0.75);
 
-            sendParticlePacket(world, new Vec3d(x, y, z));
+            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(x, y, z));
 
         }
 
@@ -86,21 +97,12 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
-        return NonNullList.from(Ingredient.EMPTY, items.stream().map(IngredientStack::getIngredient).toArray(Ingredient[]::new));
-    }
-
-    public boolean consumesItems() {
-        return consumeItems;
+        return NonNullList.from(Ingredient.EMPTY, items.stream().map(RecipeIngredient::getIngredient).toArray(Ingredient[]::new));
     }
 
     @Override
     public FluidIngredient getFluid() {
         return input;
-    }
-
-    @Override
-    public ItemStack getRecipeOutput() {
-        return ItemStack.EMPTY;
     }
 
     @Override
@@ -113,17 +115,31 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
         return InWorldRecipeType.FLUID_FLUID_TRANSFORM;
     }
 
+    public ResourceLocation getId() {
+        return this.id;
+    }
+
+    public WeightedOutput<Fluid> getOutput() {
+        return this.output;
+    }
+
+    public FluidIngredient getInput() {
+        return this.input;
+    }
+
+    public List<RecipeIngredient> getItems() {
+        return this.items;
+    }
+
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FluidFluidTransformRecipe> {
         @Override
         public FluidFluidTransformRecipe read(ResourceLocation id, JsonObject json) {
-
-            Fluid result = parseFluidStrict(JSONUtils.getString(json, "result"));
-
+            WeightedOutput<Fluid> output = Utils.singleOrWeighted(JSONUtils.getJsonObject(json, "output"), IEntrySerializer.FLUID);
             FluidIngredient input = FluidIngredient.deserialize(json.get("input"));
 
-            List<IngredientStack> items = new ArrayList<>();
+            List<RecipeIngredient> items = new ArrayList<>();
             JSONUtils.getJsonArray(json, "items").forEach(item -> {
-                IngredientStack stack = IngredientStack.deserialize(item);
+                RecipeIngredient stack = RecipeIngredient.deserialize(item);
                 if (!stack.getIngredient().hasNoMatchingItems()) {
                     items.add(stack);
                 }
@@ -132,47 +148,32 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
                 throw new JsonParseException(String.format("No valid items specified for recipe %s!", id));
             }
 
-            boolean consumeItems = JSONUtils.getBoolean(json, "consume_items", false);
-
-            return new FluidFluidTransformRecipe(id, result, input, items, consumeItems);
+            return new FluidFluidTransformRecipe(id, output, input, items);
         }
 
         @Nullable
         @Override
         public FluidFluidTransformRecipe read(ResourceLocation id, PacketBuffer buffer) {
-
-            Fluid result = parseFluidStrict(buffer.readResourceLocation());
+            WeightedOutput<Fluid> output = WeightedOutput.read(buffer, IEntrySerializer.FLUID);
             FluidIngredient input = FluidIngredient.read(buffer);
 
-            List<IngredientStack> items = new ArrayList<>();
+            List<RecipeIngredient> items = new ArrayList<>();
             int ingrCount = buffer.readVarInt();
             for (int i = 0; i < ingrCount; ++i) {
-                IngredientStack stack = IngredientStack.read(buffer);
+                RecipeIngredient stack = RecipeIngredient.read(buffer);
                 items.add(stack);
             }
 
-            boolean consumeItems = buffer.readBoolean();
-
-            return new FluidFluidTransformRecipe(id, result, input, items, consumeItems);
+            return new FluidFluidTransformRecipe(id, output, input, items);
         }
 
         @Override
         public void write(PacketBuffer buffer, FluidFluidTransformRecipe recipe) {
-
-            Fluid fluid = recipe.result;
-            if (fluid == null || fluid.getRegistryName() == null) {
-                buffer.writeResourceLocation(new ResourceLocation("null"));
-            } else {
-                buffer.writeResourceLocation(fluid.getRegistryName());
-            }
-
+            recipe.output.write(buffer, IEntrySerializer.FLUID);
             recipe.input.write(buffer);
 
             buffer.writeVarInt(recipe.items.size());
             recipe.items.forEach(item -> item.write(buffer));
-
-            buffer.writeBoolean(recipe.consumeItems);
-
         }
     }
 

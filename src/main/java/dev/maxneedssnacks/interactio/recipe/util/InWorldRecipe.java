@@ -1,6 +1,6 @@
 package dev.maxneedssnacks.interactio.recipe.util;
 
-import lombok.Value;
+import dev.maxneedssnacks.interactio.recipe.ingredient.FluidIngredient;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.IInventory;
@@ -60,12 +60,22 @@ public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingI
     /**
      * {@inheritDoc}
      *
-     * @deprecated Use getRecipeOutput() instead as it doesn't require an inventory.
+     * @deprecated see {@link #getRecipeOutput()}
      */
     @Override
     @Deprecated
     default ItemStack getCraftingResult(@Nullable IInventory inv) {
-        return getRecipeOutput().copy();
+        return getRecipeOutput();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @deprecated In-world recipe outputs aren't necessarily single item stacks. Therefore, this method is unreliable and should be avoided.
+     */
+    @Override
+    default ItemStack getRecipeOutput() {
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -111,10 +121,22 @@ public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingI
     //         (World and BlockPos)         //
     // ------------------------------------ //
 
-    @Value
-    class DefaultInfo implements CraftingInfo {
-        final World world;
-        final BlockPos pos;
+    final class DefaultInfo implements CraftingInfo {
+        private final World world;
+        private final BlockPos pos;
+
+        public DefaultInfo(World world, BlockPos pos) {
+            this.world = world;
+            this.pos = pos;
+        }
+
+        public World getWorld() {
+            return this.world;
+        }
+
+        public BlockPos getPos() {
+            return this.pos;
+        }
     }
 
 }

@@ -43,6 +43,15 @@ public class Interactio {
 
         // non-static event handlers
         MinecraftForge.EVENT_BUS.register(new DroppedItemHandler());
+
+        try {
+            if (!Class.forName("org.spongepowered.asm.mixin.Mixin").isAnnotation()) {
+                throw new ClassNotFoundException();
+            }
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("This mod requires mixins to run! Please install MixinBootstrap from CurseForge!");
+        }
+
     }
 
     public static String getVersion() {

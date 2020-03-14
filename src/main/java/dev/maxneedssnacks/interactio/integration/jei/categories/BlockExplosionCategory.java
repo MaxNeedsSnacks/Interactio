@@ -1,9 +1,8 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
-import com.google.common.collect.Lists;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.integration.jei.IconRecipeInfo;
 import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
+import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -13,13 +12,17 @@ import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRecipe> {
 
@@ -38,7 +41,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     public BlockExplosionCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
-        background = guiHelper.createBlankDrawable(82, 34);
+        background = guiHelper.createBlankDrawable(96, 34);
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
 
@@ -76,36 +79,57 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
         ingredients.setInput(VanillaTypes.ITEM, recipe.getInput().asItem().getDefaultInstance());
 
         // display resulting block as item, as well
-        ingredients.setOutput(VanillaTypes.ITEM, recipe.getRecipeOutput());
+        ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().stream()
+                .map(WeightedOutput.WeightedEntry::getResult)
+                .map(Block::asItem)
+                .map(Item::getDefaultInstance)
+                .collect(Collectors.toList())));
+
     }
 
     @Override
     public void setRecipe(IRecipeLayout layout, BlockExplosionRecipe recipe, IIngredients ingredients) {
 
+        List<List<ItemStack>> outputs = ingredients.getOutputs(VanillaTypes.ITEM);
+
         IGuiItemStackGroup itemStackGroup = layout.getItemStacks();
 
-        itemStackGroup.init(0, true, 4, 8);
-        itemStackGroup.init(1, false, 60, 8);
+        WeightedOutput<ItemStack> output = new WeightedOutput<>(recipe.getOutput().emptyWeight);
+        recipe.getOutput().forEach(entry -> output.add(entry.getResult().asItem().getDefaultInstance(), entry.getWeight()));
 
+        WeightedOutput.WeightedEntry<ItemStack> empty = new WeightedOutput.WeightedEntry<>(Items.BARRIER.getDefaultInstance(), output.emptyWeight);
+
+        itemStackGroup.init(0, true, 4, 8);
+        itemStackGroup.init(1, false, 72, 8);
+
+        if (output.emptyWeight > 0) outputs.get(0).add(empty.getResult());
         itemStackGroup.set(ingredients);
+
+        itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
+            if (!input && !output.isSingle()) {
+                WeightedOutput.WeightedEntry<ItemStack> match = output.stream()
+                        .filter(entry -> entry.getResult().equals(stack, false))
+                        .findFirst()
+                        .orElse(empty);
+
+                if (match == empty) {
+                    tooltip.clear();
+                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", new Style().setBold(true)));
+                }
+
+                tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
+            }
+        });
 
     }
 
     @Override
     public void draw(BlockExplosionRecipe recipe, double mouseX, double mouseY) {
 
-        List<String> tooltips = Lists.newArrayList(
-                Utils.translate("interactio.jei.block_explode.info", new Style().setUnderlined(true)),
-                Utils.translate("interactio.jei.block_explode.chance", null, Utils.formatChance(recipe.getChance(), TextFormatting.ITALIC))
-        );
+        guiHelper.createDrawableIngredient(new ItemStack(Items.TNT)).draw(38, 9);
 
-        if (recipe.isDestroy()) {
-            tooltips.add(Utils.translate("interactio.jei.block_explode.destroy", new Style().setBold(true).setItalic(true)));
-        }
-
-        IconRecipeInfo info = new IconRecipeInfo(new ItemStack(Items.TNT), guiHelper, tooltips);
-        info.draw(32, 9);
-        info.drawTooltip((int) mouseX, (int) mouseY);
+        guiHelper.getSlotDrawable().draw(4, 8);
+        guiHelper.getSlotDrawable().draw(72, 8);
 
     }
 

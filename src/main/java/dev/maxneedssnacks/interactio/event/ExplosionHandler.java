@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.util.CraftingInfo;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import lombok.Value;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
@@ -49,9 +48,21 @@ public class ExplosionHandler {
 
     }
 
-    @Value
-    public static class ExplosionInfo implements CraftingInfo {
-        World world;
-        Explosion explosion;
+    public static final class ExplosionInfo implements CraftingInfo {
+        private final World world;
+        private final Explosion explosion;
+
+        public ExplosionInfo(World world, Explosion explosion) {
+            this.world = world;
+            this.explosion = explosion;
+        }
+
+        public World getWorld() {
+            return this.world;
+        }
+
+        public Explosion getExplosion() {
+            return this.explosion;
+        }
     }
 }

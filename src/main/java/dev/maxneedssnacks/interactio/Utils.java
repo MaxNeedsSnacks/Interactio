@@ -2,19 +2,18 @@ package dev.maxneedssnacks.interactio;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import dev.maxneedssnacks.interactio.network.PacketCraftingParticle;
-import dev.maxneedssnacks.interactio.recipe.util.IngredientStack;
+import com.google.gson.JsonSyntaxException;
+import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
+import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
+import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.*;
@@ -22,16 +21,12 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
-
-import static dev.maxneedssnacks.interactio.Interactio.NETWORK;
 
 public final class Utils {
 
@@ -39,70 +34,40 @@ public final class Utils {
         return e instanceof ItemEntity;
     }
 
-    @Nullable
-    public static Fluid parseFluidNullable(String id) {
-        return parseFluidNullable(new ResourceLocation(id));
-    }
-
-    @Nullable
-    public static Fluid parseFluidNullable(ResourceLocation id) {
-        return parseFluid(id).orElse(null);
-    }
-
-    public static Fluid parseFluidStrict(String id) {
-        return parseFluidStrict(new ResourceLocation(id));
-    }
-
-    public static Fluid parseFluidStrict(ResourceLocation id) {
-        return parseFluid(id).orElseThrow(() -> new RuntimeException("Unable to parse fluid with id " + id + "!"));
-    }
-
-    public static Optional<Fluid> parseFluid(String id) {
-        return parseFluid(new ResourceLocation(id));
-    }
-
-    public static Optional<Fluid> parseFluid(ResourceLocation id) {
-        return Optional.ofNullable(ForgeRegistries.FLUIDS.getValue(id));
-    }
-
     // region recipe
-    public static boolean compareStacks(List<ItemEntity> entities, List<IngredientStack> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, List<RecipeIngredient> ingredients) {
         return compareStacks(entities, new Object2IntOpenHashMap<>(), ingredients);
     }
 
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, List<IngredientStack> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, List<RecipeIngredient> ingredients) {
 
-        List<IngredientStack> required = ingredients.stream().map(IngredientStack::copy).collect(Collectors.toList());
+        List<RecipeIngredient> required = ingredients.stream().map(RecipeIngredient::copy).collect(Collectors.toList());
 
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
 
             if (!entity.isAlive()) return false;
 
-            for (IngredientStack req : required) {
+            for (RecipeIngredient req : required) {
                 Ingredient ingredient = req.getIngredient();
                 int needed = req.getCount();
 
                 if (ingredient.test(item)) {
-                    used.put(entity, Math.min(needed, item.getCount()));
+                    int consumed = needed - req.roll(Math.min(needed, item.getCount()));
+                    used.mergeInt(entity, consumed, Integer::sum);
                     req.shrink(item.getCount());
                     break;
                 }
             }
 
-            required.removeIf(IngredientStack::isEmpty);
+            required.removeIf(RecipeIngredient::isEmpty);
         }
 
         return required.isEmpty();
     }
 
     public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities) {
-        shrinkAndUpdate(entities, false);
-    }
-
-    public static void shrinkAndUpdate(Object2IntMap<ItemEntity> entities, boolean protect) {
         entities.forEach((entity, count) -> {
-            if(protect) entity.setInvulnerable(true);
             entity.setInfinitePickupDelay();
 
             ItemStack item = entity.getItem().copy();
@@ -116,44 +81,39 @@ public final class Utils {
 
             entity.setDefaultPickupDelay();
         });
+    }
 
+    public static <T> WeightedOutput<T> singleOrWeighted(JsonObject json, IEntrySerializer<T> serializer) {
+        WeightedOutput<T> output = new WeightedOutput<>(0);
+        try {
+            output.add(serializer.read(json), 1);
+        } catch (Exception e) {
+            output = WeightedOutput.deserialize(json, serializer);
+        }
+        return output;
     }
     //endregion recipe
 
     // region network
-    // TODO: add custom particle support for datapacks
-    public static void sendParticlePacket(World world, Entity entity) {
-        sendParticlePacket(world, entity.getPositionVec());
-    }
-
-    public static void sendParticlePacket(World world, BlockPos pos) {
-        sendParticlePacket(world, new Vec3d(pos));
-    }
-
-    public static void sendParticlePacket(World world, Vec3d pos) {
-        PacketCraftingParticle packet = new PacketCraftingParticle(pos.x, pos.y, pos.z);
-        sendPacketNear(packet, world, pos);
-    }
-
-    public static void sendPacketNear(Object packet, World world, Entity entity) {
-        sendPacketNear(packet, world, entity.getPositionVec());
-    }
-
-    public static void sendPacketNear(Object packet, World world, BlockPos pos) {
-        sendPacketNear(packet, world, new Vec3d(pos));
-    }
-
-    public static void sendPacketNear(Object packet, World world, Vec3d pos) {
-        sendPacketInRadius(packet, world, pos, 64);
-    }
-
-    public static void sendPacketInRadius(Object packet, World world, Vec3d pos, int radius) {
+    public static void sendParticle(IParticleData particle, World world, Vec3d pos) {
         if (world instanceof ServerWorld) {
-            ((ServerWorld) world).getChunkProvider()
-                    .chunkManager
-                    .getTrackingPlayers(new ChunkPos(new BlockPos(pos)), false)
-                    .filter(p -> p.getDistanceSq(pos.getX(), pos.getY(), pos.getZ()) < radius * radius)
-                    .forEach(p -> NETWORK.send(PacketDistributor.PLAYER.with(() -> p), packet));
+            Random rand = world.rand;
+
+            double dx = rand.nextGaussian() / 50;
+            double dy = rand.nextGaussian() / 50;
+            double dz = rand.nextGaussian() / 50;
+
+            ((ServerWorld) world).spawnParticle(
+                    particle,
+                    pos.x - dx,
+                    pos.y + MathHelper.nextDouble(rand, 0, 1 - dy),
+                    pos.z - dz,
+                    5,
+                    dx,
+                    dy,
+                    dz,
+                    rand.nextGaussian() / 50
+            );
         }
     }
 
@@ -162,20 +122,28 @@ public final class Utils {
     }
 
     public static double parseChance(JsonObject object, String key, double dv) {
-        if (!object.has(key)) return dv;
-
-        JsonElement e = object.get(key);
-        if (!e.isJsonPrimitive()) {
-            Interactio.LOGGER.warn("Could not parse chance from " + key + " as it's not a primitive type!");
-            return dv;
-        }
-
-        JsonPrimitive p = (JsonPrimitive) e;
         try {
-            return MathHelper.clamp(p.getAsDouble(), 0, 1);
+            return getDouble(object, key, dv);
         } catch (Exception ex) {
-            return p.getAsBoolean() ? 1 : 0;
+            return JSONUtils.getBoolean(object, key, dv == 1) ? 1 : 0;
         }
+    }
+
+    public static double getDouble(JsonObject object, String key) {
+        if (object.has(key)) {
+            JsonElement e = object.get(key);
+            if (e.isJsonPrimitive() && e.getAsJsonPrimitive().isNumber()) {
+                return e.getAsDouble();
+            } else {
+                throw new JsonSyntaxException("Could not parse double from " + key + " as it's not a number!");
+            }
+        } else {
+            throw new JsonSyntaxException("Missing " + key + ", expected to find a Double");
+        }
+    }
+
+    public static double getDouble(JsonObject object, String key, double dv) {
+        return object.has(key) ? getDouble(object, key) : dv;
     }
 
     // shouldn't be needed, but who knows

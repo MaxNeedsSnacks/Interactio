@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
-import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.ItemLightningRecipe;
 import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
@@ -12,7 +12,6 @@ import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
-import mezz.jei.api.gui.ingredient.IGuiFluidStackGroup;
 import mezz.jei.api.gui.ingredient.IGuiItemStackGroup;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.ingredients.IIngredients;
@@ -22,7 +21,6 @@ import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -31,9 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTransformRecipe> {
+public class ItemLightningCategory implements IRecipeCategory<ItemLightningRecipe> {
 
-    public static final ResourceLocation UID = InWorldRecipeType.ITEM_FLUID_TRANSFORM.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.ITEM_LIGHTNING.registryName;
 
     private final IGuiHelper guiHelper;
 
@@ -47,15 +45,15 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     private final int width = 160;
     private final int height = 120;
 
-    public ItemFluidTransformCategory(IGuiHelper guiHelper) {
+    public ItemLightningCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
         background = guiHelper.createBlankDrawable(width, height);
-        overlay = guiHelper.createDrawable(Interactio.id("textures/gui/fluid_transform.png"), 0, 0, width, height);
+        overlay = guiHelper.createDrawable(Interactio.id("textures/gui/lightning.png"), 0, 0, width, height);
 
-        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.BUCKET));
+        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.NETHER_STAR));
 
-        localizedName = Utils.translate("interactio.jei.item_fluid_transform", null);
+        localizedName = Utils.translate("interactio.jei.item_lightning", null);
     }
 
     @Override
@@ -64,8 +62,8 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     }
 
     @Override
-    public Class<ItemFluidTransformRecipe> getRecipeClass() {
-        return ItemFluidTransformRecipe.class;
+    public Class<ItemLightningRecipe> getRecipeClass() {
+        return ItemLightningRecipe.class;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     }
 
     @Override
-    public void setIngredients(ItemFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setIngredients(ItemLightningRecipe recipe, IIngredients ingredients) {
 
         List<RecipeIngredient> inputs = ImmutableList.copyOf(recipe.getInputs());
 
@@ -100,9 +98,6 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         // item inputs
         ingredients.setInputLists(VanillaTypes.ITEM, mappedInputs);
 
-        // fluid input
-        ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluid().getMatchingStacks())));
-
         // item output
         ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().stream()
                 .map(WeightedOutput.WeightedEntry::getResult)
@@ -112,14 +107,12 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
     private final Point center = new Point(45, 52);
 
     @Override
-    public void setRecipe(IRecipeLayout layout, ItemFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayout layout, ItemLightningRecipe recipe, IIngredients ingredients) {
 
         List<List<ItemStack>> inputs = ingredients.getInputs(VanillaTypes.ITEM);
-        List<List<FluidStack>> fluid = ingredients.getInputs(VanillaTypes.FLUID);
         List<List<ItemStack>> outputs = ingredients.getOutputs(VanillaTypes.ITEM);
 
         IGuiItemStackGroup itemStackGroup = layout.getItemStacks();
-        IGuiFluidStackGroup fluidStackGroup = layout.getFluidStacks();
 
         double angleDelta = 360.0 / inputs.size();
 
@@ -172,19 +165,11 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
             }
         });
 
-        fluidStackGroup.init(0, true, center.x + 1, center.y + 1);
-        fluidStackGroup.set(0, fluid.get(0));
-
-        fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (input && recipe.getConsumeFluid() > 0) {
-                tooltip.add(Utils.translate("interactio.jei.consume_chance", null, Utils.formatChance(recipe.getConsumeFluid(), TextFormatting.ITALIC)));
-            }
-        });
 
     }
 
     @Override
-    public void draw(ItemFluidTransformRecipe recipe, double mouseX, double mouseY) {
+    public void draw(ItemLightningRecipe recipe, double mouseX, double mouseY) {
 
         RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
@@ -194,7 +179,6 @@ public class ItemFluidTransformCategory implements IRecipeCategory<ItemFluidTran
         RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
-        guiHelper.getSlotDrawable().draw(center.x, center.y);
         guiHelper.getSlotDrawable().draw(width - 20, center.y);
 
     }
