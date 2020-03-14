@@ -50,20 +50,20 @@ public class RecipeIngredient implements Predicate<ItemStack> {
 
     public static RecipeIngredient deserialize(@Nullable JsonElement json) {
         if (json != null && !json.isJsonNull()) {
-            Ingredient ingredient = Ingredient.deserialize(json);
-            int count = 1;
-            double returnChance = 0;
             if (json.isJsonObject()) {
                 JsonObject obj = json.getAsJsonObject();
 
-                count = JSONUtils.getInt(obj, "count", 1);
-                returnChance = Utils.parseChance(obj, "return_chance");
+                Ingredient ingredient = obj.has("ingredient") ? Ingredient.deserialize(obj.get("ingredient")) : Ingredient.deserialize(obj);
+                int count = JSONUtils.getInt(obj, "count", 1);
+                double returnChance = Utils.parseChance(obj, "return_chance");
+                return new RecipeIngredient(ingredient, count, returnChance);
+            } else {
+                Ingredient ingredient = Ingredient.deserialize(json);
+                return new RecipeIngredient(ingredient, 1, 0);
             }
-            return new RecipeIngredient(ingredient, count, returnChance);
         } else {
             throw new JsonSyntaxException("Ingredient stack cannot be null!");
         }
-
     }
 
     public static RecipeIngredient read(PacketBuffer buffer) {
