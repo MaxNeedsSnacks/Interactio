@@ -8,5 +8,6 @@
   "interactio.jei.item_fluid_transform": "Fluid to Item Recipe",
   "interactio.jei.fluid_fluid_transform": "Fluid Transformation Recipe",
   "interactio.jei.item_explode": "Exploding Items",
-  "interactio.jei.block_explode": "Exploding Blocks"
+  "interactio.jei.block_explode": "Exploding Blocks",
+  "interactio.jei.item_lightning": "Items Channeling Lightning"
 }

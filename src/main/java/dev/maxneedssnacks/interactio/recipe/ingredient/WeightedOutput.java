@@ -5,8 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
-import lombok.Getter;
-import lombok.Value;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.JSONUtils;
 
@@ -18,16 +16,12 @@ import java.util.stream.StreamSupport;
 
 public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntry<E>> {
 
-    @Getter
     public final Random random;
 
-    @Getter
     public final double emptyWeight;
 
-    @Getter
     public final int rolls;
 
-    @Getter
     public final boolean unique;
 
     private double totalWeight = 0.0;
@@ -199,10 +193,42 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
         });
     }
 
-    @Value
-    public static class WeightedEntry<T> {
-        T result;
-        double weight;
+    public Random getRandom() {
+        return this.random;
+    }
+
+    public double getEmptyWeight() {
+        return this.emptyWeight;
+    }
+
+    public int getRolls() {
+        return this.rolls;
+    }
+
+    public boolean isUnique() {
+        return this.unique;
+    }
+
+    public static final class WeightedEntry<T> {
+        private final T result;
+        private final double weight;
+
+        public WeightedEntry(T result, double weight) {
+            this.result = result;
+            this.weight = weight;
+        }
+
+        public T getResult() {
+            return this.result;
+        }
+
+        public double getWeight() {
+            return this.weight;
+        }
+
+        public String toString() {
+            return "WeightedOutput.WeightedEntry(result=" + this.getResult() + ", weight=" + this.getWeight() + ")";
+        }
     }
 
 }

@@ -7,7 +7,6 @@ import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
-import lombok.Value;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -22,15 +21,20 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 
-@Value
-public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState, ExplosionInfo> {
+public final class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState, ExplosionInfo> {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    ResourceLocation id;
+    private final ResourceLocation id;
 
-    WeightedOutput<Block> output;
-    Block input;
+    private final WeightedOutput<Block> output;
+    private final Block input;
+
+    public BlockExplosionRecipe(ResourceLocation id, WeightedOutput<Block> output, Block input) {
+        this.id = id;
+        this.output = output;
+        this.input = input;
+    }
 
     @Override
     public boolean canCraft(BlockPos pos, BlockState state) {
@@ -67,6 +71,14 @@ public class BlockExplosionRecipe implements InWorldRecipe<BlockPos, BlockState,
     @Override
     public IRecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_EXPLODE;
+    }
+
+    public WeightedOutput<Block> getOutput() {
+        return this.output;
+    }
+
+    public Block getInput() {
+        return this.input;
     }
 
     private static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<BlockExplosionRecipe> {

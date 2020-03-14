@@ -11,7 +11,6 @@ import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import lombok.Value;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
@@ -38,16 +37,22 @@ import java.util.Random;
 import static dev.maxneedssnacks.interactio.Utils.compareStacks;
 import static dev.maxneedssnacks.interactio.Utils.sendParticle;
 
-@Value
-public class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
+public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    ResourceLocation id;
+    private final ResourceLocation id;
 
-    WeightedOutput<Fluid> output;
-    FluidIngredient input;
-    List<RecipeIngredient> items;
+    private final WeightedOutput<Fluid> output;
+    private final FluidIngredient input;
+    private final List<RecipeIngredient> items;
+
+    public FluidFluidTransformRecipe(ResourceLocation id, WeightedOutput<Fluid> output, FluidIngredient input, List<RecipeIngredient> items) {
+        this.id = id;
+        this.output = output;
+        this.input = input;
+        this.items = items;
+    }
 
     @Override
     public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
@@ -108,6 +113,22 @@ public class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFluid {
     @Override
     public IRecipeType<?> getType() {
         return InWorldRecipeType.FLUID_FLUID_TRANSFORM;
+    }
+
+    public ResourceLocation getId() {
+        return this.id;
+    }
+
+    public WeightedOutput<Fluid> getOutput() {
+        return this.output;
+    }
+
+    public FluidIngredient getInput() {
+        return this.input;
+    }
+
+    public List<RecipeIngredient> getItems() {
+        return this.items;
     }
 
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<FluidFluidTransformRecipe> {

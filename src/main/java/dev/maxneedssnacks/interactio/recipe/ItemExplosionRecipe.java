@@ -12,7 +12,6 @@ import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import lombok.Value;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -38,16 +37,20 @@ import java.util.Random;
 import static dev.maxneedssnacks.interactio.Utils.compareStacks;
 import static dev.maxneedssnacks.interactio.Utils.sendParticle;
 
-@Value
-public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
+public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<ExplosionInfo> {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    ResourceLocation id;
+    private final ResourceLocation id;
 
-    WeightedOutput<ItemStack> output;
-    List<RecipeIngredient> inputs;
-    double chance;
+    private final WeightedOutput<ItemStack> output;
+    private final List<RecipeIngredient> inputs;
+
+    public ItemExplosionRecipe(ResourceLocation id, WeightedOutput<ItemStack> output, List<RecipeIngredient> inputs) {
+        this.id = id;
+        this.output = output;
+        this.inputs = inputs;
+    }
 
     @Override
     public boolean canCraft(List<ItemEntity> entities) {
@@ -112,6 +115,18 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
         return InWorldRecipeType.ITEM_EXPLODE;
     }
 
+    public ResourceLocation getId() {
+        return this.id;
+    }
+
+    public WeightedOutput<ItemStack> getOutput() {
+        return this.output;
+    }
+
+    public List<RecipeIngredient> getInputs() {
+        return this.inputs;
+    }
+
     public static class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ItemExplosionRecipe> {
         @Override
         public ItemExplosionRecipe read(ResourceLocation id, JsonObject json) {
@@ -128,9 +143,7 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
                 throw new JsonParseException(String.format("No valid inputs specified for recipe %s!", id));
             }
 
-            double chance = Utils.parseChance(json, "chance", 1);
-
-            return new ItemExplosionRecipe(id, output, inputs, chance);
+            return new ItemExplosionRecipe(id, output, inputs);
         }
 
         @Nullable
@@ -145,9 +158,7 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
                 inputs.add(stack);
             }
 
-            double chance = buffer.readDouble();
-
-            return new ItemExplosionRecipe(id, output, inputs, chance);
+            return new ItemExplosionRecipe(id, output, inputs);
         }
 
         @Override
@@ -156,8 +167,6 @@ public class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<Explosi
 
             buffer.writeVarInt(recipe.inputs.size());
             recipe.inputs.forEach(item -> item.write(buffer));
-
-            buffer.writeDouble(recipe.chance);
         }
     }
 

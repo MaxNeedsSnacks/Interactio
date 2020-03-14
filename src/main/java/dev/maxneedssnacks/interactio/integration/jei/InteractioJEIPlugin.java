@@ -1,10 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei;
 
 import dev.maxneedssnacks.interactio.Interactio;
-import dev.maxneedssnacks.interactio.integration.jei.categories.BlockExplosionCategory;
-import dev.maxneedssnacks.interactio.integration.jei.categories.FluidFluidTransformCategory;
-import dev.maxneedssnacks.interactio.integration.jei.categories.ItemExplosionCategory;
-import dev.maxneedssnacks.interactio.integration.jei.categories.ItemFluidTransformCategory;
+import dev.maxneedssnacks.interactio.integration.jei.categories.*;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -37,7 +34,8 @@ public class InteractioJEIPlugin implements IModPlugin {
                 new ItemFluidTransformCategory(guiHelper),
                 new FluidFluidTransformCategory(guiHelper),
                 new ItemExplosionCategory(guiHelper),
-                new BlockExplosionCategory(guiHelper)
+                new BlockExplosionCategory(guiHelper),
+                new ItemLightningCategory(guiHelper)
         );
     }
 
@@ -47,5 +45,6 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipes(InWorldRecipeType.FLUID_FLUID_TRANSFORM.getRecipes(), FluidFluidTransformCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_EXPLODE.getRecipes(), ItemExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.BLOCK_EXPLODE.getRecipes(), BlockExplosionCategory.UID);
+        registration.addRecipes(InWorldRecipeType.ITEM_LIGHTNING.getRecipes(), ItemLightningCategory.UID);
     }
 }

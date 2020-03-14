@@ -1,10 +1,7 @@
 package dev.maxneedssnacks.interactio.recipe.util;
 
 import dev.maxneedssnacks.interactio.Interactio;
-import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemExplosionRecipe;
-import dev.maxneedssnacks.interactio.recipe.ItemFluidTransformRecipe;
+import dev.maxneedssnacks.interactio.recipe.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.*;
 import net.minecraft.util.NonNullList;
@@ -27,6 +24,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
     public static final InWorldRecipeType<FluidFluidTransformRecipe> FLUID_FLUID_TRANSFORM = create("fluid_fluid_transform", FluidFluidTransformRecipe.SERIALIZER);
     public static final InWorldRecipeType<ItemExplosionRecipe> ITEM_EXPLODE = create("item_explode", ItemExplosionRecipe.SERIALIZER);
     public static final InWorldRecipeType<BlockExplosionRecipe> BLOCK_EXPLODE = create("block_explode", BlockExplosionRecipe.SERIALIZER);
+    public static final InWorldRecipeType<ItemLightningRecipe> ITEM_LIGHTNING = create("item_lightning", ItemLightningRecipe.SERIALIZER);
 
     private static <T extends InWorldRecipe<?, ?, ?>> InWorldRecipeType<T> create(String name, IRecipeSerializer<T> serializer) {
         InWorldRecipeType<T> type = new InWorldRecipeType<>(name, serializer);
