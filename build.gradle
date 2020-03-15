@@ -28,7 +28,7 @@ archivesBaseName = 'Interactio'
 
 def test_mods = true
 
-def buildNo = "2.0.0"
+def buildNo = "2.0.1"
 version = "${mc_ver}-${buildNo}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
