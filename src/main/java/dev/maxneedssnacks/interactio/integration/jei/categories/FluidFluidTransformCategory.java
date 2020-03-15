@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.integration.jei.util.TooltipCallbacks;
 import dev.maxneedssnacks.interactio.recipe.FluidFluidTransformRecipe;
 import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
@@ -21,8 +22,6 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
@@ -142,17 +141,6 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
             point = Utils.rotatePointAbout(point, center, angleDelta);
         }
 
-        itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (input) {
-                if (idx >= 0 && idx < returnChances.size()) {
-                    double returnChance = returnChances.get(idx);
-                    if (returnChance != 0) {
-                        tooltip.add(Utils.translate("interactio.jei.return_chance", null, Utils.formatChance(returnChance, TextFormatting.ITALIC)));
-                    }
-                }
-            }
-        });
-
         fluidStackGroup.init(0, true, center.x + 1, center.y + 1);
         fluidStackGroup.set(0, fluid.get(0));
 
@@ -160,21 +148,15 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         if (output.emptyWeight > 0) outputs.get(0).add(new FluidStack(empty.getResult(), 1000));
         fluidStackGroup.set(1, outputs.get(0));
 
-        fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (!input && !output.isSingle()) {
-                WeightedOutput.WeightedEntry<Fluid> match = output.stream()
-                        .filter(entry -> entry.getResult() == stack.getFluid())
-                        .findFirst()
-                        .orElse(empty);
-
-                if (match == empty) {
-                    tooltip.clear();
-                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", new Style().setBold(true)));
-                }
-
-                tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
-            }
+        itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
+            TooltipCallbacks.returnChance(idx, input, tooltip, returnChances);
         });
+
+        fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
+            TooltipCallbacks.weightedOutput(input, stack.getFluid(), tooltip, output, empty, false);
+            TooltipCallbacks.recipeID(input, tooltip, recipe);
+        });
+
     }
 
     @Override

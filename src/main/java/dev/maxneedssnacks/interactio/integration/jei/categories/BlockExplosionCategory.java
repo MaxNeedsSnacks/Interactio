@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.integration.jei.util.TooltipCallbacks;
 import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
@@ -17,8 +18,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 
 import java.util.Collections;
 import java.util.List;
@@ -106,19 +105,8 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
         itemStackGroup.set(ingredients);
 
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (!input && !output.isSingle()) {
-                WeightedOutput.WeightedEntry<ItemStack> match = output.stream()
-                        .filter(entry -> entry.getResult().equals(stack, false))
-                        .findFirst()
-                        .orElse(empty);
-
-                if (match == empty) {
-                    tooltip.clear();
-                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", new Style().setBold(true)));
-                }
-
-                tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
-            }
+            TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, false, entry -> entry.getResult().equals(stack, false));
+            TooltipCallbacks.recipeID(input, tooltip, recipe);
         });
 
     }

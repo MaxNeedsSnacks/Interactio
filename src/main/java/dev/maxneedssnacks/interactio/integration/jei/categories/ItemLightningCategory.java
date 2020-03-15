@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
+import dev.maxneedssnacks.interactio.integration.jei.util.TooltipCallbacks;
 import dev.maxneedssnacks.interactio.recipe.ItemLightningRecipe;
 import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
@@ -19,8 +20,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -136,35 +135,10 @@ public class ItemLightningCategory implements IRecipeCategory<ItemLightningRecip
         itemStackGroup.set(i, outputs.get(0));
 
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            if (input) {
-                if (idx >= 0 && idx < returnChances.size()) {
-                    double returnChance = returnChances.get(idx);
-                    if (returnChance != 0) {
-                        tooltip.add(Utils.translate("interactio.jei.return_chance", null, Utils.formatChance(returnChance, TextFormatting.ITALIC)));
-                    }
-                }
-            } else if (!output.isSingle()) {
-                WeightedOutput.WeightedEntry<ItemStack> match = output.stream()
-                        .filter(entry -> entry.getResult() == stack)
-                        .findFirst()
-                        .orElse(empty);
-
-                if (match == empty) {
-                    tooltip.clear();
-                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", new Style().setBold(true)));
-                }
-
-                tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
-
-                if (output.rolls > 1) {
-                    tooltip.add(Utils.translate("interactio.jei.weighted_output_roll_count",
-                            new Style().setColor(TextFormatting.GRAY),
-                            output.unique ? Utils.translate("interactio.jei.weighted_output_roll_unique", null, output.rolls)
-                                    : output.rolls));
-                }
-            }
+            TooltipCallbacks.returnChance(idx, input, tooltip, returnChances);
+            TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, true);
+            TooltipCallbacks.recipeID(input, tooltip, recipe);
         });
-
 
     }
 
