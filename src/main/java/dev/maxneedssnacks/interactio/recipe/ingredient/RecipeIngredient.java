@@ -13,6 +13,7 @@ import net.minecraft.util.JSONUtils;
 import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class RecipeIngredient implements Predicate<ItemStack> {
 
@@ -118,14 +119,10 @@ public class RecipeIngredient implements Predicate<ItemStack> {
     }
 
     public boolean roll() {
-        return r.nextFloat() <= returnChance;
+        return r.nextDouble() <= returnChance;
     }
 
     public int roll(int times) {
-        int count = 0;
-        for (int i = 0; i < times; i++) {
-            count += roll() ? 1 : 0;
-        }
-        return count;
+        return (int) IntStream.range(0, times).filter(i -> roll()).count();
     }
 }

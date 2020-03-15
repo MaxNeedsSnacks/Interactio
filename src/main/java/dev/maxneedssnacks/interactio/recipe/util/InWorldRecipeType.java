@@ -1,5 +1,6 @@
 package dev.maxneedssnacks.interactio.recipe.util;
 
+import com.google.common.collect.ImmutableList;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.recipe.*;
 import net.minecraft.item.ItemStack;
@@ -41,7 +42,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
 
     public static void clearCache() {
         types.forEach(type -> {
-            type.cachedRecipes.clear();
+            type.cachedRecipes = Collections.emptyList();
             type.cachedInputs = null;
         });
     }
@@ -63,14 +64,20 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
         return registryName.toString();
     }
 
+    @SuppressWarnings({"unchecked", "UnstableApiUsage"})
     public List<T> getRecipes() {
-        RecipeManager manager = PROXY.getRecipeManager();
-
-        if (manager == null) return Collections.emptyList();
-
         if (cachedRecipes.isEmpty()) {
-            //noinspection ConstantConditions
-            cachedRecipes = manager.getRecipes(this, null, null);
+            RecipeManager manager = PROXY.getRecipeManager();
+            if (manager == null) return Collections.emptyList();
+
+            cachedRecipes = manager.getRecipes(this)
+                    .values()
+                    .stream()
+                    // we can do this since we're filtering by our recipe type
+                    // unless of course, someone does something horrible with the map,
+                    // in which case, shame on them, not on us
+                    .map(it -> (T) it)
+                    .collect(ImmutableList.toImmutableList());
         }
 
         return cachedRecipes;

@@ -50,11 +50,10 @@ public final class Utils {
 
             for (RecipeIngredient req : required) {
                 Ingredient ingredient = req.getIngredient();
-                int needed = req.getCount();
+                int available = Math.min(req.getCount(), item.getCount());
 
                 if (ingredient.test(item)) {
-                    int consumed = needed - req.roll(Math.min(needed, item.getCount()));
-                    used.mergeInt(entity, consumed, Integer::sum);
+                    used.mergeInt(entity, available - req.roll(available), Integer::sum);
                     req.shrink(item.getCount());
                     break;
                 }
