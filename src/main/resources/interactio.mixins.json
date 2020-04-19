@@ -4,8 +4,9 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "interactio.refmap.json",
   "mixins": [
-    "RecipeManagerMixin",
-    "LightningBoltEntityMixin"
+    "AnvilBlockMixin",
+    "LightningBoltEntityMixin",
+    "RecipeManagerMixin"
   ],
   "injectors": {
     "maxShiftBy": 3,
