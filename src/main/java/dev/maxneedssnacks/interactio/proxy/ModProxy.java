@@ -4,12 +4,16 @@ import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+
+import javax.annotation.Nullable;
 
 public abstract class ModProxy implements IProxy {
 
@@ -26,10 +30,12 @@ public abstract class ModProxy implements IProxy {
     }
 
     private void serverStarting(FMLServerStartingEvent event) {
+        this.server = event.getServer();
         CommandItemInfo.register(event.getCommandDispatcher());
         CommandRegistryDump.register(event.getCommandDispatcher());
     }
 
+    @Nullable
     @Override
     public MinecraftServer getServer() {
         return server;
@@ -40,20 +46,18 @@ public abstract class ModProxy implements IProxy {
         return SharedConstants.getVersion().getName();
     }
 
+    @Override
+    public RecipeManager getRecipeManager() {
+        return getWorld() == null ? null : getWorld().getRecipeManager();
+    }
+
     public static class Client extends ModProxy {
         public Client() {
         }
 
+        @Nullable
         @Override
-        public RecipeManager getRecipeManager() {
-            return getClientWorld() == null ?
-                    (getServer() == null ?
-                            null : getServer().getRecipeManager())
-                    : getClientWorld().getRecipeManager();
-        }
-
-        @Override
-        public World getClientWorld() {
+        public ClientWorld getWorld() {
             return Minecraft.getInstance().world;
         }
     }
@@ -62,14 +66,10 @@ public abstract class ModProxy implements IProxy {
         public Server() {
         }
 
+        @Nullable
         @Override
-        public RecipeManager getRecipeManager() {
-            return getServer() == null ? null : getServer().getRecipeManager();
-        }
-
-        @Override
-        public World getClientWorld() {
-            throw new UnsupportedOperationException("Attempted to call client-side method getClientWorld on server, this is not good!");
+        public ServerWorld getWorld() {
+            return getServer() == null ? null : getServer().getWorld(DimensionType.OVERWORLD);
         }
     }
 }
