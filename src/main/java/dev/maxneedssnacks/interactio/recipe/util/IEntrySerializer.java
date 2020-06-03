@@ -62,7 +62,6 @@ public interface IEntrySerializer<T> {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "block"));
             return Optional.ofNullable(ForgeRegistries.BLOCKS.getValue(id))
                     .orElseThrow(() -> new JsonParseException("Unable to parse block with id " + id + "!"));
-
         }
 
         @Override

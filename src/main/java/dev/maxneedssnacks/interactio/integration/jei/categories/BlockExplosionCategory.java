@@ -75,15 +75,28 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     @Override
     public void setIngredients(BlockExplosionRecipe recipe, IIngredients ingredients) {
         // display input block as item
-        ingredients.setInput(VanillaTypes.ITEM, recipe.getInput().asItem().getDefaultInstance());
-
-        // display resulting block as item, as well
-        ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().stream()
-                .map(WeightedOutput.WeightedEntry::getResult)
+        ingredients.setInputs(VanillaTypes.ITEM, recipe.getInput().getMatchingBlocks()
+                .stream()
                 .map(Block::asItem)
                 .map(Item::getDefaultInstance)
-                .collect(Collectors.toList())));
+                .collect(Collectors.toList()));
 
+        // display resulting block as item, as well
+        if (recipe.getOutput().isBlock()) {
+            ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput()
+                    .blockOutput
+                    .stream()
+                    .map(WeightedOutput.WeightedEntry::getResult)
+                    .map(Block::asItem)
+                    .map(Item::getDefaultInstance)
+                    .collect(Collectors.toList())));
+        } else if (recipe.getOutput().isItem()) {
+            ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput()
+                    .itemOutput
+                    .stream()
+                    .map(WeightedOutput.WeightedEntry::getResult)
+                    .collect(Collectors.toList())));
+        }
     }
 
     @Override
@@ -93,8 +106,17 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
         IGuiItemStackGroup itemStackGroup = layout.getItemStacks();
 
-        WeightedOutput<ItemStack> output = new WeightedOutput<>(recipe.getOutput().emptyWeight);
-        recipe.getOutput().forEach(entry -> output.add(entry.getResult().asItem().getDefaultInstance(), entry.getWeight()));
+        WeightedOutput<ItemStack> output;
+
+        if (recipe.getOutput().isItem()) {
+            output = recipe.getOutput().itemOutput;
+        } else if (recipe.getOutput().isBlock()) {
+            WeightedOutput<Block> blocks = recipe.getOutput().blockOutput;
+            output = new WeightedOutput<>(blocks.emptyWeight);
+            blocks.forEach(entry -> output.add(entry.getResult().asItem().getDefaultInstance(), entry.getWeight()));
+        } else {
+            output = new WeightedOutput<>(0.0D);
+        }
 
         WeightedOutput.WeightedEntry<ItemStack> empty = new WeightedOutput.WeightedEntry<>(Items.BARRIER.getDefaultInstance(), output.emptyWeight);
 
@@ -105,7 +127,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
         itemStackGroup.set(ingredients);
 
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
-            TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, false, entry -> entry.getResult().equals(stack, false));
+            TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, recipe.getOutput().isItem(), entry -> entry.getResult().equals(stack, false));
             TooltipCallbacks.recipeID(input, tooltip, recipe);
         });
 
