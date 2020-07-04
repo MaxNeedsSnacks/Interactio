@@ -23,7 +23,7 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
@@ -67,7 +67,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
 
         List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(entities);
 
-        Vec3d pos = explosion.getPosition();
+        Vector3d pos = explosion.getPosition();
 
         while (compareStacks(loopingEntities, used, inputs)) {
             // shrink and update items, protecting them from the explosion

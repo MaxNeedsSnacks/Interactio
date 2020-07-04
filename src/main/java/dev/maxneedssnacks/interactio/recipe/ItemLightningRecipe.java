@@ -24,7 +24,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -89,7 +89,8 @@ public final class ItemLightningRecipe implements InWorldRecipe.ItemsStateless<D
                 world.addEntity(newItem);
             });
 
-            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(pos));
+            // func_237492_c_ = centered
+            sendParticle(ParticleTypes.END_ROD, world, Vector3d.func_237492_c_(pos));
 
             loopingEntities.removeIf(e -> !e.isAlive());
             used.clear();

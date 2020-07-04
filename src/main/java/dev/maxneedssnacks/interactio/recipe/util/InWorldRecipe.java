@@ -2,11 +2,11 @@ package dev.maxneedssnacks.interactio.recipe.util;
 
 import dev.maxneedssnacks.interactio.recipe.ingredient.FluidIngredient;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.state.IStateHolder;
+import net.minecraft.state.StateHolder;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * @param <S> Some kind of state that will be used to check whether a craft should be performed.
  * @param <U> A recipe info wrapper that will be used to provide information to {@link #craft(T, U)}
  */
-public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingInfo> extends IRecipe<IInventory> {
+public interface InWorldRecipe<T, S extends StateHolder<?, ?>, U extends CraftingInfo> extends IRecipe<IInventory> {
 
     /**
      * {@inheritDoc}
@@ -99,14 +99,14 @@ public interface InWorldRecipe<T, S extends IStateHolder<?>, U extends CraftingI
     //          recipe types below          //
     // ------------------------------------ //
 
-    interface ItemsInFluid extends InWorldRecipe<List<ItemEntity>, IFluidState, DefaultInfo> {
+    interface ItemsInFluid extends InWorldRecipe<List<ItemEntity>, FluidState, DefaultInfo> {
         FluidIngredient getFluid();
     }
 
-    interface Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, IStateHolder<?>, U> {
+    interface Stateless<R, U extends CraftingInfo> extends InWorldRecipe<R, StateHolder<?, ?>, U> {
         @Override
         @Deprecated // don't use this, obviously
-        default boolean canCraft(R inputs, @Nullable IStateHolder<?> state) {
+        default boolean canCraft(R inputs, @Nullable StateHolder<?, ?> state) {
             return canCraft(inputs);
         }
 

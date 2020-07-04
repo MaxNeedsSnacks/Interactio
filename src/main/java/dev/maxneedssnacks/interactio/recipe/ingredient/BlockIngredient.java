@@ -10,7 +10,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -115,7 +117,7 @@ public class BlockIngredient implements Predicate<BlockState> {
             return new SingleBlockList(block);
         } else if (json.has("tag")) {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "tag"));
-            Tag<Block> tag = BlockTags.getCollection().get(id);
+            ITag<Block> tag = BlockTags.getCollection().get(id);
             if (tag == null) {
                 throw new JsonSyntaxException("Unknown block tag '" + id + "'");
             }
@@ -174,19 +176,22 @@ public class BlockIngredient implements Predicate<BlockState> {
     }
 
     public static class TagList implements IBlockList {
-        private final Tag<Block> tag;
+        private final ITag<Block> tag;
 
-        public TagList(Tag<Block> tagIn) {
+        public TagList(ITag<Block> tagIn) {
             this.tag = tagIn;
         }
 
+        // func_230236_b_ = getAllElements
         public Collection<Block> getBlocks() {
-            return this.tag.getAllElements();
+            return this.tag.func_230236_b_();
         }
 
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty("tag", this.tag.getId().toString());
+            // yarn mappings if possible
+            // func_232928_e_ = instance, func_232923_a_ = blocks, func_232975_b_ = checkId
+            jsonobject.addProperty("tag", TagCollectionManager.func_232928_e_().func_232923_a_().func_232975_b_(tag).toString());
             return jsonobject;
         }
     }

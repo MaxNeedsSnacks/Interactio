@@ -15,7 +15,7 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -94,11 +94,11 @@ public final class Utils {
     //endregion recipe
 
     // region network
-    public static void sendParticle(IParticleData particle, World world, Vec3d pos) {
+    public static void sendParticle(IParticleData particle, World world, Vector3d pos) {
         sendParticle(particle, world, pos, 5);
     }
 
-    public static void sendParticle(IParticleData particle, World world, Vec3d pos, int count) {
+    public static void sendParticle(IParticleData particle, World world, Vector3d pos, int count) {
         if (world instanceof ServerWorld) {
             Random rand = world.rand;
 
@@ -157,12 +157,14 @@ public final class Utils {
     }
     // endregion network
 
-    public static String translate(String langKey, @Nullable Style style, Object... replacements) {
-        return new TranslationTextComponent(langKey, replacements).setStyle(style == null ? new Style() : style).getFormattedText();
+    public static ITextComponent translate(String langKey, @Nullable Style style, Object... replacements) {
+        // func_230530_a_ = setStyle, field_240709_b_ = empty
+        return new TranslationTextComponent(langKey, replacements).func_230530_a_(style == null ? Style.field_240709_b_ : style);
     }
 
     public static ITextComponent formatChance(double chance, TextFormatting... styles) {
-        return new StringTextComponent(String.format("%.2f%%", chance * 100.0)).applyTextStyles(styles);
+        // func_240701_a_ = applyTextStyles
+        return new StringTextComponent(String.format("%.2f%%", chance * 100.0)).func_240701_a_(styles);
     }
 
     /**

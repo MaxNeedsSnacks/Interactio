@@ -1,6 +1,6 @@
 
 modLoader="javafml" #mandatory
-loaderVersion="[31,)" #mandatory (31 is current forge version)
+loaderVersion="[32,)" #mandatory (31 is current forge version)
 # issueTrackerURL="http://my.issue.tracker/" #optional
 
 [[mods]] #mandatory
@@ -19,13 +19,13 @@ Adds various different kinds of in-world crafting recipes to the game.
 [[dependencies.interactio]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[31,)" #mandatory
+    versionRange="[32,)" #mandatory
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.interactio]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2,)"
+    versionRange="[1.16.1,)"
     ordering="NONE"
     side="BOTH"

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Mod(Interactio.MOD_ID)
@@ -28,6 +29,8 @@ public class Interactio {
     public static IProxy PROXY;
     public static Interactio INSTANCE;
 
+    public static UUID CHAT_ID = UUID.randomUUID();
+
     private final String PROTOCOL_VERSION = "1";
     public static SimpleChannel NETWORK;
 
@@ -35,7 +38,7 @@ public class Interactio {
 
         // static base variables
         INSTANCE = this;
-        PROXY = DistExecutor.runForDist(() -> ModProxy.Client::new, () -> ModProxy.Server::new);
+        PROXY = DistExecutor.safeRunForDist(() -> ModProxy.Client::new, () -> ModProxy.Server::new);
         NETWORK = NetworkRegistry.newSimpleChannel(id("particles"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
         // static event handlers

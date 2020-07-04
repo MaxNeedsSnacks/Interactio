@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
@@ -25,7 +25,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -58,7 +58,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
     }
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
+    public boolean canCraft(List<ItemEntity> entities, FluidState state) {
 
         if (!fluid.test(state.getFluid()) || !state.isSource()) return false;
         if (consumeFluid > 0 && !state.isSource()) return false;
@@ -104,7 +104,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
             });
 
             // spawn fancy(TM) particles
-            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(x, y, z));
+            sendParticle(ParticleTypes.END_ROD, world, new Vector3d(x, y, z));
         }
 
     }

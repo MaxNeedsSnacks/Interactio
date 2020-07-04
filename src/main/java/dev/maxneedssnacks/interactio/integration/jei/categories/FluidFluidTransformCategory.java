@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
@@ -55,7 +56,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         icon = guiHelper.createDrawableIngredient(new FluidStack(Fluids.FLOWING_WATER, 1000));
 
-        localizedName = Utils.translate("interactio.jei.fluid_fluid_transform", null);
+        localizedName = Utils.translate("interactio.jei.fluid_fluid_transform", null).getString();
     }
 
     @Override
@@ -160,18 +161,16 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     }
 
     @Override
-    public void draw(FluidFluidTransformRecipe recipe, double mouseX, double mouseY) {
+    public void draw(FluidFluidTransformRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
 
-        overlay.draw();
+        overlay.draw(ms);
 
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
-        guiHelper.getSlotDrawable().draw(center.x, center.y);
-        guiHelper.getSlotDrawable().draw(width - 20, center.y);
+        guiHelper.getSlotDrawable().draw(ms, center.x, center.y);
+        guiHelper.getSlotDrawable().draw(ms, width - 20, center.y);
 
     }
 

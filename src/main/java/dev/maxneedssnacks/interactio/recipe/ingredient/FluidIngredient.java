@@ -8,7 +8,9 @@ import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -120,7 +122,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return new SingleFluidList(fluid);
         } else if (json.has("tag")) {
             ResourceLocation id = new ResourceLocation(JSONUtils.getString(json, "tag"));
-            Tag<Fluid> tag = FluidTags.getContainer().get(id);
+            ITag<Fluid> tag = FluidTags.getCollection().get(id);
             if (tag == null) {
                 throw new JsonSyntaxException("Unknown fluid tag '" + id + "'");
             }
@@ -183,19 +185,20 @@ public class FluidIngredient implements Predicate<FluidStack> {
     }
 
     public static class TagList implements IFluidList {
-        private final Tag<Fluid> tag;
+        private final ITag<Fluid> tag;
 
-        public TagList(Tag<Fluid> tagIn) {
+        public TagList(ITag<Fluid> tagIn) {
             this.tag = tagIn;
         }
 
         public Collection<FluidStack> getStacks() {
-            return this.tag.getAllElements().parallelStream().map(fluid -> new FluidStack(fluid, 1000)).collect(Collectors.toList());
+            return this.tag.func_230236_b_().parallelStream().map(fluid -> new FluidStack(fluid, 1000)).collect(Collectors.toList());
         }
 
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty("tag", this.tag.getId().toString());
+            // func_232928_e_ = instance, func_232926_c_ = fluids, func_232975_b_ = checkId
+            jsonobject.addProperty("tag", TagCollectionManager.func_232928_e_().func_232926_c_().func_232975_b_(tag).toString());
             return jsonobject;
         }
     }

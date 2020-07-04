@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
@@ -52,7 +53,7 @@ public class ItemLightningCategory implements IRecipeCategory<ItemLightningRecip
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.NETHER_STAR));
 
-        localizedName = Utils.translate("interactio.jei.item_lightning", null);
+        localizedName = Utils.translate("interactio.jei.item_lightning", null).getString();
     }
 
     @Override
@@ -143,17 +144,15 @@ public class ItemLightningCategory implements IRecipeCategory<ItemLightningRecip
     }
 
     @Override
-    public void draw(ItemLightningRecipe recipe, double mouseX, double mouseY) {
+    public void draw(ItemLightningRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
 
-        overlay.draw();
+        overlay.draw(ms);
 
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
-        guiHelper.getSlotDrawable().draw(width - 20, center.y);
+        guiHelper.getSlotDrawable().draw(ms, width - 20, center.y);
 
     }
 

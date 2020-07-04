@@ -67,11 +67,11 @@ public class DroppedItemHandler {
 
             World world = event.world;
 
-            BlockPos pos = entity.getPosition();
+            BlockPos pos = entity.func_233580_cy_();
             AxisAlignedBB region = new AxisAlignedBB(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
 
             List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, region, e -> isItem(e) && watching.contains(e));
-            items.removeIf(item -> !world.getBlockState(item.getPosition()).equals(world.getBlockState(pos)));
+            items.removeIf(item -> !world.getBlockState(item.func_233580_cy_()).equals(world.getBlockState(pos)));
 
             busy.addAll(items);
             matchers.forEach(f -> f.accept(items, world, pos));

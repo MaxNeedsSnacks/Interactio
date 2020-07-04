@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
@@ -25,7 +25,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -55,7 +55,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
     }
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities, IFluidState state) {
+    public boolean canCraft(List<ItemEntity> entities, FluidState state) {
         if (!input.test(state.getFluid()) || !state.isSource()) return false;
         return compareStacks(entities, items);
     }
@@ -89,7 +89,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
             double y = pos.getY() + MathHelper.nextDouble(rand, 0.5, 1);
             double z = pos.getZ() + MathHelper.nextDouble(rand, 0.25, 0.75);
 
-            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(x, y, z));
+            sendParticle(ParticleTypes.END_ROD, world, new Vector3d(x, y, z));
 
         }
 

@@ -34,21 +34,29 @@ public class CommandRegistryDump {
         // only register this if no other dump_registry command exists
         if (dispatcher.findNode(Collections.singletonList("dump_registry")) != null) return;
 
+        // func_240699_a_ = applyTextStyle
+        // func_230529_a_ = appendSibling
+        // func_240702_b_ = appendText
+        // func_230530_a_ = setStyle
+        // field_240709_b_ = empty
+        // func_240715_a_ = setClickEvent
+        // func_240716_a_ = setHoverEvent
+        // field_230550_a_ = SHOW_TEXT
         dispatcher.register(literal("dump_registry")
                 .then(argument("registry", RegistryArgument.registry())
                         .executes(ctx -> dumpRegistry(RegistryArgument.getRegistry(ctx, "registry"), ctx.getSource())))
                 .executes(ctx -> {
                     CommandSource s = ctx.getSource();
-                    s.sendFeedback(new StringTextComponent("-- Available Registries --").applyTextStyle(TextFormatting.YELLOW), false);
+                    s.sendFeedback(new StringTextComponent("-- Available Registries --").func_240699_a_(TextFormatting.YELLOW), false);
                     RegistryManager.getRegistryNamesForSyncToClient().forEach(loc -> {
                         s.sendFeedback(
                                 new StringTextComponent("- ")
-                                        .appendText(Objects.toString(loc))
-                                        .setStyle(new Style()
-                                                .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                        .func_240702_b_(Objects.toString(loc))
+                                        .func_230530_a_(Style.field_240709_b_
+                                                .func_240716_a_(new HoverEvent(HoverEvent.Action.field_230550_a_,
                                                         new StringTextComponent("Click to view dump of ")
-                                                                .appendSibling(new StringTextComponent(Objects.toString(loc)).applyTextStyle(TextFormatting.AQUA))))
-                                                .setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dump_registry " + loc)))
+                                                                .func_230529_a_(new StringTextComponent(Objects.toString(loc)).func_240699_a_(TextFormatting.AQUA))))
+                                                .func_240715_a_(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/dump_registry " + loc)))
                                 , false);
                     });
                     return Command.SINGLE_SUCCESS;
@@ -59,16 +67,16 @@ public class CommandRegistryDump {
     private static int dumpRegistry(ForgeRegistry<?> reg, CommandSource source) {
         source.sendFeedback(
                 new StringTextComponent("-- Registry Dump for ")
-                        .appendText(reg.getRegistryName().toString())
-                        .appendText(" --")
-                        .applyTextStyle(TextFormatting.YELLOW)
+                        .func_240702_b_(reg.getRegistryName().toString())
+                        .func_240702_b_(" --")
+                        .func_240699_a_(TextFormatting.YELLOW)
                 , false);
 
         reg.getEntries().forEach(entry -> {
             source.sendFeedback(
                     new StringTextComponent("- ")
-                            .appendText(Objects.toString(entry.getKey()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent(Objects.toString(entry.getValue())))))
+                            .func_240702_b_(Objects.toString(entry.getKey()))
+                            .func_230530_a_(Style.field_240709_b_.func_240716_a_(new HoverEvent(HoverEvent.Action.field_230550_a_, new StringTextComponent(Objects.toString(entry.getValue())))))
                     , false);
         });
 

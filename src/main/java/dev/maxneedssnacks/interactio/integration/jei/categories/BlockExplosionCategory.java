@@ -1,5 +1,6 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.integration.jei.util.TooltipCallbacks;
 import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
@@ -35,6 +36,8 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
     private final IDrawable icon;
 
+    private final IDrawable tnt;
+
     private final String localizedName;
 
     public BlockExplosionCategory(IGuiHelper guiHelper) {
@@ -44,7 +47,9 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
 
-        localizedName = Utils.translate("interactio.jei.block_explode", null);
+        tnt = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
+
+        localizedName = Utils.translate("interactio.jei.block_explode", null).getString();
     }
 
     @Override
@@ -134,12 +139,12 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     }
 
     @Override
-    public void draw(BlockExplosionRecipe recipe, double mouseX, double mouseY) {
+    public void draw(BlockExplosionRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        guiHelper.createDrawableIngredient(new ItemStack(Items.TNT)).draw(38, 9);
+        tnt.draw(ms, 38, 9);
 
-        guiHelper.getSlotDrawable().draw(4, 8);
-        guiHelper.getSlotDrawable().draw(72, 8);
+        guiHelper.getSlotDrawable().draw(ms, 4, 8);
+        guiHelper.getSlotDrawable().draw(ms, 72, 8);
 
     }
 

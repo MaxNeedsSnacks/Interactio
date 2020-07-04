@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
@@ -39,6 +40,8 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
 
     private final IDrawable icon;
 
+    private final IDrawable anvil;
+
     private final String localizedName;
 
     private final int width = 160;
@@ -52,7 +55,9 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.ANVIL));
 
-        localizedName = Utils.translate("interactio.jei.item_anvil_smashing", null);
+        anvil = guiHelper.createDrawableIngredient(new ItemStack(Items.ANVIL));
+
+        localizedName = Utils.translate("interactio.jei.item_anvil_smashing", null).getString();
     }
 
     @Override
@@ -145,17 +150,15 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
     }
 
     @Override
-    public void draw(ItemAnvilSmashingRecipe recipe, double mouseX, double mouseY) {
+    public void draw(ItemAnvilSmashingRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
 
-        overlay.draw();
+        overlay.draw(ms);
 
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
-        guiHelper.createDrawableIngredient(new ItemStack(Items.ANVIL)).draw(center.x, center.y);
+        anvil.draw(ms, center.x, center.y);
 
     }
 

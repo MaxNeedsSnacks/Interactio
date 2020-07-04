@@ -48,7 +48,7 @@ public abstract class LightningBoltEntityMixin extends Entity {
                 .collect(Collectors.toList());
 
         InWorldRecipeType.ITEM_LIGHTNING.applyAll(recipe -> recipe.canCraft(entities),
-                recipe -> recipe.craft(entities, new InWorldRecipe.DefaultInfo(this.world, new BlockPos(this))));
+                recipe -> recipe.craft(entities, new InWorldRecipe.DefaultInfo(this.world, this.getOnPosition())));
 
         handled = true;
     }

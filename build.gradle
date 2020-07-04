@@ -34,10 +34,6 @@ version = "${mc_ver}-${buildNo}"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 repositories {
-    maven {
-        name = "yarn2mcp"
-        url = "https://maven.tterrag.com/"
-    }
 
     maven {
         name = "Progwml6 (JEI)"
@@ -48,6 +44,7 @@ repositories {
         name = "Sponge (Mixins)"
         url = "https://repo.spongepowered.org/maven/"
     }
+
 }
 
 minecraft {
@@ -109,7 +106,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_ver}-${forge_ver}"
 
-    compile 'org.spongepowered:mixin:0.8-SNAPSHOT'
+    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT'
 
     // JEI
     if (project.hasProperty("jei_version")) {
@@ -119,7 +116,7 @@ dependencies {
         runtimeOnly fg.deobf("mezz.jei:jei-${mc_ver}:${jei_version}")
     }
 
-    if (test_mods) {
+    if (test_mods && false) {
         runtimeOnly fg.deobf("curse.maven:silents-mechanisms:2875059")
         runtimeOnly fg.deobf("curse.maven:silentlib:2873131")
 

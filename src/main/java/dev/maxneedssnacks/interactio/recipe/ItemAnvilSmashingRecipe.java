@@ -28,7 +28,7 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
@@ -86,7 +86,8 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
 
             // damage anvil
             if (rand.nextDouble() < damage) {
-                sendParticle(new BlockParticleData(ParticleTypes.BLOCK, world.getBlockState(pos)), world, new Vec3d(pos), 25);
+                // func_237489_a_ = centeredWithY
+                sendParticle(new BlockParticleData(ParticleTypes.BLOCK, world.getBlockState(pos)), world, Vector3d.func_237489_a_(pos), 25);
                 BlockState dmg = AnvilBlock.damage(world.getBlockState(pos));
                 if (dmg == null) {
                     world.setBlockState(pos, Blocks.AIR.getDefaultState());
@@ -100,7 +101,8 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
             Collection<ItemStack> stacks = output.roll();
             stacks.forEach(stack -> Block.spawnAsEntity(world, pos, stack.copy()));
 
-            sendParticle(ParticleTypes.END_ROD, world, new Vec3d(pos));
+            // func_237489_a_ = centeredWithY
+            sendParticle(ParticleTypes.END_ROD, world, Vector3d.func_237489_a_(pos));
 
             loopingEntities.removeIf(e -> !e.isAlive());
             used.clear();

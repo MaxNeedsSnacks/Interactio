@@ -5,6 +5,7 @@ import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.block.AnvilBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.FallingBlock;
+import net.minecraft.entity.item.FallingBlockEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -25,12 +26,12 @@ public abstract class AnvilBlockMixin extends FallingBlock {
     }
 
     @Inject(
-            method = "onEndFalling(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;)V",
+            method = "onEndFalling(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/item/FallingBlockEntity;)V",
             at = @At(value = "RETURN")
     )
-    public void handleAnvilRecipes(World world, BlockPos pos, BlockState fallState, BlockState hitState, CallbackInfo ci) {
+    public void handleAnvilRecipes(World world, BlockPos pos, BlockState fallState, BlockState hitState, FallingBlockEntity entity, CallbackInfo ci) {
         List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, new AxisAlignedBB(pos, pos.add(1, 1, 1)));
-        
+
         InWorldRecipeType.ITEM_ANVIL_SMASHING.applyAll(recipe -> recipe.canCraft(items, hitState),
                 recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
     }

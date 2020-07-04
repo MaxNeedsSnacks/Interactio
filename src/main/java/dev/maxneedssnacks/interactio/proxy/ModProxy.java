@@ -8,7 +8,8 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -69,7 +70,7 @@ public abstract class ModProxy implements IProxy {
         @Nullable
         @Override
         public ServerWorld getWorld() {
-            return getServer() == null ? null : getServer().getWorld(DimensionType.OVERWORLD);
+            return getServer() == null ? null : getServer().getWorld(World.field_234918_g_);
         }
     }
 }

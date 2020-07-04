@@ -53,7 +53,7 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
 
     @Override
     public boolean add(WeightedEntry<E> entry) {
-        if (entry == null || entry.getResult() == null) return false;
+        if (entry == null) return false;
         boolean success = super.add(entry);
         updateChances();
         return success;
@@ -69,7 +69,7 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
     @Override
     public boolean addAll(Collection<? extends WeightedEntry<E>> c) {
         boolean modified = c.stream()
-                .filter(e -> e != null && e.getResult() != null)
+                .filter(Objects::nonNull)
                 .map(super::add) // avoid unnecessarily updating chances by using super
                 .reduce(false, Boolean::logicalOr);
         updateChances();
@@ -191,22 +191,6 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedOutput.WeightedEntr
             serializer.write(buffer, entry.getResult());
             buffer.writeDouble(entry.getWeight());
         });
-    }
-
-    public Random getRandom() {
-        return this.random;
-    }
-
-    public double getEmptyWeight() {
-        return this.emptyWeight;
-    }
-
-    public int getRolls() {
-        return this.rolls;
-    }
-
-    public boolean isUnique() {
-        return this.unique;
     }
 
     public static final class WeightedEntry<T> {

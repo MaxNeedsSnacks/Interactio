@@ -1,6 +1,7 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
@@ -39,6 +40,8 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
     private final IDrawable icon;
 
+    private final IDrawable tnt;
+
     private final String localizedName;
 
     private final int width = 160;
@@ -52,7 +55,9 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
 
         icon = guiHelper.createDrawableIngredient(new ItemStack(Items.GUNPOWDER));
 
-        localizedName = Utils.translate("interactio.jei.item_explode", null);
+        tnt = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
+
+        localizedName = Utils.translate("interactio.jei.item_explode", null).getString();
     }
 
     @Override
@@ -143,18 +148,16 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
     }
 
     @Override
-    public void draw(ItemExplosionRecipe recipe, double mouseX, double mouseY) {
+    public void draw(ItemExplosionRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        RenderSystem.enableAlphaTest();
         RenderSystem.enableBlend();
 
-        overlay.draw();
+        overlay.draw(ms);
 
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
 
-        guiHelper.createDrawableIngredient(new ItemStack(Items.TNT)).draw(center.x, center.y);
-        guiHelper.getSlotDrawable().draw(width - 20, center.y);
+        tnt.draw(ms, center.x, center.y);
+        guiHelper.getSlotDrawable().draw(ms, width - 20, center.y);
 
     }
 
