@@ -19,7 +19,7 @@ Adds various different kinds of in-world crafting recipes to the game.
 [[dependencies.interactio]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
-    versionRange="[32,)" #mandatory
+    versionRange="[32.0.67,)" #mandatory
     ordering="NONE"
     side="BOTH"
 

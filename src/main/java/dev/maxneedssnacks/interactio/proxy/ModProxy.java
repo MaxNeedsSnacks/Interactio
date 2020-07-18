@@ -8,10 +8,10 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SharedConstants;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 import javax.annotation.Nullable;
@@ -26,14 +26,14 @@ public abstract class ModProxy implements IProxy {
         InWorldRecipeType.registerTypes();
 
         // Forge Event Bus events
-        MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+        MinecraftForge.EVENT_BUS.addListener((FMLServerStartingEvent event) -> this.server = event.getServer());
+        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
     }
 
-    private void serverStarting(FMLServerStartingEvent event) {
-        this.server = event.getServer();
-        CommandItemInfo.register(event.getCommandDispatcher());
-        CommandRegistryDump.register(event.getCommandDispatcher());
+    private void registerCommands(RegisterCommandsEvent event) {
+        CommandItemInfo.register(event.getDispatcher());
+        CommandRegistryDump.register(event.getDispatcher());
     }
 
     @Nullable
