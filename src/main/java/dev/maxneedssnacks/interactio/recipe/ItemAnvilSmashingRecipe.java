@@ -86,8 +86,7 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
 
             // damage anvil
             if (rand.nextDouble() < damage) {
-                // func_237489_a_ = centeredWithY
-                sendParticle(new BlockParticleData(ParticleTypes.BLOCK, world.getBlockState(pos)), world, Vector3d.func_237489_a_(pos), 25);
+                sendParticle(new BlockParticleData(ParticleTypes.BLOCK, world.getBlockState(pos)), world, Vector3d.copyCenteredHorizontally(pos), 25);
                 BlockState dmg = AnvilBlock.damage(world.getBlockState(pos));
                 if (dmg == null) {
                     world.setBlockState(pos, Blocks.AIR.getDefaultState());
@@ -101,8 +100,7 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
             Collection<ItemStack> stacks = output.roll();
             stacks.forEach(stack -> Block.spawnAsEntity(world, pos, stack.copy()));
 
-            // func_237489_a_ = centeredWithY
-            sendParticle(ParticleTypes.END_ROD, world, Vector3d.func_237489_a_(pos));
+            sendParticle(ParticleTypes.END_ROD, world, Vector3d.copyCenteredHorizontally(pos));
 
             loopingEntities.removeIf(e -> !e.isAlive());
             used.clear();

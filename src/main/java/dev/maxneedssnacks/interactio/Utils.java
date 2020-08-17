@@ -158,13 +158,11 @@ public final class Utils {
     // endregion network
 
     public static ITextComponent translate(String langKey, @Nullable Style style, Object... replacements) {
-        // func_230530_a_ = setStyle, field_240709_b_ = empty
-        return new TranslationTextComponent(langKey, replacements).func_230530_a_(style == null ? Style.field_240709_b_ : style);
+        return new TranslationTextComponent(langKey, replacements).setStyle(style == null ? Style.EMPTY : style);
     }
 
     public static ITextComponent formatChance(double chance, TextFormatting... styles) {
-        // func_240701_a_ = applyTextStyles
-        return new StringTextComponent(String.format("%.2f%%", chance * 100.0)).func_240701_a_(styles);
+        return new StringTextComponent(String.format("%.2f%%", chance * 100.0)).mergeStyle(styles);
     }
 
     /**

@@ -182,9 +182,8 @@ public class BlockIngredient implements Predicate<BlockState> {
             this.tag = tagIn;
         }
 
-        // func_230236_b_ = getAllElements
         public Collection<Block> getBlocks() {
-            return this.tag.func_230236_b_();
+            return this.tag.getAllElements();
         }
 
         public JsonObject serialize() {

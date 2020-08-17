@@ -89,8 +89,7 @@ public final class ItemLightningRecipe implements InWorldRecipe.ItemsStateless<D
                 world.addEntity(newItem);
             });
 
-            // func_237492_c_ = centered
-            sendParticle(ParticleTypes.END_ROD, world, Vector3d.func_237492_c_(pos));
+            sendParticle(ParticleTypes.END_ROD, world, Vector3d.copyCentered(pos));
 
             loopingEntities.removeIf(e -> !e.isAlive());
             used.clear();

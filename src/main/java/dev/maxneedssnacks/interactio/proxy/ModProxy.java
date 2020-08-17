@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 
 import javax.annotation.Nullable;
@@ -26,7 +27,7 @@ public abstract class ModProxy implements IProxy {
         InWorldRecipeType.registerTypes();
 
         // Forge Event Bus events
-        MinecraftForge.EVENT_BUS.addListener((FMLServerStartingEvent event) -> this.server = event.getServer());
+        MinecraftForge.EVENT_BUS.addListener((FMLServerAboutToStartEvent event) -> this.server = event.getServer());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
     }

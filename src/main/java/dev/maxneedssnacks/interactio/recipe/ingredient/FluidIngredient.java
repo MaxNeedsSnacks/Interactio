@@ -192,7 +192,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         }
 
         public Collection<FluidStack> getStacks() {
-            return this.tag.func_230236_b_().parallelStream().map(fluid -> new FluidStack(fluid, 1000)).collect(Collectors.toList());
+            return this.tag.getAllElements().parallelStream().map(fluid -> new FluidStack(fluid, 1000)).collect(Collectors.toList());
         }
 
         public JsonObject serialize() {

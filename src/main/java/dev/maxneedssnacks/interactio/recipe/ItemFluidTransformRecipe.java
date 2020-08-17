@@ -2,6 +2,7 @@ package dev.maxneedssnacks.interactio.recipe;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.ingredient.FluidIngredient;
 import dev.maxneedssnacks.interactio.recipe.ingredient.RecipeIngredient;
@@ -59,6 +60,8 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
     @Override
     public boolean canCraft(List<ItemEntity> entities, FluidState state) {
+        Interactio.LOGGER.info(entities);
+        Interactio.LOGGER.info(state);
 
         if (!fluid.test(state.getFluid()) || !state.isSource()) return false;
         if (consumeFluid > 0 && !state.isSource()) return false;

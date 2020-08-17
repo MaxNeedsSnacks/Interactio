@@ -38,15 +38,14 @@ public final class TooltipCallbacks {
 
                 if (match == empty) {
                     tooltip.clear();
-                    // func_240713_a_ = setBold
-                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", Style.field_240709_b_.func_240713_a_(true)));
+                    tooltip.add(Utils.translate("interactio.jei.weighted_output_empty", Style.EMPTY.setBold(true)));
                 }
 
                 tooltip.add(Utils.translate("interactio.jei.weighted_output_chance", null, Utils.formatChance(output.getChance(match), TextFormatting.ITALIC)));
 
                 if (allowMultiple && output.rolls > 1) {
                     tooltip.add(Utils.translate("interactio.jei.weighted_output_roll_count",
-                            Style.field_240709_b_.func_240721_b_(TextFormatting.GRAY),
+                            Style.EMPTY.applyFormatting(TextFormatting.GRAY),
                             output.unique ? Utils.translate("interactio.jei.weighted_output_roll_unique", null, output.rolls)
                                     : output.rolls));
                 }
@@ -56,11 +55,9 @@ public final class TooltipCallbacks {
 
     public static void recipeID(boolean input, List<ITextComponent> tooltip, IRecipe<?> recipe) {
         if (!input) {
-            // func_231173_s_ = hasShiftDown
-            boolean showAdvanced = Minecraft.getInstance().gameSettings.advancedItemTooltips || Screen.func_231173_s_();
+            boolean showAdvanced = Minecraft.getInstance().gameSettings.advancedItemTooltips || Screen.hasShiftDown();
             if (showAdvanced) {
-                // field_240709_b_ = empty, func_240721_b_ = setColor?
-                tooltip.add(Utils.translate("jei.tooltip.recipe.id", Style.field_240709_b_.func_240721_b_(TextFormatting.DARK_GRAY), recipe.getId()));
+                tooltip.add(Utils.translate("jei.tooltip.recipe.id", Style.EMPTY.setFormatting(TextFormatting.DARK_GRAY), recipe.getId()));
             }
         }
     }
