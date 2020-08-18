@@ -7,10 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollectionManager;
+import net.minecraft.tags.*;
 import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -197,8 +194,8 @@ public class FluidIngredient implements Predicate<FluidStack> {
 
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
-            // func_232928_e_ = instance, func_232926_c_ = fluids, func_232975_b_ = checkId
-            jsonobject.addProperty("tag", TagCollectionManager.func_232928_e_().func_232926_c_().func_232975_b_(tag).toString());
+            // func_232975_b_ = checkId
+            jsonobject.addProperty("tag", FluidTags.getCollection().func_232975_b_(tag).toString());
             return jsonobject;
         }
     }

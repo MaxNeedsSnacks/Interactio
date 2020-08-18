@@ -60,9 +60,6 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
 
     @Override
     public boolean canCraft(List<ItemEntity> entities, FluidState state) {
-        Interactio.LOGGER.info(entities);
-        Interactio.LOGGER.info(state);
-
         if (!fluid.test(state.getFluid()) || !state.isSource()) return false;
         if (consumeFluid > 0 && !state.isSource()) return false;
 
