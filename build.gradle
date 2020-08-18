@@ -28,7 +28,7 @@ archivesBaseName = 'Interactio'
 
 def test_mods = true
 
-def buildNo = "2.0.5a"
+def buildNo = "2.1.0"
 version = "${mc_ver}-${buildNo}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -105,8 +105,6 @@ minecraft {
 dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_ver}-${forge_ver}"
-
-    implementation 'org.spongepowered:mixin:0.8-SNAPSHOT'
 
     // JEI
     if (project.hasProperty("jei_version")) {
