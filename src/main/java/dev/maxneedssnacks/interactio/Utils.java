@@ -95,6 +95,10 @@ public final class Utils {
 
     // region network
     public static void sendParticle(IParticleData particle, World world, Vec3d pos) {
+        sendParticle(particle, world, pos, 5);
+    }
+
+    public static void sendParticle(IParticleData particle, World world, Vec3d pos, int count) {
         if (world instanceof ServerWorld) {
             Random rand = world.rand;
 
@@ -107,7 +111,7 @@ public final class Utils {
                     pos.x - dx,
                     pos.y + MathHelper.nextDouble(rand, 0, 1 - dy),
                     pos.z - dz,
-                    5,
+                    count,
                     dx,
                     dy,
                     dz,

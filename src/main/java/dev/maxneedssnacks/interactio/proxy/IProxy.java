@@ -17,7 +17,6 @@ public interface IProxy {
     RecipeManager getRecipeManager();
 
     @Nullable
-    World getClientWorld();
-
+    World getWorld();
 
 }
