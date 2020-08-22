@@ -2,9 +2,9 @@ package dev.maxneedssnacks.interactio.event;
 
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,14 +14,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static dev.maxneedssnacks.interactio.Utils.isItem;
 
 public class DroppedItemHandler {
 
-    private final NonNullList<ItemEntity> watching = NonNullList.create();
-    private final NonNullList<ItemEntity> busy = NonNullList.create();
+    private final Collection<ItemEntity> watching = new ObjectOpenHashSet<>();
+    private final Collection<ItemEntity> busy = new ObjectOpenHashSet<>();
 
     private final List<TriConsumer<List<ItemEntity>, World, BlockPos>> matchers = new ArrayList<>();
 
@@ -58,7 +59,7 @@ public class DroppedItemHandler {
 
     @SubscribeEvent
     public void t1ckt0ck(TickEvent.WorldTickEvent event) {
-        if (event.side.isClient()) return;
+        if (event.side.isClient() || event.phase != TickEvent.Phase.END) return;
 
         watching.removeIf(entity -> !entity.isAlive() || busy.contains(entity));
         watching.forEach(entity -> {
@@ -70,8 +71,8 @@ public class DroppedItemHandler {
             BlockPos pos = entity.getPosition();
             AxisAlignedBB region = new AxisAlignedBB(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
 
-            List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, region, e -> isItem(e) && watching.contains(e));
-            items.removeIf(item -> !world.getBlockState(item.getPosition()).equals(world.getBlockState(pos)));
+            List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, region, e ->
+                    world.getBlockState(e.getPosition()).equals(world.getBlockState(pos)) && watching.contains(e));
 
             busy.addAll(items);
             matchers.forEach(f -> f.accept(items, world, pos));
