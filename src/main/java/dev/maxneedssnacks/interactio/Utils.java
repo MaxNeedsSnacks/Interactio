@@ -8,7 +8,7 @@ import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -28,6 +28,7 @@ import java.awt.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public final class Utils {
 
@@ -42,32 +43,26 @@ public final class Utils {
 
     public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Collection<RecipeIngredient> ingredients) {
 
-        Object2IntMap<RecipeIngredient> required = new Object2IntOpenHashMap<>();
-        for (RecipeIngredient ingredient : ingredients) {
-            required.put(ingredient, ingredient.getCount());
-        }
+        Collection<RecipeIngredient> required = new ObjectOpenHashSet<>();
+        ingredients.forEach(i -> required.add(i.copy()));
 
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
 
             if (!entity.isAlive()) return false;
 
-            for (ObjectIterator<Object2IntMap.Entry<RecipeIngredient>> iterator = required.object2IntEntrySet().iterator(); iterator.hasNext(); ) {
-                Object2IntMap.Entry<RecipeIngredient> req = iterator.next();
-                Ingredient ingredient = req.getKey().getIngredient();
-                int available = Math.min(req.getIntValue(), item.getCount());
+            for (RecipeIngredient req : required) {
+                Ingredient ingredient = req.getIngredient();
+                int available = Math.min(req.getCount(), item.getCount());
 
                 if (ingredient.test(item)) {
-                    used.mergeInt(entity, available - req.getKey().roll(available), Integer::sum);
-                    int newValue = req.getIntValue() - item.getCount();
-                    if (newValue <= 0) {
-                        iterator.remove();
-                    } else {
-                        req.setValue(newValue);
-                    }
+                    used.mergeInt(entity, available - req.roll(available), Integer::sum);
+                    req.shrink(item.getCount());
                     break;
                 }
             }
+
+            required.removeIf(RecipeIngredient::isEmpty);
         }
 
         return required.isEmpty();
