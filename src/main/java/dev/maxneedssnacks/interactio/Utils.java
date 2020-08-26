@@ -8,6 +8,7 @@ import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -24,9 +25,9 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public final class Utils {
 
@@ -35,31 +36,38 @@ public final class Utils {
     }
 
     // region recipe
-    public static boolean compareStacks(List<ItemEntity> entities, List<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Collection<RecipeIngredient> ingredients) {
         return compareStacks(entities, new Object2IntOpenHashMap<>(), ingredients);
     }
 
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, List<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Collection<RecipeIngredient> ingredients) {
 
-        List<RecipeIngredient> required = ingredients.stream().map(RecipeIngredient::copy).collect(Collectors.toList());
+        Object2IntMap<RecipeIngredient> required = new Object2IntOpenHashMap<>();
+        for (RecipeIngredient ingredient : ingredients) {
+            required.put(ingredient, ingredient.getCount());
+        }
 
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
 
             if (!entity.isAlive()) return false;
 
-            for (RecipeIngredient req : required) {
-                Ingredient ingredient = req.getIngredient();
-                int available = Math.min(req.getCount(), item.getCount());
+            for (ObjectIterator<Object2IntMap.Entry<RecipeIngredient>> iterator = required.object2IntEntrySet().iterator(); iterator.hasNext(); ) {
+                Object2IntMap.Entry<RecipeIngredient> req = iterator.next();
+                Ingredient ingredient = req.getKey().getIngredient();
+                int available = Math.min(req.getIntValue(), item.getCount());
 
                 if (ingredient.test(item)) {
-                    used.mergeInt(entity, available - req.roll(available), Integer::sum);
-                    req.shrink(item.getCount());
+                    used.mergeInt(entity, available - req.getKey().roll(available), Integer::sum);
+                    int newValue = req.getIntValue() - item.getCount();
+                    if (newValue <= 0) {
+                        iterator.remove();
+                    } else {
+                        req.setValue(newValue);
+                    }
                     break;
                 }
             }
-
-            required.removeIf(RecipeIngredient::isEmpty);
         }
 
         return required.isEmpty();
