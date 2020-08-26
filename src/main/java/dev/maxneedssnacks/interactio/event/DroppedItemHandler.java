@@ -22,7 +22,6 @@ import static dev.maxneedssnacks.interactio.Utils.isItem;
 public class DroppedItemHandler {
 
     private final Collection<ItemEntity> watching = new ObjectOpenHashSet<>();
-    private final Collection<ItemEntity> busy = new ObjectOpenHashSet<>();
 
     private final List<TriConsumer<List<ItemEntity>, World, BlockPos>> matchers = new ArrayList<>();
 
@@ -61,7 +60,7 @@ public class DroppedItemHandler {
     public void t1ckt0ck(TickEvent.WorldTickEvent event) {
         if (event.side.isClient() || event.phase != TickEvent.Phase.END) return;
 
-        watching.removeIf(entity -> !entity.isAlive() || busy.contains(entity));
+        watching.removeIf(entity -> !entity.isAlive());
         watching.forEach(entity -> {
 
             if (!event.world.equals(entity.world)) return;
@@ -74,9 +73,7 @@ public class DroppedItemHandler {
             List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, region, e ->
                     world.getBlockState(e.getPosition()).equals(world.getBlockState(pos)) && watching.contains(e));
 
-            busy.addAll(items);
             matchers.forEach(f -> f.accept(items, world, pos));
-            busy.removeIf(items::contains);
         });
     }
 }
