@@ -71,10 +71,6 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
         World world = info.getWorld();
         BlockPos pos = info.getPos();
 
-        if (!canCraft(entities, world.getFluidState(pos))) {
-            throw new IllegalStateException("Attempted to perform illegal craft on item fluid transform recipe!");
-        }
-
         Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
 
         if (compareStacks(entities, used, inputs)) {
