@@ -9,6 +9,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -43,12 +44,12 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
 
     public static void clearCache() {
         types.forEach(type -> {
-            type.cachedRecipes = Collections.emptyList();
+            type.cachedRecipes = null;
             type.cachedInputs = null;
         });
     }
 
-    private List<T> cachedRecipes = Collections.emptyList();
+    private List<T> cachedRecipes = null;
     private Ingredient cachedInputs = null;
 
     public final ResourceLocation registryName;
@@ -67,7 +68,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
 
     @SuppressWarnings({"unchecked", "UnstableApiUsage"})
     public List<T> getRecipes() {
-        if (cachedRecipes.isEmpty()) {
+        if (cachedRecipes == null) {
             RecipeManager manager = PROXY.getRecipeManager();
             if (manager == null) return Collections.emptyList();
 
