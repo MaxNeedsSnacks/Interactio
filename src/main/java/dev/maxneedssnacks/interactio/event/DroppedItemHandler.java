@@ -2,10 +2,11 @@ package dev.maxneedssnacks.interactio.event;
 
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
@@ -14,14 +15,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static dev.maxneedssnacks.interactio.Utils.isItem;
 
 public class DroppedItemHandler {
 
-    private final Collection<ItemEntity> watching = new ObjectOpenHashSet<>();
+    private final ObjectSet<ItemEntity> watching = new ObjectOpenHashSet<>();
 
     private final List<TriConsumer<List<ItemEntity>, World, BlockPos>> matchers = new ArrayList<>();
 
@@ -60,20 +60,25 @@ public class DroppedItemHandler {
     public void t1ckt0ck(TickEvent.WorldTickEvent event) {
         if (event.side.isClient() || event.phase != TickEvent.Phase.END) return;
 
-        watching.removeIf(entity -> !entity.isAlive());
-        watching.forEach(entity -> {
+        World world = event.world;
 
-            if (!event.world.equals(entity.world)) return;
+        for (ObjectIterator<ItemEntity> iterator = watching.iterator(); iterator.hasNext(); ) {
+            ItemEntity entity = iterator.next();
+            if (!entity.isAlive()) {
+                iterator.remove();
+            } else {
+                if (!event.world.equals(entity.world)) {
+                    continue;
+                }
+                BlockPos pos = entity.getPosition();
 
-            World world = event.world;
+                List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class,
+                        entity.getBoundingBox().grow(0.5D, 0.0D, 0.5D), watching::contains);
 
-            BlockPos pos = entity.getPosition();
-            AxisAlignedBB region = new AxisAlignedBB(pos.getX() - 1, pos.getY() - 1, pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+                matchers.forEach(f -> f.accept(items, world, pos));
 
-            List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, region, e ->
-                    world.getBlockState(e.getPosition()).equals(world.getBlockState(pos)) && watching.contains(e));
+            }
+        }
 
-            matchers.forEach(f -> f.accept(items, world, pos));
-        });
     }
 }
