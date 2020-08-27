@@ -6,15 +6,14 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static dev.maxneedssnacks.interactio.Utils.isItem;
@@ -22,26 +21,6 @@ import static dev.maxneedssnacks.interactio.Utils.isItem;
 public class DroppedItemHandler {
 
     private final ObjectSet<ItemEntity> watching = new ObjectOpenHashSet<>();
-
-    private final List<TriConsumer<List<ItemEntity>, World, BlockPos>> matchers = new ArrayList<>();
-
-    public DroppedItemHandler() {
-
-        // item fluid transform
-        matchers.add((items, world, pos) -> {
-            InWorldRecipeType.ITEM_FLUID_TRANSFORM
-                    .apply(recipe -> recipe.canCraft(items, world.getFluidState(pos)),
-                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
-        });
-
-        // fluid fluid transform
-        matchers.add((items, world, pos) -> {
-            InWorldRecipeType.FLUID_FLUID_TRANSFORM
-                    .apply(recipe -> recipe.canCraft(items, world.getFluidState(pos)),
-                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
-        });
-
-    }
 
     @SubscribeEvent
     public void challengerApproaching(EntityJoinWorldEvent event) {
@@ -64,10 +43,10 @@ public class DroppedItemHandler {
 
         for (ObjectIterator<ItemEntity> iterator = watching.iterator(); iterator.hasNext(); ) {
             ItemEntity entity = iterator.next();
-            if (!entity.isAlive()) {
+            if (!entity.isAlive() || entity.getAge() == -32768 && entity.getAge() >= 6000) {
                 iterator.remove();
             } else {
-                if (!event.world.equals(entity.world)) {
+                if (!world.equals(entity.world)) {
                     continue;
                 }
                 BlockPos pos = entity.getPosition();
@@ -75,10 +54,18 @@ public class DroppedItemHandler {
                 List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class,
                         entity.getBoundingBox().grow(0.5D, 0.0D, 0.5D), watching::contains);
 
-                matchers.forEach(f -> f.accept(items, world, pos));
+                FluidState fluid = world.getFluidState(pos);
 
+                if (!fluid.isEmpty()) {
+                    InWorldRecipeType.ITEM_FLUID_TRANSFORM
+                            .apply(recipe -> recipe.canCraft(items, fluid),
+                                    recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+
+                    InWorldRecipeType.FLUID_FLUID_TRANSFORM
+                            .apply(recipe -> recipe.canCraft(items, fluid),
+                                    recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+                }
             }
         }
-
     }
 }

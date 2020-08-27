@@ -9,13 +9,13 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.maxneedssnacks.interactio.Interactio.LOGGER;
 import static dev.maxneedssnacks.interactio.Interactio.PROXY;
 
 public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRecipeType<T> {
@@ -80,8 +80,8 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                     // in which case, shame on them, not on us
                     .map(it -> (T) it)
                     .collect(ImmutableList.toImmutableList());
+            LOGGER.debug("Fetched {} in-world recipes in total!", cachedRecipes.size());
         }
-
         return cachedRecipes;
     }
 
@@ -93,6 +93,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                             .flatMap(NonNullList::stream)
                             .collect(Collectors.toSet())
             );
+            LOGGER.debug("Fetched {} recipe inputs in total!", cachedInputs.getMatchingStacks().length);
         }
         return cachedInputs;
     }
