@@ -1,4 +1,4 @@
-package dev.maxneedssnacks.interactio.mixin;
+package dev.maxneedssnacks.interactio.core.mixin;
 
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
@@ -7,7 +7,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
 @Mixin(LightningBoltEntity.class)
 public abstract class LightningBoltEntityMixin extends Entity {
 

@@ -1,6 +1,5 @@
 package dev.maxneedssnacks.interactio;
 
-import dev.maxneedssnacks.interactio.event.DroppedItemHandler;
 import dev.maxneedssnacks.interactio.event.ExplosionHandler;
 import dev.maxneedssnacks.interactio.proxy.IProxy;
 import dev.maxneedssnacks.interactio.proxy.ModProxy;
@@ -45,15 +44,6 @@ public class Interactio {
         MinecraftForge.EVENT_BUS.register(ExplosionHandler.class);
 
         // non-static event handlers
-        MinecraftForge.EVENT_BUS.register(new DroppedItemHandler());
-
-        try {
-            if (!Class.forName("org.spongepowered.asm.mixin.Mixin").isAnnotation()) {
-                throw new ClassNotFoundException();
-            }
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("This mod requires mixins to run! Please install MixinBootstrap from CurseForge!");
-        }
 
     }
 
