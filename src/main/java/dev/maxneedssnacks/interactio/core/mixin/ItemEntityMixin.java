@@ -29,6 +29,8 @@ abstract class ItemEntityMixin extends Entity implements InWorldCheckable {
 
     private boolean interactio$inputsChecked;
 
+    private boolean interactio$craftedLastTick = false;
+
     public ItemEntityMixin(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
@@ -40,17 +42,16 @@ abstract class ItemEntityMixin extends Entity implements InWorldCheckable {
 
     @Inject(method = "tick", at = @At(
             value = "FIELD",
-            ordinal = 1,
-            target = "Lnet/minecraft/entity/item/ItemEntity;ticksExisted:I",
-            shift = At.Shift.BY,
-            by = 4
+            ordinal = 0,
+            target = "Lnet/minecraft/entity/item/ItemEntity;onGround:Z"
     ))
     public void interactio$checkFluidRecipes(CallbackInfo ci) {
-        if (!this.world.isRemote) {
+        if (!this.world.isRemote && (interactio$craftedLastTick || ticksExisted % 5 == 0)) {
             if (!interactio$inputsChecked) {
                 interactio$updateValidInputs();
             } else {
                 if (interactio$isI2FInput || interactio$isF2FInput) {
+                    interactio$craftedLastTick = false;
                     BlockPos pos = this.getPosition();
                     FluidState fluid = this.world.getFluidState(pos);
                     if (!fluid.isEmpty()) {
@@ -61,7 +62,10 @@ abstract class ItemEntityMixin extends Entity implements InWorldCheckable {
 
                             InWorldRecipeType.ITEM_FLUID_TRANSFORM
                                     .apply(recipe -> recipe.canCraft(items, fluid),
-                                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+                                            recipe -> {
+                                                interactio$craftedLastTick = true;
+                                                recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos));
+                                            });
                         }
 
                         if (interactio$isF2FInput) {
@@ -69,9 +73,12 @@ abstract class ItemEntityMixin extends Entity implements InWorldCheckable {
                                     this.getBoundingBox().grow(0.5D, 0.0D, 0.5D),
                                     e -> ((InWorldCheckable) e).isF2FInput());
 
-                            InWorldRecipeType.ITEM_FLUID_TRANSFORM
+                            InWorldRecipeType.FLUID_FLUID_TRANSFORM
                                     .apply(recipe -> recipe.canCraft(items, fluid),
-                                            recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+                                            recipe -> {
+                                                interactio$craftedLastTick = true;
+                                                recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos));
+                                            });
                         }
                     }
                 }
