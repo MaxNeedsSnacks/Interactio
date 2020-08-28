@@ -74,11 +74,7 @@ public final class Utils {
             ItemStack item = entity.getItem().copy();
             item.shrink(count);
 
-            if (item.isEmpty()) {
-                entity.remove();
-            } else {
-                entity.setItem(item);
-            }
+            entity.setItem(item);
 
             entity.setDefaultPickupDelay();
         });
