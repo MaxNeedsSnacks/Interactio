@@ -1,10 +1,11 @@
 {
   "required": true,
-  "package": "dev.maxneedssnacks.interactio.mixin",
+  "package": "dev.maxneedssnacks.interactio.core.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "interactio.refmap.json",
   "mixins": [
     "AnvilBlockMixin",
+    "ItemEntityMixin",
     "LightningBoltEntityMixin",
     "RecipeManagerMixin"
   ],
