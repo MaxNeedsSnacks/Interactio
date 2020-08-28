@@ -22,11 +22,11 @@ Adds various different kinds of in-world crafting recipes to the game.
     mandatory=true #mandatory
     versionRange="[33.0.0,)" #mandatory
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"
 
 [[dependencies.interactio]]
     modId="minecraft"
     mandatory=true
     versionRange="[1.16.2,)"
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"

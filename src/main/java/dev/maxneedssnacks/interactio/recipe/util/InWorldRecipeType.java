@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static dev.maxneedssnacks.interactio.Interactio.LOGGER;
 import static dev.maxneedssnacks.interactio.Interactio.PROXY;
 
 public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRecipeType<T> {
@@ -43,12 +44,12 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
 
     public static void clearCache() {
         types.forEach(type -> {
-            type.cachedRecipes = Collections.emptyList();
+            type.cachedRecipes = null;
             type.cachedInputs = null;
         });
     }
 
-    private List<T> cachedRecipes = Collections.emptyList();
+    private List<T> cachedRecipes = null;
     private Ingredient cachedInputs = null;
 
     public final ResourceLocation registryName;
@@ -67,7 +68,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
 
     @SuppressWarnings({"unchecked", "UnstableApiUsage"})
     public List<T> getRecipes() {
-        if (cachedRecipes.isEmpty()) {
+        if (cachedRecipes == null) {
             RecipeManager manager = PROXY.getRecipeManager();
             if (manager == null) return Collections.emptyList();
 
@@ -79,8 +80,8 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                     // in which case, shame on them, not on us
                     .map(it -> (T) it)
                     .collect(ImmutableList.toImmutableList());
+            LOGGER.debug("Fetched {} in-world recipes in total!", cachedRecipes.size());
         }
-
         return cachedRecipes;
     }
 
@@ -92,6 +93,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                             .flatMap(NonNullList::stream)
                             .collect(Collectors.toSet())
             );
+            LOGGER.debug("Fetched {} recipe inputs in total!", cachedInputs.getMatchingStacks().length);
         }
         return cachedInputs;
     }

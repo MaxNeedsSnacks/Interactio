@@ -70,10 +70,6 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
         BlockPos pos = info.getPos();
         Random rand = world.getRandom();
 
-        if (!canCraft(entities, world.getBlockState(pos))) {
-            throw new IllegalStateException("Attempted to perform illegal craft on item anvil smashing recipe!");
-        }
-
         Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
 
         List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(entities);
