@@ -8,6 +8,7 @@ import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.IEntrySerializer;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -24,9 +25,9 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public final class Utils {
 
@@ -35,13 +36,14 @@ public final class Utils {
     }
 
     // region recipe
-    public static boolean compareStacks(List<ItemEntity> entities, List<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Collection<RecipeIngredient> ingredients) {
         return compareStacks(entities, new Object2IntOpenHashMap<>(), ingredients);
     }
 
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, List<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Collection<RecipeIngredient> ingredients) {
 
-        List<RecipeIngredient> required = ingredients.stream().map(RecipeIngredient::copy).collect(Collectors.toList());
+        Collection<RecipeIngredient> required = new ObjectOpenHashSet<>();
+        ingredients.forEach(i -> required.add(i.copy()));
 
         for (ItemEntity entity : entities) {
             ItemStack item = entity.getItem();
@@ -72,11 +74,7 @@ public final class Utils {
             ItemStack item = entity.getItem().copy();
             item.shrink(count);
 
-            if (item.isEmpty()) {
-                entity.remove();
-            } else {
-                entity.setItem(item);
-            }
+            entity.setItem(item);
 
             entity.setDefaultPickupDelay();
         });

@@ -1,4 +1,4 @@
-package dev.maxneedssnacks.interactio.mixin;
+package dev.maxneedssnacks.interactio.core.mixin;
 
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipe;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
