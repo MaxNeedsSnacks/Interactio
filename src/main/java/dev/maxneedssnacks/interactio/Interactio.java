@@ -28,14 +28,12 @@ public class Interactio {
     public static Interactio INSTANCE;
 
     private final String PROTOCOL_VERSION = "1";
-    public static SimpleChannel NETWORK;
 
     public Interactio() {
 
         // static base variables
         INSTANCE = this;
         PROXY = DistExecutor.runForDist(() -> ModProxy.Client::new, () -> ModProxy.Server::new);
-        NETWORK = NetworkRegistry.newSimpleChannel(id("particles"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
         // static event handlers
         MinecraftForge.EVENT_BUS.register(ExplosionHandler.class);
