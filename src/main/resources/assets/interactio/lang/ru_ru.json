@@ -1,0 +1,14 @@
+{
+  "interactio.jei.return_chance": "Шанс возврата: %s",
+  "interactio.jei.consume_chance": "Шанс потребления: %s",
+  "interactio.jei.weighted_output_empty": "Ничего!",
+  "interactio.jei.weighted_output_chance": "Шанс выхода: %s",
+  "interactio.jei.weighted_output_roll_count": "(%s рулонов)",
+  "interactio.jei.weighted_output_roll_unique": "%s уникальный",
+  "interactio.jei.item_fluid_transform": "Жидкость в рецепте предмета",
+  "interactio.jei.fluid_fluid_transform": "Рецепт преобразовании  жидкости",
+  "interactio.jei.item_explode": "Взрывающиеся предметы",
+  "interactio.jei.block_explode": "Взрывающиеся блоки",
+  "interactio.jei.item_lightning": "Предметы, Направляющие Молнию",
+  "interactio.jei.item_anvil_smashing": "Предмет разбивания в наковальне"
+}
