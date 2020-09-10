@@ -80,7 +80,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                     // in which case, shame on them, not on us
                     .map(it -> (T) it)
                     .collect(ImmutableList.toImmutableList());
-            LOGGER.debug("Fetched {} in-world recipes in total!", cachedRecipes.size());
+            LOGGER.debug("Fetched {} recipes for type {}!", cachedRecipes.size(), this);
         }
         return cachedRecipes;
     }
@@ -93,7 +93,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                             .flatMap(NonNullList::stream)
                             .collect(Collectors.toSet())
             );
-            LOGGER.debug("Fetched {} recipe inputs in total!", cachedInputs.getMatchingStacks().length);
+            LOGGER.debug("Fetched {} recipe inputs for type {}!", cachedRecipes.size(), this);
         }
         return cachedInputs;
     }
