@@ -58,9 +58,21 @@ public class CommandItemInfo {
                 });
 
         Item item = stack.getItem();
-        if (item instanceof BlockItem && !Objects.equals(((BlockItem) item).getBlock().getRegistryName(), item.getRegistryName())) {
-            player.sendMessage(new StringTextComponent("- Block ID (when placed in World): ").mergeStyle(TextFormatting.YELLOW)
-                    .appendString(Objects.toString(((BlockItem) item).getBlock().getRegistryName())), Interactio.CHAT_ID);
+        if (item instanceof BlockItem) {
+            BlockItem bi = (BlockItem) item;
+            player.sendMessage(new StringTextComponent("- List of Block Tags:").mergeStyle(TextFormatting.YELLOW), Interactio.CHAT_ID);
+            bi.getBlock().getTags()
+                    .stream()
+                    .sorted()
+                    .forEachOrdered(id -> {
+                        ITextComponent component = new StringTextComponent("\u2022 " + id);
+                        component.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, id.toString()));
+                        player.sendMessage(component, Interactio.CHAT_ID);
+                    });
+            if (!Objects.equals(bi.getBlock().getRegistryName(), item.getRegistryName())) {
+                player.sendMessage(new StringTextComponent("- Block ID (when placed in World): ").mergeStyle(TextFormatting.YELLOW)
+                        .appendString(Objects.toString(bi.getBlock().getRegistryName())), Interactio.CHAT_ID);
+            }
         }
 
         player.sendMessage(new StringTextComponent("-----------------------------").mergeStyle(TextFormatting.GREEN), Interactio.CHAT_ID);
