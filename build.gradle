@@ -28,7 +28,7 @@ archivesBaseName = 'Interactio'
 
 def test_mods = true
 
-def buildNo = "3.0.0"
+def buildNo = "3.1.0"
 version = "${mc_ver}-${buildNo}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -38,11 +38,6 @@ repositories {
     maven {
         name = "Progwml6 (JEI)"
         url = "https://dvs1.progwml6.com/files/maven/"
-    }
-
-    maven {
-        name = "Sponge (Mixins)"
-        url = "https://repo.spongepowered.org/maven/"
     }
 
 }
