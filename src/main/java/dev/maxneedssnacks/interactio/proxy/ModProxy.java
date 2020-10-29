@@ -13,7 +13,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
 
@@ -24,7 +24,7 @@ public abstract class ModProxy implements IProxy {
     public ModProxy() {
 
         // init methods
-        InWorldRecipeType.registerTypes();
+        InWorldRecipeType.init();
 
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener((FMLServerAboutToStartEvent event) -> this.server = event.getServer());
@@ -71,7 +71,7 @@ public abstract class ModProxy implements IProxy {
         @Nullable
         @Override
         public ServerWorld getWorld() {
-            return getServer() == null ? null : getServer().getWorld(World.field_234918_g_);
+            return getServer() == null ? null : getServer().getWorld(World.OVERWORLD);
         }
     }
 }
