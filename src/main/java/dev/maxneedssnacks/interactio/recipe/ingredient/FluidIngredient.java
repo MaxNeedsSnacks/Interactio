@@ -195,7 +195,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
             // func_232975_b_ = checkId
-            jsonobject.addProperty("tag", FluidTags.getCollection().func_232975_b_(tag).toString());
+            jsonobject.addProperty("tag", FluidTags.getCollection().getValidatedIdFromTag(tag).toString());
             return jsonobject;
         }
     }
