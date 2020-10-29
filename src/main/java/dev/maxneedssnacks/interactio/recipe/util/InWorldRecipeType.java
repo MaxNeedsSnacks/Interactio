@@ -57,6 +57,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
     private InWorldRecipeType(String name, IRecipeSerializer<T> serializer) {
         this.registryName = Interactio.id(name);
         this.serializer = serializer;
+        SERIALIZERS.register(name, () -> serializer);
         types.add(this);
     }
 
