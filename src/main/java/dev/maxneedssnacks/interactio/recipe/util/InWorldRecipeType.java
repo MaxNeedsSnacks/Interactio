@@ -93,7 +93,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                             .flatMap(NonNullList::stream)
                             .collect(Collectors.toSet())
             );
-            LOGGER.debug("Fetched {} recipe inputs for type {}!", cachedRecipes.size(), this);
+            LOGGER.debug("Fetched all valid recipe inputs for type {}!", this);
         }
         return cachedInputs;
     }
