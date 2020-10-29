@@ -5,12 +5,12 @@ import dev.maxneedssnacks.interactio.proxy.IProxy;
 import dev.maxneedssnacks.interactio.proxy.ModProxy;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,8 +25,9 @@ public class Interactio {
 
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static IProxy PROXY;
     public static Interactio INSTANCE;
+    public static IEventBus MOD_BUS;
+    public static IProxy PROXY;
 
     public static UUID CHAT_ID = UUID.randomUUID();
 
@@ -36,6 +37,7 @@ public class Interactio {
 
         // static base variables
         INSTANCE = this;
+        MOD_BUS = FMLJavaModLoadingContext.get().getModEventBus();
         PROXY = DistExecutor.safeRunForDist(() -> ModProxy.Client::new, () -> ModProxy.Server::new);
 
         // static event handlers

@@ -8,6 +8,8 @@ import net.minecraft.item.crafting.*;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -15,10 +17,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.maxneedssnacks.interactio.Interactio.LOGGER;
-import static dev.maxneedssnacks.interactio.Interactio.PROXY;
+import static dev.maxneedssnacks.interactio.Interactio.*;
 
 public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRecipeType<T> {
+
+    private static final DeferredRegister<IRecipeSerializer<?>> SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MOD_ID);
 
     private static final Collection<InWorldRecipeType<?>> types = new HashSet<>();
 
@@ -30,16 +33,12 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
     public static final InWorldRecipeType<ItemAnvilSmashingRecipe> ITEM_ANVIL_SMASHING = create("item_anvil_smashing", ItemAnvilSmashingRecipe.SERIALIZER);
 
     private static <T extends InWorldRecipe<?, ?, ?>> InWorldRecipeType<T> create(String name, IRecipeSerializer<T> serializer) {
-        InWorldRecipeType<T> type = new InWorldRecipeType<>(name, serializer);
-        types.add(type);
-        return type;
+        return new InWorldRecipeType<>(name, serializer);
     }
 
-    public static void registerTypes() {
-        types.forEach(type -> {
-            Registry.register(Registry.RECIPE_TYPE, type.registryName, type);
-            IRecipeSerializer.register(type.registryName.toString(), type.serializer);
-        });
+    public static void init() {
+        types.forEach(type -> Registry.register(Registry.RECIPE_TYPE, type.registryName, type));
+        SERIALIZERS.register(MOD_BUS);
     }
 
     public static void clearCache() {
@@ -58,6 +57,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
     private InWorldRecipeType(String name, IRecipeSerializer<T> serializer) {
         this.registryName = Interactio.id(name);
         this.serializer = serializer;
+        SERIALIZERS.register(name, () -> serializer);
         types.add(this);
     }
 
@@ -93,7 +93,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
                             .flatMap(NonNullList::stream)
                             .collect(Collectors.toSet())
             );
-            LOGGER.debug("Fetched {} recipe inputs for type {}!", cachedRecipes.size(), this);
+            LOGGER.debug("Fetched all valid recipe inputs for type {}!", this);
         }
         return cachedInputs;
     }

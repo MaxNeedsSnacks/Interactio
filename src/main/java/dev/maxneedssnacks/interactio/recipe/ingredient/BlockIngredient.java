@@ -189,7 +189,7 @@ public class BlockIngredient implements Predicate<BlockState> {
         public JsonObject serialize() {
             JsonObject jsonobject = new JsonObject();
             // func_232975_b_ = checkId
-            jsonobject.addProperty("tag", BlockTags.getCollection().func_232975_b_(tag).toString());
+            jsonobject.addProperty("tag", BlockTags.getCollection().getValidatedIdFromTag(tag).toString());
             return jsonobject;
         }
     }
