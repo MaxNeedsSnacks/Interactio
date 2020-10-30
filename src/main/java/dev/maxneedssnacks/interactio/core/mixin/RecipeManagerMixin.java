@@ -24,7 +24,7 @@ public abstract class RecipeManagerMixin {
 
     // This gets called by IClientPlayNetHandler#handleUpdateRecipes
     // when handling SUpdateRecipesPacket packets.
-    @Inject(method = "deserializeRecipes", at = @At("RETURN"), remap = false)
+    @Inject(method = "deserializeRecipes", at = @At("RETURN"))
     public void clearCacheClient(Iterable<IRecipe<?>> recipes, CallbackInfo ci) {
         InWorldRecipeType.clearCache();
     }
