@@ -2,9 +2,12 @@ package dev.maxneedssnacks.interactio.proxy;
 
 import dev.maxneedssnacks.interactio.command.CommandItemInfo;
 import dev.maxneedssnacks.interactio.command.CommandRegistryDump;
+import dev.maxneedssnacks.interactio.command.RegistryArgument;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.command.arguments.ArgumentSerializer;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.SharedConstants;
@@ -12,6 +15,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 
 import javax.annotation.Nullable;
@@ -28,7 +32,12 @@ public abstract class ModProxy implements IProxy {
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener((FMLServerAboutToStartEvent event) -> this.server = event.getServer());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+        MinecraftForge.EVENT_BUS.addListener(this::preInit);
 
+    }
+
+    private void preInit(FMLCommonSetupEvent event) {
+        ArgumentTypes.register("interactio:registry", RegistryArgument.class, new ArgumentSerializer<>(RegistryArgument::registry));
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
