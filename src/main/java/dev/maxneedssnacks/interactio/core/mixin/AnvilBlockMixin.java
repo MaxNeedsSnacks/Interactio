@@ -29,11 +29,16 @@ public abstract class AnvilBlockMixin extends FallingBlock {
             method = "onEndFalling(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/item/FallingBlockEntity;)V",
             at = @At(value = "RETURN")
     )
-    public void handleAnvilRecipes(World world, BlockPos pos, BlockState fallState, BlockState hitState, FallingBlockEntity entity, CallbackInfo ci) {
+    public void handleAnvilRecipes(World world, BlockPos pos, BlockState fallState, BlockState landState, FallingBlockEntity entity, CallbackInfo ci) {
         List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, new AxisAlignedBB(pos, pos.add(1, 1, 1)));
+        BlockPos hitPos = pos.down();
+        BlockState hitState = world.getBlockState(hitPos);
 
         InWorldRecipeType.ITEM_ANVIL_SMASHING.applyAll(recipe -> recipe.canCraft(items, hitState),
                 recipe -> recipe.craft(items, new InWorldRecipe.DefaultInfo(world, pos)));
+
+        InWorldRecipeType.BLOCK_ANVIL_SMASHING.apply(recipe -> recipe.canCraft(pos, hitState),
+                recipe -> recipe.craft(pos, new InWorldRecipe.DefaultInfo(world, hitPos)));
     }
 
 }

@@ -36,7 +36,8 @@ public class InteractioJEIPlugin implements IModPlugin {
                 new ItemExplosionCategory(guiHelper),
                 new BlockExplosionCategory(guiHelper),
                 new ItemLightningCategory(guiHelper),
-                new ItemAnvilSmashingCategory(guiHelper)
+                new ItemAnvilSmashingCategory(guiHelper),
+                new BlockAnvilSmashingCategory(guiHelper)
         );
     }
 
@@ -48,5 +49,6 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipes(InWorldRecipeType.BLOCK_EXPLODE.getRecipes(), BlockExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_LIGHTNING.getRecipes(), ItemLightningCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_ANVIL_SMASHING.getRecipes(), ItemAnvilSmashingCategory.UID);
+        registration.addRecipes(InWorldRecipeType.BLOCK_ANVIL_SMASHING.getRecipes(), BlockAnvilSmashingCategory.UID);
     }
 }

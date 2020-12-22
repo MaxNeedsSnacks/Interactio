@@ -142,7 +142,6 @@ public class ItemExplosionCategory implements IRecipeCategory<ItemExplosionRecip
         itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
             TooltipCallbacks.returnChance(idx, input, tooltip, returnChances);
             TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, true);
-            TooltipCallbacks.recipeID(input, tooltip, recipe);
         });
 
     }

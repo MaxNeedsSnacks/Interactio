@@ -1,9 +1,11 @@
 package dev.maxneedssnacks.interactio.integration.jei.categories;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.maxneedssnacks.interactio.Interactio;
 import dev.maxneedssnacks.interactio.Utils;
 import dev.maxneedssnacks.interactio.integration.jei.util.TooltipCallbacks;
-import dev.maxneedssnacks.interactio.recipe.BlockExplosionRecipe;
+import dev.maxneedssnacks.interactio.recipe.BlockAnvilSmashingRecipe;
 import dev.maxneedssnacks.interactio.recipe.ingredient.WeightedOutput;
 import dev.maxneedssnacks.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
@@ -20,36 +22,40 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRecipe> {
+public class BlockAnvilSmashingCategory implements IRecipeCategory<BlockAnvilSmashingRecipe> {
 
-    public static final ResourceLocation UID = InWorldRecipeType.BLOCK_EXPLODE.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.BLOCK_ANVIL_SMASHING.registryName;
 
     private final IGuiHelper guiHelper;
 
     private final IDrawableStatic background;
-    //FIXME: Add an overlay. I know. I'm lazy.
-    //private final IDrawableStatic overlay;
+    private final IDrawableStatic overlay;
 
     private final IDrawable icon;
 
-    private final IDrawable tnt;
+    private final IDrawable anvil;
 
     private final String localizedName;
 
-    public BlockExplosionCategory(IGuiHelper guiHelper) {
+    private final int width = 160;
+    private final int height = 120;
+
+    public BlockAnvilSmashingCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
-        background = guiHelper.createBlankDrawable(96, 34);
+        background = guiHelper.createBlankDrawable(width, height);
+        overlay = guiHelper.createDrawable(Interactio.id("textures/gui/anvil_smashing.png"), 0, 0, width, height);
 
-        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
+        icon = guiHelper.createDrawableIngredient(new ItemStack(Items.ANVIL));
 
-        tnt = guiHelper.createDrawableIngredient(new ItemStack(Items.TNT));
+        anvil = guiHelper.createDrawableIngredient(new ItemStack(Items.ANVIL));
 
-        localizedName = Utils.translate("interactio.jei.block_explode", null).getString();
+        localizedName = Utils.translate("interactio.jei.block_anvil_smashing", null).getString();
     }
 
     @Override
@@ -58,8 +64,8 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     }
 
     @Override
-    public Class<BlockExplosionRecipe> getRecipeClass() {
-        return BlockExplosionRecipe.class;
+    public Class<BlockAnvilSmashingRecipe> getRecipeClass() {
+        return BlockAnvilSmashingRecipe.class;
     }
 
     @Override
@@ -78,7 +84,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     }
 
     @Override
-    public void setIngredients(BlockExplosionRecipe recipe, IIngredients ingredients) {
+    public void setIngredients(BlockAnvilSmashingRecipe recipe, IIngredients ingredients) {
         // display input block as item
         ingredients.setInputs(VanillaTypes.ITEM, recipe.getInput().getMatchingBlocks()
                 .stream()
@@ -104,8 +110,10 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
         }
     }
 
+    private final Point center = new Point(45, 52);
+
     @Override
-    public void setRecipe(IRecipeLayout layout, BlockExplosionRecipe recipe, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayout layout, BlockAnvilSmashingRecipe recipe, IIngredients ingredients) {
 
         List<List<ItemStack>> outputs = ingredients.getOutputs(VanillaTypes.ITEM);
 
@@ -125,8 +133,8 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
 
         WeightedOutput.WeightedEntry<ItemStack> empty = new WeightedOutput.WeightedEntry<>(Items.BARRIER.getDefaultInstance(), output.emptyWeight);
 
-        itemStackGroup.init(0, true, 4, 8);
-        itemStackGroup.init(1, false, 72, 8);
+        itemStackGroup.init(0, true, center.x, center.y);
+        itemStackGroup.init(1, false, width - 20, center.y);
 
         if (output.emptyWeight > 0) outputs.get(0).add(empty.getResult());
         itemStackGroup.set(ingredients);
@@ -138,12 +146,15 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     }
 
     @Override
-    public void draw(BlockExplosionRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
+    public void draw(BlockAnvilSmashingRecipe recipe, MatrixStack ms, double mouseX, double mouseY) {
 
-        tnt.draw(ms, 38, 9);
+        RenderSystem.enableBlend();
 
-        guiHelper.getSlotDrawable().draw(ms, 4, 8);
-        guiHelper.getSlotDrawable().draw(ms, 72, 8);
+        overlay.draw(ms);
+
+        RenderSystem.disableBlend();
+
+        anvil.draw(ms, center.x + 1, center.y - 32);
 
     }
 

@@ -155,7 +155,6 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
             TooltipCallbacks.weightedOutput(input, stack.getFluid(), tooltip, output, empty, false);
-            TooltipCallbacks.recipeID(input, tooltip, recipe);
         });
 
     }

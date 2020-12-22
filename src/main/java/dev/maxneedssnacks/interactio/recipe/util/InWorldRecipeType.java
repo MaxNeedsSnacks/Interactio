@@ -31,6 +31,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements IRec
     public static final InWorldRecipeType<BlockExplosionRecipe> BLOCK_EXPLODE = create("block_explode", BlockExplosionRecipe.SERIALIZER);
     public static final InWorldRecipeType<ItemLightningRecipe> ITEM_LIGHTNING = create("item_lightning", ItemLightningRecipe.SERIALIZER);
     public static final InWorldRecipeType<ItemAnvilSmashingRecipe> ITEM_ANVIL_SMASHING = create("item_anvil_smashing", ItemAnvilSmashingRecipe.SERIALIZER);
+    public static final InWorldRecipeType<BlockAnvilSmashingRecipe> BLOCK_ANVIL_SMASHING = create("block_anvil_smashing", BlockAnvilSmashingRecipe.SERIALIZER);
 
     private static <T extends InWorldRecipe<?, ?, ?>> InWorldRecipeType<T> create(String name, IRecipeSerializer<T> serializer) {
         return new InWorldRecipeType<>(name, serializer);

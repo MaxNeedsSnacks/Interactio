@@ -53,12 +53,4 @@ public final class TooltipCallbacks {
         }
     }
 
-    public static void recipeID(boolean input, List<ITextComponent> tooltip, IRecipe<?> recipe) {
-        if (!input) {
-            boolean showAdvanced = Minecraft.getInstance().gameSettings.advancedItemTooltips || Screen.hasShiftDown();
-            if (showAdvanced) {
-                tooltip.add(Utils.translate("jei.tooltip.recipe.id", Style.EMPTY.setFormatting(TextFormatting.DARK_GRAY), recipe.getId()));
-            }
-        }
-    }
 }
