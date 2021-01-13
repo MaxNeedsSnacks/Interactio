@@ -1,0 +1,6 @@
+{
+  "_comment": "Dummy file to make the common module get loaded on Knot.",
+  "schemaVersion": 1,
+  "id": "interactio-common",
+  "version": "0.0.1"
+}
