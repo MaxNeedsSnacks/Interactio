@@ -27,6 +27,10 @@ dependencies {
     shadow(project(path: ":common", configuration: "transformed")) {
         transitive = false
     }
+
+    // additional deps
+    modCompile("mezz.jei:jei-${rootProject.architect.minecraft}:${rootProject.jei_version}")
+
 }
 
 processResources {

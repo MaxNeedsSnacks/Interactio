@@ -10,6 +10,25 @@ architectury {
     platformSetupLoomIde()
 }
 
+loom {
+    mixinConfigs = ["interactio-common.mixins.json"]
+}
+
+processResources {
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+    inputs.property "META-INF/mods.toml", project.version
+}
+
+
+repositories {
+    maven {
+        name = "Progwml6 (JEI)"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${rootProject.architect.minecraft}")
     mappings(minecraft.officialMojangMappings())
@@ -26,6 +45,10 @@ dependencies {
     shadow(project(path: ":common", configuration: "transformForge")) {
         transitive = false
     }
+
+    // additional deps
+    modCompile("mezz.jei:jei-${rootProject.architect.minecraft}:${rootProject.jei_version}")
+
 }
 
 shadowJar {

@@ -1,0 +1,15 @@
+{
+  "interactio.recipe_info.return_chance": "Return Chance: %s",
+  "interactio.recipe_info.consume_chance": "Consumption Chance: %s",
+  "interactio.recipe_info.weighted_output_empty": "Nothing!",
+  "interactio.recipe_info.weighted_output_chance": "Output Chance: %s",
+  "interactio.recipe_info.weighted_output_roll_count": "(of %s rolls)",
+  "interactio.recipe_info.weighted_output_roll_unique": "%s unique",
+  "interactio.recipe_info.item_fluid_transform": "Fluid to Item Recipe",
+  "interactio.recipe_info.fluid_fluid_transform": "Fluid Transformation Recipe",
+  "interactio.recipe_info.item_explode": "Exploding Items",
+  "interactio.recipe_info.block_explode": "Exploding Blocks",
+  "interactio.recipe_info.item_lightning": "Items Channeling Lightning",
+  "interactio.recipe_info.item_anvil_smashing": "Item Anvil Smashing",
+  "interactio.recipe_info.block_anvil_smashing": "Anvil Hitting Block"
+}
