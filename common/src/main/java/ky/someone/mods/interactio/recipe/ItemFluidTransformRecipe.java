@@ -21,7 +21,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import me.shedaniel.architectury.core.AbstractRecipeSerializer;
+
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -114,7 +115,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public AbstractRecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
@@ -139,7 +140,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
         return this.consumeFluid;
     }
 
-    public static class Serializer implements RecipeSerializer<ItemFluidTransformRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<ItemFluidTransformRecipe> {
         @Override
         public ItemFluidTransformRecipe fromJson(ResourceLocation id, JsonObject json) {
             WeightedOutput<ItemStack> output = Utils.singleOrWeighted(GsonHelper.getAsJsonObject(json, "output"), EntrySerializer.ITEM);

@@ -20,7 +20,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import me.shedaniel.architectury.core.AbstractRecipeSerializer;
+
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -101,7 +102,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public AbstractRecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
@@ -126,7 +127,7 @@ public final class FluidFluidTransformRecipe implements InWorldRecipe.ItemsInFlu
         return this.items;
     }
 
-    public static class Serializer implements RecipeSerializer<FluidFluidTransformRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<FluidFluidTransformRecipe> {
         public FluidFluidTransformRecipe fromJson(ResourceLocation id, JsonObject json) {
             WeightedOutput<Fluid> output = Utils.singleOrWeighted(GsonHelper.getAsJsonObject(json, "output"), EntrySerializer.FLUID);
             FluidIngredient input = FluidIngredient.deserialize(json.get("input"));

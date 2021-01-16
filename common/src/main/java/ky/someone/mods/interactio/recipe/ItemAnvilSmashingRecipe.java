@@ -22,7 +22,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import me.shedaniel.architectury.core.AbstractRecipeSerializer;
+
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
@@ -109,7 +110,7 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public AbstractRecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
@@ -130,7 +131,7 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
         return this.inputs;
     }
 
-    public static class Serializer implements RecipeSerializer<ItemAnvilSmashingRecipe> {
+    public static class Serializer extends AbstractRecipeSerializer<ItemAnvilSmashingRecipe> {
         @Override
         public ItemAnvilSmashingRecipe fromJson(ResourceLocation id, JsonObject json) {
             WeightedOutput<ItemStack> output = Utils.singleOrWeighted(GsonHelper.getAsJsonObject(json, "output"), EntrySerializer.ITEM);

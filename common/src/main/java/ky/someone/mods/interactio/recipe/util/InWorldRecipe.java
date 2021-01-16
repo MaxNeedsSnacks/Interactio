@@ -1,6 +1,7 @@
 package ky.someone.mods.interactio.recipe.util;
 
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
+import me.shedaniel.architectury.core.AbstractRecipeSerializer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -56,6 +57,9 @@ public interface InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Craftin
      * @param info   Additional information on the craft, like the world the craft is happening in or the affected Block's position
      */
     void craft(T inputs, U info);
+
+    @Override
+    AbstractRecipeSerializer<?> getSerializer();
 
     /**
      * {@inheritDoc}

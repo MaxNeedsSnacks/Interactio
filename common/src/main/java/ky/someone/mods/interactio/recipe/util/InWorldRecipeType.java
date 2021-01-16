@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.recipe.*;
+import me.shedaniel.architectury.core.AbstractRecipeSerializer;
 import me.shedaniel.architectury.registry.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static ky.someone.mods.interactio.Interactio.*;
-import static net.minecraft.core.Registry.*;
+import static net.minecraft.core.Registry.RECIPE_SERIALIZER_REGISTRY;
+import static net.minecraft.core.Registry.RECIPE_TYPE;
 
 public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements RecipeType<T> {
 
@@ -35,7 +37,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements Reci
     public static final InWorldRecipeType<ItemAnvilSmashingRecipe> ITEM_ANVIL_SMASHING = create("item_anvil_smashing", ItemAnvilSmashingRecipe.SERIALIZER);
     public static final InWorldRecipeType<BlockAnvilSmashingRecipe> BLOCK_ANVIL_SMASHING = create("block_anvil_smashing", BlockAnvilSmashingRecipe.SERIALIZER);
 
-    private static <T extends InWorldRecipe<?, ?, ?>> InWorldRecipeType<T> create(String name, RecipeSerializer<T> serializer) {
+    private static <T extends InWorldRecipe<?, ?, ?>> InWorldRecipeType<T> create(String name, AbstractRecipeSerializer<T> serializer) {
         return new InWorldRecipeType<>(name, serializer);
     }
 
@@ -58,9 +60,9 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements Reci
     private Ingredient cachedInputs = null;
 
     public final ResourceLocation registryName;
-    public final RecipeSerializer<T> serializer;
+    public final AbstractRecipeSerializer<T> serializer;
 
-    private InWorldRecipeType(String name, RecipeSerializer<T> serializer) {
+    private InWorldRecipeType(String name, AbstractRecipeSerializer<T> serializer) {
         this.registryName = Interactio.id(name);
         this.serializer = serializer;
         types.add(this);
