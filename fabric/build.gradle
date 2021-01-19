@@ -29,7 +29,14 @@ dependencies {
     }
 
     // additional deps
-    modCompile("mezz.jei:jei-${rootProject.architect.minecraft}:${rootProject.jei_version}")
+    modImplementation("me.shedaniel:RoughlyEnoughItems-api:${rootProject.fabric_rei_version}") {
+        exclude group: "net.fabricmc.fabric-api"
+    }
+    modRuntime("me.shedaniel:RoughlyEnoughItems:${rootProject.fabric_rei_version}") {
+        exclude group: "net.fabricmc.fabric-api"
+    }
+
+    modRuntime("io.github.prospector:modmenu:${rootProject.mod_menu_version}")
 
 }
 

@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "ky.someone.mods.interactio.core.mixin",
+	"package": "ky.someone.interactio.core.mixin",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"AnvilBlockMixin",
@@ -14,5 +14,5 @@
 		"maxShiftBy": 3,
 		"defaultRequire": 1
 	},
-	"minVersion": "0.8.1"
+	"minVersion": "0.8"
 }

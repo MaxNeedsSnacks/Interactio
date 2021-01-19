@@ -12,6 +12,7 @@ architectury {
 
 loom {
     mixinConfigs = ["interactio-common.mixins.json"]
+    useFabricMixin = true
 }
 
 processResources {
