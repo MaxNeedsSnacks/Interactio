@@ -48,7 +48,7 @@ dependencies {
     }
 
     // additional deps
-    modCompile("mezz.jei:jei-${rootProject.architect.minecraft}:${rootProject.jei_version}")
+    modCompile("mezz.jei:jei-${jei_mc}:${rootProject.jei_version}")
 
 }
 

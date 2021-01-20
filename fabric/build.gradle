@@ -29,7 +29,7 @@ dependencies {
     }
 
     // additional deps
-    modImplementation("me.shedaniel:RoughlyEnoughItems-api:${rootProject.fabric_rei_version}") {
+    modCompileOnly("me.shedaniel:RoughlyEnoughItems-api:${rootProject.fabric_rei_version}") {
         exclude group: "net.fabricmc.fabric-api"
     }
     modRuntime("me.shedaniel:RoughlyEnoughItems:${rootProject.fabric_rei_version}") {
