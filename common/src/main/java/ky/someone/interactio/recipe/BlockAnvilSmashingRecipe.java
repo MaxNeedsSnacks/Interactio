@@ -108,7 +108,7 @@ public final class BlockAnvilSmashingRecipe implements InWorldRecipe<BlockPos, B
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_ANVIL_SMASHING;
     }
 

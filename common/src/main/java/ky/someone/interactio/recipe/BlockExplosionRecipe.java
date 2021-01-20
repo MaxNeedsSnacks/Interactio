@@ -92,7 +92,7 @@ public final class BlockExplosionRecipe implements InWorldRecipe<BlockPos, Block
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_EXPLODE;
     }
 

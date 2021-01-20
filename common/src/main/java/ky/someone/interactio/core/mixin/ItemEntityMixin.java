@@ -47,7 +47,7 @@ abstract class ItemEntityMixin extends Entity implements IFluidRecipeInput {
             ordinal = 0
     ))
     public void interactio$checkFluidRecipes(CallbackInfo ci) {
-        if (!this.level.isClientSide && (interactio$craftedLastTick || tickCount % 5 == 0)) {
+        if (!this.level.isClientSide && (interactio$craftedLastTick || tickCount % 2 == 0)) {
             if (isI2FInput() || isF2FInput()) {
                 interactio$craftedLastTick = false;
                 BlockPos pos = this.getOnPos();

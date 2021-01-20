@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "ky.someone.interactio.Interactio::init"
+    ],
+    "rei_plugins": [
+      "ky.someone.interactio.fabric.rei.InteractioREIPlugin"
     ]
   },
   "mixins": [

@@ -120,7 +120,7 @@ public final class ItemFluidTransformRecipe implements InWorldRecipe.ItemsInFlui
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.ITEM_FLUID_TRANSFORM;
     }
 

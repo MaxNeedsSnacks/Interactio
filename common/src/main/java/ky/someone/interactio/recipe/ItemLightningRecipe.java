@@ -112,7 +112,7 @@ public final class ItemLightningRecipe implements InWorldRecipe.ItemsStateless<D
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.ITEM_LIGHTNING;
     }
 

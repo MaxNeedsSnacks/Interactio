@@ -115,7 +115,7 @@ public final class ItemAnvilSmashingRecipe implements InWorldRecipe<List<ItemEnt
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.ITEM_ANVIL_SMASHING;
     }
 

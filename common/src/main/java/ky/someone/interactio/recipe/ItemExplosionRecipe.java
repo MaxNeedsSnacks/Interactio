@@ -112,7 +112,7 @@ public final class ItemExplosionRecipe implements InWorldRecipe.ItemsStateless<E
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public InWorldRecipeType<?> getType() {
         return InWorldRecipeType.ITEM_EXPLODE;
     }
 

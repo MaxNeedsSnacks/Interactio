@@ -7,6 +7,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.material.FluidState;
@@ -60,6 +61,9 @@ public interface InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Craftin
 
     @Override
     AbstractRecipeSerializer<?> getSerializer();
+
+    @Override
+    InWorldRecipeType<?> getType();
 
     /**
      * {@inheritDoc}
