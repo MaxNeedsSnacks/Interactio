@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "ky.someone.interactio.fabric.InteractioFabric"
+      "ky.someone.interactio.Interactio::init"
     ]
   },
   "mixins": [
