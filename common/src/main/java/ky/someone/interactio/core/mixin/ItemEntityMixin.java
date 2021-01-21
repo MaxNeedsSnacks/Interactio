@@ -1,7 +1,6 @@
 package ky.someone.interactio.core.mixin;
 
-import ky.someone.interactio.Interactio;
-import ky.someone.interactio.core.IFluidRecipeInput;
+import ky.someone.interactio.core.IWCFluidRecipeInput;
 import ky.someone.interactio.recipe.util.InWorldRecipe;
 import ky.someone.interactio.recipe.util.InWorldRecipeType;
 import net.minecraft.core.BlockPos;
@@ -20,25 +19,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ItemEntity.class)
-abstract class ItemEntityMixin extends Entity implements IFluidRecipeInput {
+abstract class ItemEntityMixin extends Entity implements IWCFluidRecipeInput {
 
     @Shadow
     public abstract ItemStack getItem();
 
-    private boolean interactio$isI2FInput;
-    private boolean interactio$isF2FInput;
+    private boolean iwc$isI2FInput;
+    private boolean iwc$isF2FInput;
 
-    private boolean interactio$inputsChecked;
+    private boolean iwc$inputsChecked;
 
-    private boolean interactio$craftedLastTick = false;
+    private boolean iwc$craftedLastTick = false;
 
     public ItemEntityMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
 
     @Inject(method = "setItem", at = @At(value = "RETURN"))
-    public void interactio$invalidateInputs(CallbackInfo ci) {
-        interactio$inputsChecked = false;
+    public void iwc$invalidateInputs(CallbackInfo ci) {
+        iwc$inputsChecked = false;
     }
 
     @Inject(method = "tick", at = @At(
@@ -46,35 +45,35 @@ abstract class ItemEntityMixin extends Entity implements IFluidRecipeInput {
             target = "Lnet/minecraft/world/entity/item/ItemEntity;onGround:Z",
             ordinal = 0
     ))
-    public void interactio$checkFluidRecipes(CallbackInfo ci) {
-        if (!this.level.isClientSide && (interactio$craftedLastTick || tickCount % 2 == 0)) {
-            if (isI2FInput() || isF2FInput()) {
-                interactio$craftedLastTick = false;
+    public void iwc$checkFluidRecipes(CallbackInfo ci) {
+        if (!this.level.isClientSide && (iwc$craftedLastTick || tickCount % 5 == 0)) {
+            if (iwc$isI2FInput() || iwc$isF2FInput()) {
+                iwc$craftedLastTick = false;
                 BlockPos pos = this.getOnPos();
                 FluidState fluid = this.level.getFluidState(pos);
                 if (!fluid.isEmpty()) {
-                    if (isI2FInput()) {
+                    if (iwc$isI2FInput()) {
                         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class,
-                                this.getBoundingBox().expandTowards(0.5D, 0.0D, 0.5D),
-                                e -> ((IFluidRecipeInput) e).isI2FInput());
+                                this.getBoundingBox().inflate(1),
+                                e -> ((IWCFluidRecipeInput) e).iwc$isI2FInput() && e.blockPosition().equals(blockPosition()));
 
                         InWorldRecipeType.ITEM_FLUID_TRANSFORM
                                 .apply(recipe -> recipe.canCraft(items, fluid),
                                         recipe -> {
-                                            interactio$craftedLastTick = true;
+                                            iwc$craftedLastTick = true;
                                             recipe.craft(items, new InWorldRecipe.DefaultInfo(level, pos));
                                         });
                     }
 
-                    if (isF2FInput()) {
+                    if (iwc$isF2FInput()) {
                         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class,
-                                this.getBoundingBox().expandTowards(0.5D, 0.0D, 0.5D),
-                                e -> ((IFluidRecipeInput) e).isF2FInput());
+                                this.getBoundingBox().inflate(1),
+                                e -> ((IWCFluidRecipeInput) e).iwc$isF2FInput() && e.blockPosition().equals(blockPosition()));
 
                         InWorldRecipeType.FLUID_FLUID_TRANSFORM
                                 .apply(recipe -> recipe.canCraft(items, fluid),
                                         recipe -> {
-                                            interactio$craftedLastTick = true;
+                                            iwc$craftedLastTick = true;
                                             recipe.craft(items, new InWorldRecipe.DefaultInfo(level, pos));
                                         });
                     }
@@ -83,23 +82,23 @@ abstract class ItemEntityMixin extends Entity implements IFluidRecipeInput {
         }
     }
 
-    public void interactio$updateValidInputs() {
-        if (!interactio$inputsChecked) {
-            interactio$isI2FInput = InWorldRecipeType.ITEM_FLUID_TRANSFORM.isValidInput(this.getItem());
-            interactio$isF2FInput = InWorldRecipeType.FLUID_FLUID_TRANSFORM.isValidInput(this.getItem());
-            interactio$inputsChecked = true;
+    public void iwc$updateValidInputs() {
+        if (!iwc$inputsChecked) {
+            iwc$isI2FInput = InWorldRecipeType.ITEM_FLUID_TRANSFORM.isValidInput(this.getItem());
+            iwc$isF2FInput = InWorldRecipeType.FLUID_FLUID_TRANSFORM.isValidInput(this.getItem());
+            iwc$inputsChecked = true;
         }
     }
 
     @Override
-    public boolean isI2FInput() {
-        interactio$updateValidInputs();
-        return interactio$isI2FInput;
+    public boolean iwc$isI2FInput() {
+        iwc$updateValidInputs();
+        return iwc$isI2FInput;
     }
 
     @Override
-    public boolean isF2FInput() {
-        interactio$updateValidInputs();
-        return interactio$isF2FInput;
+    public boolean iwc$isF2FInput() {
+        iwc$updateValidInputs();
+        return iwc$isF2FInput;
     }
 }
