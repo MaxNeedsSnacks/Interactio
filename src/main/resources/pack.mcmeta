@@ -1,7 +1,7 @@
 {
-    "pack": {
-        "description": "Interactio resources",
-        "pack_format": 6,
-        "_comment": "Cool stuff really"
-    }
+  "pack": {
+    "description": "Interactio resources",
+    "pack_format": 6,
+    "_comment": "Cool stuff really"
+  }
 }

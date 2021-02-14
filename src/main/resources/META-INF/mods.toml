@@ -6,7 +6,7 @@ license="The MIT License (MIT)"
 
 [[mods]] #mandatory
 modId="interactio" #mandatory
-version="${file.jarVersion}" #mandatory
+version="${version}" #mandatory
 displayName="Interactio" #mandatory
 # updateJSONURL="http://myurl.me/" #optional
 # displayURL="http://example.com/" #optional
