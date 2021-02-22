@@ -1,5 +1,6 @@
 package ky.someone.mods.interactio.proxy;
 
+import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.command.CommandItemInfo;
 import ky.someone.mods.interactio.command.CommandRegistryDump;
 import ky.someone.mods.interactio.command.RegistryArgument;
@@ -15,8 +16,10 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
 
@@ -32,7 +35,8 @@ public abstract class ModProxy implements IProxy {
         // Forge Event Bus events
         MinecraftForge.EVENT_BUS.addListener((FMLServerAboutToStartEvent event) -> this.server = event.getServer());
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
-        MinecraftForge.EVENT_BUS.addListener(this::preInit);
+
+        Interactio.MOD_BUS.addListener(this::preInit);
 
     }
 
