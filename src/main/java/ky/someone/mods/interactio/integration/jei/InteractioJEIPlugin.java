@@ -1,8 +1,13 @@
 package ky.someone.mods.interactio.integration.jei;
 
 import ky.someone.mods.interactio.Interactio;
-import ky.someone.mods.interactio.integration.jei.categories.*;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
+import ky.someone.mods.interactio.integration.jei.categories.BlockAnvilSmashingCategory;
+import ky.someone.mods.interactio.integration.jei.categories.BlockExplosionCategory;
+import ky.someone.mods.interactio.integration.jei.categories.FluidCategory;
+import ky.someone.mods.interactio.integration.jei.categories.ItemAnvilSmashingCategory;
+import ky.someone.mods.interactio.integration.jei.categories.ItemExplosionCategory;
+import ky.someone.mods.interactio.integration.jei.categories.ItemLightningCategory;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -31,8 +36,7 @@ public class InteractioJEIPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
-                new ItemFluidTransformCategory(guiHelper),
-                new FluidFluidTransformCategory(guiHelper),
+                new FluidCategory(guiHelper),
                 new ItemExplosionCategory(guiHelper),
                 new BlockExplosionCategory(guiHelper),
                 new ItemLightningCategory(guiHelper),
@@ -43,8 +47,7 @@ public class InteractioJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(InWorldRecipeType.ITEM_FLUID_TRANSFORM.getRecipes(), ItemFluidTransformCategory.UID);
-        registration.addRecipes(InWorldRecipeType.FLUID_FLUID_TRANSFORM.getRecipes(), FluidFluidTransformCategory.UID);
+        registration.addRecipes(InWorldRecipeType.FLUID_TRANSFORM.getRecipes(), FluidCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_EXPLODE.getRecipes(), ItemExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.BLOCK_EXPLODE.getRecipes(), BlockExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_LIGHTNING.getRecipes(), ItemLightningCategory.UID);

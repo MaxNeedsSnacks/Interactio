@@ -7,9 +7,9 @@ import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
 import ky.someone.mods.interactio.recipe.ItemAnvilSmashingRecipe;
-import ky.someone.mods.interactio.recipe.ingredient.RecipeIngredient;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
+import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -33,7 +33,7 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
 
     public static final ResourceLocation UID = InWorldRecipeType.ITEM_ANVIL_SMASHING.registryName;
 
-    private final IGuiHelper guiHelper;
+//    private final IGuiHelper guiHelper;
 
     private final IDrawableStatic background;
     private final IDrawableStatic overlay;
@@ -48,7 +48,7 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
     private final int height = 120;
 
     public ItemAnvilSmashingCategory(IGuiHelper guiHelper) {
-        this.guiHelper = guiHelper;
+//        this.guiHelper = guiHelper;
 
         background = guiHelper.createBlankDrawable(width, height);
         overlay = guiHelper.createDrawable(Interactio.id("textures/gui/anvil_smashing.png"), 0, 0, width, height);
@@ -88,7 +88,7 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
     @Override
     public void setIngredients(ItemAnvilSmashingRecipe recipe, IIngredients ingredients) {
 
-        List<RecipeIngredient> inputs = ImmutableList.copyOf(recipe.getInputs());
+        List<ItemIngredient> inputs = ImmutableList.copyOf(recipe.getItemInputs());
 
         List<List<ItemStack>> mappedInputs = new ArrayList<>();
 
@@ -103,7 +103,7 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
         ingredients.setInputLists(VanillaTypes.ITEM, mappedInputs);
 
         // item output
-        ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().stream()
+        ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().itemOutput.stream()
                 .map(WeightedOutput.WeightedEntry::getResult)
                 .collect(Collectors.toList())));
     }
@@ -124,9 +124,9 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
 
         Point point = new Point(center.x, 8);
 
-        List<Double> returnChances = recipe.getInputs().stream().map(RecipeIngredient::getReturnChance).collect(Collectors.toList());
+        List<Double> returnChances = recipe.getItemInputs().stream().map(ItemIngredient::getReturnChance).collect(Collectors.toList());
 
-        WeightedOutput<ItemStack> output = recipe.getOutput();
+        WeightedOutput<ItemStack> output = recipe.getOutput().itemOutput;
         WeightedOutput.WeightedEntry<ItemStack> empty = new WeightedOutput.WeightedEntry<>(Items.BARRIER.getDefaultInstance(), output.emptyWeight);
 
         int i = 0;

@@ -1,15 +1,23 @@
 package ky.someone.mods.interactio.integration.jei.categories;
 
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
-import ky.someone.mods.interactio.recipe.FluidFluidTransformRecipe;
-import ky.someone.mods.interactio.recipe.ingredient.RecipeIngredient;
+import ky.someone.mods.interactio.recipe.ItemFluidRecipe;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
+import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -25,16 +33,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+public class FluidCategory implements IRecipeCategory<ItemFluidRecipe> {
 
-public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTransformRecipe> {
-
-    public static final ResourceLocation UID = InWorldRecipeType.FLUID_FLUID_TRANSFORM.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.FLUID_TRANSFORM.registryName;
 
     private final IGuiHelper guiHelper;
 
@@ -48,7 +49,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     private final int width = 160;
     private final int height = 120;
 
-    public FluidFluidTransformCategory(IGuiHelper guiHelper) {
+    public FluidCategory(IGuiHelper guiHelper) {
         this.guiHelper = guiHelper;
 
         background = guiHelper.createBlankDrawable(width, height);
@@ -65,8 +66,8 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     }
 
     @Override
-    public Class<FluidFluidTransformRecipe> getRecipeClass() {
-        return FluidFluidTransformRecipe.class;
+    public Class<ItemFluidRecipe> getRecipeClass() {
+        return ItemFluidRecipe.class;
     }
 
     @Override
@@ -85,9 +86,9 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     }
 
     @Override
-    public void setIngredients(FluidFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setIngredients(ItemFluidRecipe recipe, IIngredients ingredients) {
 
-        List<RecipeIngredient> items = ImmutableList.copyOf(recipe.getItems());
+        List<ItemIngredient> items = ImmutableList.copyOf(recipe.getItemInputs());
 
         List<List<ItemStack>> mappedItems = new ArrayList<>();
 
@@ -102,10 +103,10 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
         ingredients.setInputLists(VanillaTypes.ITEM, mappedItems);
 
         // fluid input
-        ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluid().getMatchingStacks())));
+        ingredients.setInputLists(VanillaTypes.FLUID, Collections.singletonList(new ArrayList<>(recipe.getFluidInput().getMatchingStacks())));
 
         // fluid output
-        ingredients.setOutputLists(VanillaTypes.FLUID, Collections.singletonList(recipe.getOutput().stream()
+        ingredients.setOutputLists(VanillaTypes.FLUID, Collections.singletonList(recipe.getOutput().fluidOutput.stream()
                 .map(WeightedOutput.WeightedEntry::getResult)
                 .map(fluid -> new FluidStack(fluid, 1000))
                 .collect(Collectors.toList())));
@@ -116,7 +117,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     private final Point center = new Point(45, 52);
 
     @Override
-    public void setRecipe(IRecipeLayout layout, FluidFluidTransformRecipe recipe, IIngredients ingredients) {
+    public void setRecipe(IRecipeLayout layout, ItemFluidRecipe recipe, IIngredients ingredients) {
 
         List<List<ItemStack>> inputs = ingredients.getInputs(VanillaTypes.ITEM);
         List<List<FluidStack>> fluid = ingredients.getInputs(VanillaTypes.FLUID);
@@ -129,9 +130,9 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
 
         Point point = new Point(center.x, 8);
 
-        List<Double> returnChances = recipe.getItems().stream().map(RecipeIngredient::getReturnChance).collect(Collectors.toList());
+        List<Double> returnChances = recipe.getItemInputs().stream().map(ItemIngredient::getReturnChance).collect(Collectors.toList());
 
-        WeightedOutput<Fluid> output = recipe.getOutput();
+        WeightedOutput<Fluid> output = recipe.getOutput().fluidOutput;
         WeightedOutput.WeightedEntry<Fluid> empty = new WeightedOutput.WeightedEntry<>(Fluids.EMPTY, output.emptyWeight);
 
         int i = 0;
@@ -160,7 +161,7 @@ public class FluidFluidTransformCategory implements IRecipeCategory<FluidFluidTr
     }
 
     @Override
-    public void draw(FluidFluidTransformRecipe recipe, PoseStack ms, double mouseX, double mouseY) {
+    public void draw(ItemFluidRecipe recipe, PoseStack ms, double mouseX, double mouseY) {
 
         RenderSystem.enableBlend();
 

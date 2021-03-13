@@ -35,11 +35,15 @@ public class FluidIngredient implements Predicate<FluidStack> {
 
     private final IFluidList[] acceptedFluids;
     private Collection<FluidStack> matchingStacks;
+//    private int count;
 
-
-    protected FluidIngredient(Stream<? extends IFluidList> fluidLists) {
+    protected FluidIngredient(Stream<? extends IFluidList> fluidLists) { this(fluidLists, 1); }
+    
+    protected FluidIngredient(Stream<? extends IFluidList> fluidLists, int count) {
         this.acceptedFluids = fluidLists.filter(NON_EMPTY).toArray(IFluidList[]::new);
+//        this.count = count;
     }
+    
 
     /**
      * Get a list of all {@link FluidStack}s which match this ingredient. Used for JEI support.

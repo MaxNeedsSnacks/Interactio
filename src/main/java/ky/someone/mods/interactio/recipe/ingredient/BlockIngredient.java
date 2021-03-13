@@ -1,9 +1,19 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,19 +25,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 /**
  * An {@code Ingredient}-equivalent for blocks, based heavily on the vanilla implementation.
  */
-public class BlockIngredient implements Predicate<BlockState> {
+public class BlockIngredient extends RecipeIngredient<Block> {
 
     public static final BlockIngredient EMPTY = new BlockIngredient(Stream.empty());
 
@@ -35,6 +36,7 @@ public class BlockIngredient implements Predicate<BlockState> {
     private Collection<Block> matchingBlocks;
 
     protected BlockIngredient(Stream<? extends IBlockList> blockLists) {
+        super(1, 0);
         this.acceptedBlocks = blockLists.toArray(IBlockList[]::new);
     }
 
@@ -43,7 +45,7 @@ public class BlockIngredient implements Predicate<BlockState> {
      *
      * @return A list of matching blocks
      */
-    public Collection<Block> getMatchingBlocks() {
+    public Collection<Block> getMatching() {
         this.determineMatchingBlocks();
         return matchingBlocks;
     }
@@ -192,4 +194,15 @@ public class BlockIngredient implements Predicate<BlockState> {
         }
     }
 
+    @Override
+    protected void updateEmpty()
+    {
+        
+    }
+
+    @Override
+    public boolean roll()
+    {
+        return false;
+    }
 }
