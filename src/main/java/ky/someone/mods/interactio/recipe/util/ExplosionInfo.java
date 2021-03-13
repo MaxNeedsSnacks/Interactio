@@ -1,22 +1,25 @@
 package ky.someone.mods.interactio.recipe.util;
 
+import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 
-public final class ExplosionInfo implements CraftingInfo {
-    private final Level world;
+public final class ExplosionInfo extends CraftingInfo {
     private final Explosion explosion;
 
-    public ExplosionInfo(Level world, Explosion explosion) {
-        this.world = world;
+    public ExplosionInfo(InWorldRecipe<?,?,?> recipe, Level world, Explosion explosion) {
+        super(recipe, world);
         this.explosion = explosion;
-    }
-
-    public Level getWorld() {
-        return this.world;
     }
 
     public Explosion getExplosion() {
         return this.explosion;
+    }
+
+    @Override
+    public BlockPos getPos()
+    {
+        return new BlockPos(getExplosion().getPosition());
     }
 }

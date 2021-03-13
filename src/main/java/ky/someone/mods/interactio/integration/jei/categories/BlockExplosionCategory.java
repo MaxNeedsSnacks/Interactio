@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
 import ky.someone.mods.interactio.recipe.BlockExplosionRecipe;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -80,7 +80,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
     @Override
     public void setIngredients(BlockExplosionRecipe recipe, IIngredients ingredients) {
         // display input block as item
-        ingredients.setInputs(VanillaTypes.ITEM, recipe.getInput().getMatchingBlocks()
+        ingredients.setInputs(VanillaTypes.ITEM, recipe.getBlockInput().getMatching()
                 .stream()
                 .map(Block::asItem)
                 .map(Item::getDefaultInstance)

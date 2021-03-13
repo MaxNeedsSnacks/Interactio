@@ -6,7 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import ky.someone.mods.interactio.recipe.ingredient.RecipeIngredient;
+import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.ChatFormatting;
@@ -32,6 +32,8 @@ import java.awt.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public final class Utils {
 
@@ -40,13 +42,13 @@ public final class Utils {
     }
 
     // region recipe
-    public static boolean compareStacks(List<ItemEntity> entities, Collection<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Collection<ItemIngredient> ingredients) {
         return compareStacks(entities, new Object2IntOpenHashMap<>(), ingredients);
     }
 
-    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Collection<RecipeIngredient> ingredients) {
+    public static boolean compareStacks(List<ItemEntity> entities, Object2IntMap<ItemEntity> used, Collection<ItemIngredient> ingredients) {
 
-        Collection<RecipeIngredient> required = new ObjectOpenHashSet<>();
+        Collection<ItemIngredient> required = new ObjectOpenHashSet<>();
         ingredients.forEach(i -> required.add(i.copy()));
 
         for (ItemEntity entity : entities) {
@@ -54,7 +56,7 @@ public final class Utils {
 
             if (!entity.isAlive()) return false;
 
-            for (RecipeIngredient req : required) {
+            for (ItemIngredient req : required) {
                 Ingredient ingredient = req.getIngredient();
                 int available = Math.min(req.getCount(), item.getCount());
 
@@ -65,7 +67,7 @@ public final class Utils {
                 }
             }
 
-            required.removeIf(RecipeIngredient::isEmpty);
+            required.removeIf(ItemIngredient::isEmpty);
         }
 
         return required.isEmpty();
@@ -180,5 +182,15 @@ public final class Utils {
         double newX = Math.cos(rad) * (in.x - about.x) - Math.sin(rad) * (in.y - about.y) + about.x;
         double newY = Math.sin(rad) * (in.x - about.x) + Math.cos(rad) * (in.y - about.y) + about.y;
         return new Point((int) Math.round(newX), (int) Math.round(newY));
+    }
+    
+    public static <T, U> void runAll(List<BiConsumer<T, U>> events, T t, U u)
+    {
+        events.forEach(consumer -> consumer.accept(t, u));
+    }
+    
+    public static <T, U> boolean testAll(List<BiPredicate<T, U>> events, T t, U u)
+    {
+        return events.stream().allMatch(predicate -> predicate.test(t, u));
     }
 }

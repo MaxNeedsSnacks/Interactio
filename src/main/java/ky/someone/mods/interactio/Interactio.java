@@ -3,7 +3,7 @@ package ky.someone.mods.interactio;
 import ky.someone.mods.interactio.event.InteractioEventHandler;
 import ky.someone.mods.interactio.proxy.IProxy;
 import ky.someone.mods.interactio.proxy.ModProxy;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import me.shedaniel.architectury.event.events.RecipeUpdateEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -32,7 +32,7 @@ public class Interactio {
 
     public static UUID CHAT_ID = UUID.randomUUID();
 
-    private final String PROTOCOL_VERSION = "1";
+//    private final String PROTOCOL_VERSION = "1";
 
     public Interactio() {
 

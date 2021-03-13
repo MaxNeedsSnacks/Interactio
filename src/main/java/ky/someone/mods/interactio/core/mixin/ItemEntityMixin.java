@@ -1,8 +1,16 @@
 package ky.someone.mods.interactio.core.mixin;
 
+import java.util.List;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import ky.someone.mods.interactio.core.IWCFluidRecipeInput;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipe;
-import ky.someone.mods.interactio.recipe.util.InWorldRecipeType;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
+import ky.someone.mods.interactio.recipe.util.DefaultInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -10,13 +18,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.List;
 
 @Mixin(ItemEntity.class)
 abstract class ItemEntityMixin extends Entity implements IWCFluidRecipeInput {
@@ -57,11 +58,11 @@ abstract class ItemEntityMixin extends Entity implements IWCFluidRecipeInput {
                                 this.getBoundingBox().inflate(1),
                                 e -> ((IWCFluidRecipeInput) e).iwc$isI2FInput() && e.blockPosition().equals(blockPosition()));
 
-                        InWorldRecipeType.ITEM_FLUID_TRANSFORM
+                        InWorldRecipeType.FLUID_TRANSFORM
                                 .apply(recipe -> recipe.canCraft(items, fluid),
                                         recipe -> {
                                             iwc$craftedLastTick = true;
-                                            recipe.craft(items, new InWorldRecipe.DefaultInfo(level, pos));
+                                            recipe.craft(items, new DefaultInfo(recipe, level, pos));
                                         });
                     }
 
@@ -70,11 +71,11 @@ abstract class ItemEntityMixin extends Entity implements IWCFluidRecipeInput {
                                 this.getBoundingBox().inflate(1),
                                 e -> ((IWCFluidRecipeInput) e).iwc$isF2FInput() && e.blockPosition().equals(blockPosition()));
 
-                        InWorldRecipeType.FLUID_FLUID_TRANSFORM
+                        InWorldRecipeType.FLUID_TRANSFORM
                                 .apply(recipe -> recipe.canCraft(items, fluid),
                                         recipe -> {
                                             iwc$craftedLastTick = true;
-                                            recipe.craft(items, new InWorldRecipe.DefaultInfo(level, pos));
+                                            recipe.craft(items, new DefaultInfo(recipe, level, pos));
                                         });
                     }
                 }
@@ -84,8 +85,8 @@ abstract class ItemEntityMixin extends Entity implements IWCFluidRecipeInput {
 
     public void iwc$updateValidInputs() {
         if (!iwc$inputsChecked) {
-            iwc$isI2FInput = InWorldRecipeType.ITEM_FLUID_TRANSFORM.isValidInput(this.getItem());
-            iwc$isF2FInput = InWorldRecipeType.FLUID_FLUID_TRANSFORM.isValidInput(this.getItem());
+            iwc$isI2FInput = InWorldRecipeType.FLUID_TRANSFORM.isValidInput(this.getItem());
+            iwc$isF2FInput = InWorldRecipeType.FLUID_TRANSFORM.isValidInput(this.getItem());
             iwc$inputsChecked = true;
         }
     }

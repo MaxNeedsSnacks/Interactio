@@ -1,4 +1,4 @@
-package ky.someone.mods.interactio.recipe.util;
+package ky.someone.mods.interactio.recipe.base;
 
 import com.google.common.collect.ImmutableList;
 import ky.someone.mods.interactio.Interactio;
@@ -25,8 +25,7 @@ public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements Reci
 
     private static final Collection<InWorldRecipeType<?>> types = new HashSet<>();
 
-    public static final InWorldRecipeType<ItemFluidTransformRecipe> ITEM_FLUID_TRANSFORM = create("item_fluid_transform", ItemFluidTransformRecipe.SERIALIZER);
-    public static final InWorldRecipeType<FluidFluidTransformRecipe> FLUID_FLUID_TRANSFORM = create("fluid_fluid_transform", FluidFluidTransformRecipe.SERIALIZER);
+    public static final InWorldRecipeType<ItemFluidRecipe> FLUID_TRANSFORM = create("fluid_transform", ItemFluidRecipe.SERIALIZER);
     public static final InWorldRecipeType<ItemExplosionRecipe> ITEM_EXPLODE = create("item_explode", ItemExplosionRecipe.SERIALIZER);
     public static final InWorldRecipeType<BlockExplosionRecipe> BLOCK_EXPLODE = create("block_explode", BlockExplosionRecipe.SERIALIZER);
     public static final InWorldRecipeType<ItemLightningRecipe> ITEM_LIGHTNING = create("item_lightning", ItemLightningRecipe.SERIALIZER);
