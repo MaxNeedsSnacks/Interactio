@@ -49,7 +49,7 @@ public enum InteractioEventHandler {
 
         InWorldRecipeType.ITEM_EXPLODE
                 .applyAll(recipe -> recipe.canCraft(level, items),
-                        recipe -> recipe.craft(items, new ExplosionInfo(recipe, level, explosion)));
+                        recipe -> recipe.craft(items, new ExplosionInfo(level, explosion)));
 
         // since we're removing blocks from the affected block list, we need to do this
         blocks.stream().filter(pos -> !level.isEmptyBlock(pos)).forEach(pos -> {
@@ -57,7 +57,7 @@ public enum InteractioEventHandler {
 
             InWorldRecipeType.BLOCK_EXPLODE
                     .apply(recipe -> recipe.canCraft(level, pos, state),
-                            recipe -> recipe.craft(pos, new ExplosionInfo(recipe, level, explosion)));
+                            recipe -> recipe.craft(pos, new ExplosionInfo(level, explosion)));
         });
     }
 
@@ -71,7 +71,7 @@ public enum InteractioEventHandler {
                 .collect(Collectors.toList());
 
         InWorldRecipeType.ITEM_LIGHTNING.applyAll(recipe -> recipe.canCraft(level, entities),
-                recipe -> recipe.craft(entities, new DefaultInfo(recipe, level, bolt.blockPosition())));
+                recipe -> recipe.craft(entities, new DefaultInfo(level, bolt.blockPosition())));
 
         bolt.remove();
     }
@@ -84,10 +84,10 @@ public enum InteractioEventHandler {
         BlockState hitState = level.getBlockState(hitPos);
 
         InWorldRecipeType.ITEM_ANVIL_SMASHING.applyAll(recipe -> recipe.canCraft(level, items, hitState),
-                recipe -> recipe.craft(items, new DefaultInfo(recipe, level, pos)));
+                recipe -> recipe.craft(items, new DefaultInfo(level, pos)));
 
         InWorldRecipeType.BLOCK_ANVIL_SMASHING.apply(recipe -> recipe.canCraft(level, pos, hitState),
-                recipe -> recipe.craft(pos, new DefaultInfo(recipe, level, hitPos)));
+                recipe -> recipe.craft(pos, new DefaultInfo(level, hitPos)));
 
     }
 }

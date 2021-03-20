@@ -45,6 +45,8 @@ public final class ItemLightningRecipe extends StatelessItemRecipe<DefaultInfo> 
     public double getChance() {
         return this.chance;
     }
+    
+    @Override public boolean hasInvulnerableOutput() { return true; }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemLightningRecipe> {
         @Override

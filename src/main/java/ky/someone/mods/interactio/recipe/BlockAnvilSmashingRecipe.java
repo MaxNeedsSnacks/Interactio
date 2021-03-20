@@ -73,6 +73,8 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     public RecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_ANVIL_SMASHING;
     }
+    
+    @Override public boolean hasInvulnerableOutput() { return false; }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockAnvilSmashingRecipe> {
         @Override

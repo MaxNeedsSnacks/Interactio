@@ -57,7 +57,7 @@ public abstract class StatelessItemRecipe<U extends CraftingInfo> extends Statel
         do {
             runAll(this.preCraft, loopingEntities, info);
             shrinkAndUpdate(used);
-            this.output.spawn(world, pos);
+            this.output.spawn(world, pos, this.hasInvulnerableOutput());
             runAll(this.postCraft, loopingEntities, info);
             
             loopingEntities.removeIf(not(ItemEntity::isAlive));

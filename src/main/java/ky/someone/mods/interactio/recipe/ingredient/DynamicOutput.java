@@ -88,7 +88,7 @@ public final class DynamicOutput {
         else throw new IllegalArgumentException("Output type must be among " + Arrays.toString(OutputType.values()) + ", but " + cls.getSimpleName() + " was provided");
     }
     
-    public void spawn(Level world, BlockPos pos) {
+    public void spawn(Level world, BlockPos pos, boolean invulnerable) {
         Random rand = world.getRandom();
         if (isBlock()) {
             world.setBlockAndUpdate(pos, this.getBlock().defaultBlockState());
@@ -107,6 +107,7 @@ public final class DynamicOutput {
                 
                 ItemEntity newItem = new ItemEntity(world, x, y, z, stack.copy());
                 newItem.setDeltaMovement(0, vel, 0);
+                if (invulnerable) newItem.setInvulnerable(invulnerable);
                 world.addFreshEntity(newItem);
             });
         }

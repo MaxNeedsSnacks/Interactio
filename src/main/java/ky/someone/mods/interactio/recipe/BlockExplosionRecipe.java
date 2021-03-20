@@ -42,6 +42,8 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     public RecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_EXPLODE;
     }
+    
+    @Override public boolean hasInvulnerableOutput() { return false; }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockExplosionRecipe> {
         @Override

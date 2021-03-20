@@ -25,10 +25,14 @@ abstract class LiquidBlockMixin {
     {
         if (!(entity instanceof ItemEntity))
             return;
-        if (!world.getFluidState(pos).isSource())
+        FluidState fluid = world.getFluidState(pos);
+        if (!fluid.isSource())
             return;
+        
         RecipeTracker<List<ItemEntity>, FluidState, ItemFluidRecipe> tracker = RecipeTracker.get(world, ItemFluidRecipe.class);
         List<ItemEntity> entityList = tracker.getInput(pos, () -> new LinkedList<>());
         if (!entityList.contains(entity)) entityList.add((ItemEntity) entity);
+        
+        tracker.setState(pos, fluid);
     }
 }

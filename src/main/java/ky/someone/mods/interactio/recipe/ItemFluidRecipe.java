@@ -69,6 +69,8 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
     }
     
     public double getConsumeFluid() { return this.consumeFluid; }
+    
+    @Override public boolean hasInvulnerableOutput() { return false; }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemFluidRecipe>
     {

@@ -58,6 +58,8 @@ public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo
     public RecipeType<?> getType() {
         return InWorldRecipeType.ITEM_EXPLODE;
     }
+    
+    @Override public boolean hasInvulnerableOutput() { return false; }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemExplosionRecipe> {
         @Override

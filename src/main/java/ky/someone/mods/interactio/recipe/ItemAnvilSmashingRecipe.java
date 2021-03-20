@@ -87,6 +87,8 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
     public RecipeType<?> getType() {
         return InWorldRecipeType.ITEM_ANVIL_SMASHING;
     }
+    
+    @Override public boolean hasInvulnerableOutput() { return false; }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemAnvilSmashingRecipe> {
         @Override
