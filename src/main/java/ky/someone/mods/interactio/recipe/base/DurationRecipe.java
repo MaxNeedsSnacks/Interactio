@@ -1,6 +1,10 @@
 package ky.someone.mods.interactio.recipe.base;
 
+import static ky.someone.mods.interactio.Utils.runAll;
+
+import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.google.gson.JsonObject;
 
@@ -14,12 +18,19 @@ import net.minecraft.world.level.block.state.StateHolder;
 
 public abstract class DurationRecipe<T, S extends StateHolder<?, ?>> extends InWorldRecipe<T, S, DefaultInfo> {
 
+    protected List<BiConsumer<T, S>> tickConsumers;
     protected final int duration;
     
-    public DurationRecipe(ResourceLocation id, List<ItemIngredient> itemInputs, BlockIngredient blockInput, FluidIngredient fluidInput, DynamicOutput output, int duration, JsonObject json)
+    public DurationRecipe(ResourceLocation id, List<ItemIngredient> itemInputs, BlockIngredient blockInput, FluidIngredient fluidInput, DynamicOutput output, boolean canRunParallel, int duration, JsonObject json)
     {
-        super(id, itemInputs, blockInput, fluidInput, output, json);
+        super(id, itemInputs, blockInput, fluidInput, output, canRunParallel, json);
         this.duration = duration;
+        this.tickConsumers = new LinkedList<>();
+    }
+    
+    public void tick(T input, S state)
+    {
+        runAll(this.tickConsumers, input, state);
     }
     
     public int getDuration() { return duration; }

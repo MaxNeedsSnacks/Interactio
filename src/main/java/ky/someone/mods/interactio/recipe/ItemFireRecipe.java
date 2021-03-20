@@ -4,17 +4,19 @@ import static ky.someone.mods.interactio.Utils.compareStacks;
 import static ky.someone.mods.interactio.Utils.testAll;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.base.DurationRecipe;
+import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
-import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
 import net.minecraft.core.NonNullList;
@@ -25,31 +27,29 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.material.FluidState;
 
-public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState> {
+public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder<?, ?>> {
     
     public static final Serializer SERIALIZER = new Serializer();
     
-    protected final double consumeFluid;
-    
-    public ItemFluidRecipe(ResourceLocation id, List<ItemIngredient> inputs, FluidIngredient fluid, DynamicOutput output, boolean canRunParallel, double consumeFluid, int duration, JsonObject json)
+    public ItemFireRecipe(ResourceLocation id, ItemIngredient input, DynamicOutput output, boolean canRunParallel, int duration, JsonObject json)
     {
-        super(id, inputs, null, fluid, output, canRunParallel, duration, json);
-        this.consumeFluid = consumeFluid;
+        super(id, Arrays.asList(input), null, null, output, canRunParallel, duration, json);
         
         this.postCraft.add(Events.defaultItemEvents.get(new ResourceLocation("particle")));
     }
     
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities, FluidState state)
+    public boolean canCraft(Level world, List<ItemEntity> entities, StateHolder<?,?> state)
     {
         return testAll(this.startCraftConditions, entities, state)
                 && compareStacks(entities, this.itemInputs);
     }
     
     @Override
-    public void craft(List<ItemEntity> entities, DefaultInfo info) { craftItemList(this, entities, info); }
+    public void craft(List<ItemEntity> entities, DefaultInfo info) { InWorldRecipe.craftItemList(this, entities, info); }
     
     @Override
     public NonNullList<Ingredient> getIngredients() {
@@ -68,21 +68,18 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
         return InWorldRecipeType.FLUID_TRANSFORM;
     }
     
-    public double getConsumeFluid() { return this.consumeFluid; }
-
-    public static class Serializer extends InWorldRecipeSerializer<ItemFluidRecipe>
+    public static class Serializer extends InWorldRecipeSerializer<ItemFireRecipe>
     {
         @Override
-        public ItemFluidRecipe fromJson(ResourceLocation id, JsonObject json)
+        public ItemFireRecipe fromJson(ResourceLocation id, JsonObject json)
         {
             DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"));
-            FluidIngredient fluid = FluidIngredient.deserialize(json.get("fluid"));
             
-            List<ItemIngredient> inputs = this.parseItemIngredients(id, json, "inputs");
+            ItemIngredient input = ItemIngredient.deserialize(json.get("input"));
+            if (input.getIngredient().isEmpty())
+                throw new JsonParseException(String.format("No valid input specified for recipe %s!", id));
             
-            double consumeFluid = Utils.parseChance(json, "consumeFluid");
-            
-            boolean parallel = GsonHelper.getAsBoolean(json, "parallel", false);
+            boolean parallel = GsonHelper.getAsBoolean(json, "parallel", true);
             int duration = (int) Utils.getDouble(json, "duration", 0);
             
             List<BiPredicate<List<ItemEntity>, FluidState>> startConditions = new ArrayList<>();
@@ -91,7 +88,7 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
                 startConditions.add(Events.fluidItemPredicates.get(loc));
             });
             
-            return new ItemFluidRecipe(id, inputs, fluid, output, parallel, consumeFluid, duration, json);
+            return new ItemFireRecipe(id, input, output, parallel, duration, json);
         }
     }
 }

@@ -1,7 +1,14 @@
 package ky.someone.mods.interactio.recipe.base;
 
+import static com.google.common.base.Predicates.not;
+import static ky.someone.mods.interactio.Utils.compareStacks;
+import static ky.someone.mods.interactio.Utils.runAll;
+import static ky.someone.mods.interactio.Utils.shrinkAndUpdate;
+import static ky.someone.mods.interactio.Utils.testAll;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -9,18 +16,23 @@ import java.util.function.BiPredicate;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import ky.someone.mods.interactio.recipe.ingredient.BlockIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.CraftingInfo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -57,15 +69,15 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
     protected final FluidIngredient fluidInput;
     protected final DynamicOutput output;
     
-    public InWorldRecipe(ResourceLocation id, List<ItemIngredient> itemInputs, BlockIngredient blockInput, FluidIngredient fluidInput, DynamicOutput output, JsonObject json)
+    public InWorldRecipe(ResourceLocation id, @Nullable List<ItemIngredient> itemInputs, @Nullable BlockIngredient blockInput, @Nullable FluidIngredient fluidInput, DynamicOutput output, boolean canRunParallel, JsonObject json)
     {
         this.id = id;
         this.output = output;
         this.json = json;
         
-        this.itemInputs = itemInputs;
-        this.blockInput = blockInput;
-        this.fluidInput = fluidInput;
+        this.itemInputs = itemInputs == null ? Collections.emptyList() : itemInputs;
+        this.blockInput = blockInput == null ? BlockIngredient.EMPTY : blockInput;
+        this.fluidInput = fluidInput == null ? FluidIngredient.EMPTY : fluidInput;
         
         this.startCraftConditions = new LinkedList<>();
         this.keepCraftingConditions = new LinkedList<>();
@@ -73,6 +85,8 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
         this.preCraft = new LinkedList<>();
         this.postCraft = new LinkedList<>();
         this.onCraftEnd = new LinkedList<>();
+        
+        this.keepCraftingConditions.add((t, u) -> canRunParallel);
     }
     
     /**
@@ -98,7 +112,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
      * @param state  State we want to check our inputs against.
      * @return Should this in-world craft be performed?
      */
-    public abstract boolean canCraft(T inputs, S state);
+    public abstract boolean canCraft(Level world, T inputs, S state);
 
     /**
      * Attempts to perform an in-world crafting recipe with the given parameters.
@@ -181,5 +195,39 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
                 throw new JsonParseException(String.format("No valid inputs specified for recipe %s!", id));
             return inputs;
         }
+    }
+    
+    public static <S extends StateHolder<?,?>, I extends CraftingInfo> void craftItemList(InWorldRecipe<List<ItemEntity>, S, I> recipe, List<ItemEntity> inputs, I info)
+    {
+        Level world = info.getWorld();
+        BlockPos pos = info.getPos();
+        
+        Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
+        
+        List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(inputs);
+        
+        runAll(recipe.onCraftStart, loopingEntities, info);
+        do {
+            runAll(recipe.preCraft, loopingEntities, info);
+            shrinkAndUpdate(used);
+            recipe.output.spawn(world, pos);
+            runAll(recipe.postCraft, loopingEntities, info);
+            
+            loopingEntities.removeIf(not(ItemEntity::isAlive));
+            used.clear();
+        }
+        while (compareStacks(loopingEntities, used, recipe.itemInputs) && testAll(recipe.keepCraftingConditions, loopingEntities, info));
+        runAll(recipe.onCraftEnd, loopingEntities, info);
+    }
+    
+    public static <S extends StateHolder<?,?>, I extends CraftingInfo> void craftBlock(InWorldRecipe<BlockPos, S, I> recipe, BlockPos input, I info)
+    {
+        Level world = info.getWorld();
+        BlockPos pos = info.getPos();
+        
+        runAll(recipe.preCraft, pos, info);
+        world.destroyBlock(pos, false);
+        recipe.output.spawn(world, pos);
+        runAll(recipe.postCraft, pos, info);
     }
 }

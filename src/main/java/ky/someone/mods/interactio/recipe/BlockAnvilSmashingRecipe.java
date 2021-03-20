@@ -1,7 +1,7 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.runAll;
 import static ky.someone.mods.interactio.Utils.sendParticle;
+import static ky.someone.mods.interactio.Utils.testAll;
 
 import java.util.Random;
 
@@ -33,41 +33,36 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     protected final double damage;
 
     public BlockAnvilSmashingRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, double damage, JsonObject json) {
-        super(id, null, blockInput, null, output, json);
+        super(id, null, blockInput, null, output, false, json);
         this.damage = damage;
+        
+        // after the craft, damage the anvil
+        this.postCraft.add((anvilPos, info) -> {
+            Level world = info.getWorld();
+            Random rand = world.getRandom();
+            
+            if (rand.nextDouble() < damage) {
+                BlockState anvilState = world.getBlockState(anvilPos);
+                sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(anvilPos), 25);
+                BlockState dmg = AnvilBlock.damage(anvilState);
+                if (dmg == null) {
+                    world.setBlockAndUpdate(anvilPos, Blocks.AIR.defaultBlockState());
+                    world.levelEvent(1029, anvilPos, 0);
+                }
+                else world.setBlockAndUpdate(anvilPos, dmg);
+            }
+        });
     }
 
     @Override
-    public boolean canCraft(BlockPos pos, BlockState state) {
-        return this.blockInput.test(state.getBlock());
+    public boolean canCraft(Level world, BlockPos pos, BlockState state) {
+        return this.blockInput.test(state.getBlock()) && testAll(this.startCraftConditions, pos, state);
     }
 
     // anvilPos will be the position of the anvil
     // hitPos will be the position of the block hit
     @Override
-    public void craft(BlockPos anvilPos, DefaultInfo info) {
-        Level world = info.getWorld();
-        Random rand = world.getRandom();
-        BlockPos pos = info.getPos();
-
-        // set it to the default state of our resulting block
-        world.destroyBlock(pos, false);
-        runAll(this.preCraft, pos, info);
-        this.output.spawn(world, pos);
-        runAll(this.postCraft, pos, info);
-
-        // damage anvil
-        if (rand.nextDouble() < damage) {
-            sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, world.getBlockState(anvilPos)), world, Vec3.atBottomCenterOf(anvilPos), 25);
-            BlockState dmg = AnvilBlock.damage(world.getBlockState(anvilPos));
-            if (dmg == null) {
-                world.setBlockAndUpdate(anvilPos, Blocks.AIR.defaultBlockState());
-                world.levelEvent(1029, anvilPos, 0);
-            } else {
-                world.setBlockAndUpdate(anvilPos, dmg);
-            }
-        }
-    }
+    public void craft(BlockPos anvilPos, DefaultInfo info) { craftBlock(this, anvilPos, info); }
 
     @Override
     public RecipeSerializer<?> getSerializer() {

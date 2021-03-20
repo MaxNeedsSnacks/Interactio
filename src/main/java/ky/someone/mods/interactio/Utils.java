@@ -191,6 +191,8 @@ public final class Utils {
     
     public static <T, U> boolean testAll(List<BiPredicate<T, U>> events, T t, U u)
     {
-        return events.stream().allMatch(predicate -> predicate.test(t, u));
+        return events.stream().map(predicate -> predicate.test(t, u)).reduce(true, (a,b) -> a && b);
     }
+    
+    @FunctionalInterface public interface TriConsumer<T, U, V> { public void apply(T t, U u, V v); }
 }

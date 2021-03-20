@@ -1,20 +1,7 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
+import static ky.someone.mods.interactio.Utils.getDouble;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,6 +9,24 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import javax.annotation.Nullable;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
+import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * An {@code Ingredient}-equivalent for fluids based partially on SilentChaos512's implementation,
@@ -35,13 +40,13 @@ public class FluidIngredient implements Predicate<FluidStack> {
 
     private final IFluidList[] acceptedFluids;
     private Collection<FluidStack> matchingStacks;
-//    private int count;
+    private int count;
 
     protected FluidIngredient(Stream<? extends IFluidList> fluidLists) { this(fluidLists, 1); }
     
     protected FluidIngredient(Stream<? extends IFluidList> fluidLists, int count) {
         this.acceptedFluids = fluidLists.filter(NON_EMPTY).toArray(IFluidList[]::new);
-//        this.count = count;
+        this.count = count;
     }
     
 
@@ -76,7 +81,9 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return stack.isEmpty();
         } else {
             this.determineMatchingStacks();
-            return matchingStacks.contains(stack);
+            if (this.matchingStacks.contains(stack))
+                return stack.getAmount() >= count;
+            return false;
         }
     }
 
@@ -86,8 +93,8 @@ public class FluidIngredient implements Predicate<FluidStack> {
      * @param fluid Fluid to check the ingredient against
      * @return True if the fluid matches the ingredient
      */
-    public boolean test(@Nullable Fluid fluid) {
-        return test(fluid == null ? FluidStack.EMPTY : new FluidStack(fluid, 1000));
+    public boolean test(Level level, @Nullable Fluid fluid) {
+        return test(fluid == null ? FluidStack.EMPTY : new FluidStack(fluid, 1));
     }
 
     /**
@@ -100,7 +107,13 @@ public class FluidIngredient implements Predicate<FluidStack> {
     public static FluidIngredient deserialize(@Nullable JsonElement json) {
         if (json != null && !json.isJsonNull()) {
             if (json.isJsonObject()) {
-                return new FluidIngredient(Stream.of(deserializeFluidList(json.getAsJsonObject())));
+                JsonObject obj = json.getAsJsonObject();
+                int count = (int) getDouble(obj, "count", 1);
+                if (obj.has("fluids")) {
+                    FluidIngredient temp = deserialize(obj.get("fluids"));
+                    return new FluidIngredient(Arrays.stream(temp.acceptedFluids), count);
+                }
+                return new FluidIngredient(Stream.of(deserializeFluidList(json.getAsJsonObject())), count);
             } else if (json.isJsonArray()) {
                 JsonArray arr = json.getAsJsonArray();
                 if (arr.size() == 0) {
@@ -142,7 +155,9 @@ public class FluidIngredient implements Predicate<FluidStack> {
      */
     public static FluidIngredient read(FriendlyByteBuf buffer) {
         int size = buffer.readVarInt();
-        return new FluidIngredient(Stream.generate(() -> new SingleFluidList(FluidStack.readFromPacket(buffer))).limit(size));
+        Stream<? extends IFluidList> fluids = Stream.generate(() -> new SingleFluidList(FluidStack.readFromPacket(buffer))).limit(size);
+        int count = buffer.readVarInt();
+        return new FluidIngredient(fluids, count);
     }
 
     /**
@@ -153,7 +168,8 @@ public class FluidIngredient implements Predicate<FluidStack> {
     public void write(FriendlyByteBuf buffer) {
         this.determineMatchingStacks();
         buffer.writeVarInt(matchingStacks.size());
-        matchingStacks.forEach(fluidStack -> fluidStack.writeToPacket(buffer));
+        matchingStacks.forEach(fluidStack -> new FluidStack(fluidStack, 1).writeToPacket(buffer));
+        buffer.writeVarInt(count);
     }
 
     public interface IFluidList {
