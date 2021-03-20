@@ -1,18 +1,14 @@
 package ky.someone.mods.interactio.recipe;
 
 import static ky.someone.mods.interactio.Utils.compareStacks;
-import static ky.someone.mods.interactio.Utils.runAll;
 import static ky.someone.mods.interactio.Utils.sendParticle;
 import static ky.someone.mods.interactio.Utils.testAll;
 
 import java.util.List;
 import java.util.Random;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
@@ -39,60 +35,42 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    private final double damage;
-
     public ItemAnvilSmashingRecipe(ResourceLocation id, List<ItemIngredient> inputs, DynamicOutput output, double damage, JsonObject json) {
-        super(id, inputs, null, null, output, json);
-        this.damage = damage;
+        super(id, inputs, null, null, output, true, json);
+        
+        // damage anvil after craft, if it still exist then keep going
+        this.keepCraftingConditions.add((entities, info) -> {
+           Level world = info.getWorld();
+           BlockPos pos = info.getPos();
+           Random rand = world.getRandom();
+           
+           if (rand.nextDouble() < damage) {
+               BlockState anvilState = world.getBlockState(pos);
+               sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(pos), 25);
+               BlockState dmg = AnvilBlock.damage(anvilState);
+               if (dmg == null) {
+                   world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                   world.levelEvent(1029, pos, 0);
+                   return false;
+               }
+               else world.setBlockAndUpdate(pos, dmg);
+           }
+           
+           return true;
+        });
+        
+        this.postCraft.add((entities, info) -> sendParticle(ParticleTypes.END_ROD, info.getWorld(), Vec3.atBottomCenterOf(info.getPos())));
     }
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities, BlockState state) {
+    public boolean canCraft(Level world, List<ItemEntity> entities, BlockState state) {
         return testAll(this.startCraftConditions, entities, state)
                 && compareStacks(entities, this.itemInputs);
     }
 
     @Override
-    public void craft(List<ItemEntity> entities, DefaultInfo info) {
-        Level world = info.getWorld();
-        BlockPos pos = info.getPos();
-        Random rand = world.getRandom();
-
-        Object2IntMap<ItemEntity> used = new Object2IntOpenHashMap<>();
-
-        List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(entities);
-
-        runAll(this.onCraftStart, entities, info);
-        while (compareStacks(loopingEntities, used, this.itemInputs) && testAll(this.keepCraftingConditions, entities, info)) {
-            // shrink and update items
-            Utils.shrinkAndUpdate(used);
-
-            // damage anvil
-            boolean anvilBroke = false;
-            if (rand.nextDouble() < damage) {
-                sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, world.getBlockState(pos)), world, Vec3.atBottomCenterOf(pos), 25);
-                BlockState dmg = AnvilBlock.damage(world.getBlockState(pos));
-                if (dmg == null) {
-                    world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                    world.levelEvent(1029, pos, 0);
-                    anvilBroke = true;
-                } else {
-                    world.setBlockAndUpdate(pos, dmg);
-                }
-            }
-
-            runAll(this.preCraft, entities, info);
-            output.spawn(world, pos);
-            runAll(this.postCraft, entities, info);
-
-            sendParticle(ParticleTypes.END_ROD, world, Vec3.atBottomCenterOf(pos));
-
-            loopingEntities.removeIf(e -> !e.isAlive());
-            used.clear();
-            
-            if (anvilBroke) break;
-        }
-        runAll(this.onCraftEnd, entities, info);
+    public void craft(List<ItemEntity> inputs, DefaultInfo info) {
+        craftItemList(this, inputs, info);
     }
 
     @Override
