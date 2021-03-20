@@ -57,7 +57,7 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
                 duration++;
                 if (recipe.isFinished(duration))
                 {
-                    recipe.craft(input, new DefaultInfo(recipe, world, pos));
+                    recipe.craft(input, new DefaultInfo(world, pos));
                     toRemove.add(pos);
                 }
                 tracker.clear(pos);
@@ -79,7 +79,7 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
     private void trackOrCraft(Level world, BlockPos pos, R recipe, T input)
     {
         if (recipe.getDuration() == 0)
-            recipe.craft(input, new DefaultInfo(recipe, world, pos));
+            recipe.craft(input, new DefaultInfo(world, pos));
         else this.existingRecipes.put(pos, new SimpleEntry<>(recipe, 0));
     }
 }

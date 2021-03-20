@@ -1,6 +1,5 @@
 package ky.someone.mods.interactio.recipe.util;
 
-import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -8,8 +7,8 @@ import net.minecraft.world.level.Level;
 public final class ExplosionInfo extends CraftingInfo {
     private final Explosion explosion;
 
-    public ExplosionInfo(InWorldRecipe<?,?,?> recipe, Level world, Explosion explosion) {
-        super(recipe, world);
+    public ExplosionInfo(Level world, Explosion explosion) {
+        super(world);
         this.explosion = explosion;
     }
 

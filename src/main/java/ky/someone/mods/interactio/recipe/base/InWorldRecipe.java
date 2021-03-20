@@ -126,6 +126,8 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
      */
     public abstract void craft(T inputs, U info);
     
+    public abstract boolean hasInvulnerableOutput();
+    
     /**
      * {@inheritDoc}
      *
@@ -210,7 +212,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
         do {
             runAll(recipe.preCraft, loopingEntities, info);
             shrinkAndUpdate(used);
-            recipe.output.spawn(world, pos);
+            recipe.output.spawn(world, pos, recipe.hasInvulnerableOutput());
             runAll(recipe.postCraft, loopingEntities, info);
             
             loopingEntities.removeIf(not(ItemEntity::isAlive));
@@ -227,7 +229,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
         
         runAll(recipe.preCraft, pos, info);
         world.destroyBlock(pos, false);
-        recipe.output.spawn(world, pos);
+        recipe.output.spawn(world, pos, recipe.hasInvulnerableOutput());
         runAll(recipe.postCraft, pos, info);
     }
 }

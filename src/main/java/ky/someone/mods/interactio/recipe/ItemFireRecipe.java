@@ -68,6 +68,8 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder
         return InWorldRecipeType.FLUID_TRANSFORM;
     }
     
+    @Override public boolean hasInvulnerableOutput() { return true; }
+    
     public static class Serializer extends InWorldRecipeSerializer<ItemFireRecipe>
     {
         @Override
