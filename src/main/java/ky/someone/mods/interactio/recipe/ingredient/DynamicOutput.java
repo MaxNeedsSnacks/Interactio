@@ -76,14 +76,14 @@ public final class DynamicOutput {
             this.blockOutput = null;
             this.itemOutput = (WeightedOutput<ItemStack>) output;
             this.fluidOutput = null;
-            this.type = OutputType.BLOCK;
+            this.type = OutputType.ITEM;
         }
         else if (cls == Fluid.class)
         {
             this.blockOutput = null;
             this.itemOutput = null;
             this.fluidOutput = (WeightedOutput<Fluid>) output;
-            this.type = OutputType.BLOCK;
+            this.type = OutputType.FLUID;
         }
         else throw new IllegalArgumentException("Output type must be among " + Arrays.toString(OutputType.values()) + ", but " + cls.getSimpleName() + " was provided");
     }
