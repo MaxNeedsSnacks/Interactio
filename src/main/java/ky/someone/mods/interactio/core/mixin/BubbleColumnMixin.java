@@ -16,12 +16,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.BubbleColumnBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
-@Mixin(BlockBehaviour.class)
-abstract class LiquidBlockMixin {
+@Mixin(BubbleColumnBlock.class)
+abstract class BubbleColumnMixin {
 
     @Inject(method = "entityInside", at = @At("HEAD"))
     protected void registerItemEntities(BlockState state, Level world, BlockPos pos, Entity entity, CallbackInfo ci)

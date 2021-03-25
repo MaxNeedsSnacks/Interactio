@@ -38,14 +38,14 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
         super(id, inputs, null, fluid, output, canRunParallel, duration, json);
         this.consumeFluid = consumeFluid;
         
-        this.postCraft.add(Events.defaultItemEvents.get(new ResourceLocation("particle")));
+        this.postCraft.add(Events.defaultItemEvents.getOrDefault(new ResourceLocation("particle"), (t,u) -> {}));
     }
     
     @Override
     public boolean canCraft(Level world, List<ItemEntity> entities, FluidState state)
     {
-        return testAll(this.startCraftConditions, entities, state)
-                && compareStacks(entities, this.itemInputs);
+        return compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, state);
     }
     
     @Override

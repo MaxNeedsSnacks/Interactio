@@ -1,8 +1,18 @@
 package ky.someone.mods.interactio;
 
+import java.awt.Point;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+
+import javax.annotation.Nullable;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -26,14 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
-
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 
 public final class Utils {
 
@@ -186,7 +188,9 @@ public final class Utils {
     
     public static <T, U> void runAll(List<BiConsumer<T, U>> events, T t, U u)
     {
-        events.forEach(consumer -> consumer.accept(t, u));
+        events.forEach(consumer -> {
+            consumer.accept(t, u);
+        });
     }
     
     public static <T, U> boolean testAll(List<BiPredicate<T, U>> events, T t, U u)

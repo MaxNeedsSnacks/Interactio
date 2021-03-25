@@ -18,19 +18,17 @@ public class RecipeTracker<T, S extends StateHolder<?,?>, R extends DurationReci
     protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, RecipeTracker<?,?,?>>> trackers = new HashMap<>();
     
     @SuppressWarnings("unchecked")
-    public static <T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>> RecipeTracker<T, S, R> get(Level world, Class<R> cls)
+    protected static <T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>> RecipeTracker<T, S, R> get(Level world, Class<R> cls)
     {
         return (RecipeTracker<T, S, R>) trackers.computeIfAbsent(cls, k -> new WeakHashMap<>())
                                                 .computeIfAbsent(world, k -> new RecipeTracker<>());
     }
     
-    protected Map<BlockPos, R> recipes;
     protected Map<BlockPos, T> inputs;
     protected Map<BlockPos, S> states;
     
     protected RecipeTracker()
     {
-        this.recipes = new HashMap<>();
         this.inputs = new HashMap<>();
         this.states = new HashMap<>();
     }
@@ -49,13 +47,16 @@ public class RecipeTracker<T, S extends StateHolder<?,?>, R extends DurationReci
     
     public void clear()
     {
-        
         this.inputs.clear();
         this.states.clear();
     }
     
     public void forEach(TriConsumer<T, S, BlockPos> consumer)
     {
-        
+        for (BlockPos pos : inputs.keySet())
+        {   
+            if (inputs.get(pos) == null || states.get(pos) == null) continue;
+            consumer.apply(inputs.get(pos), states.get(pos), pos);
+        }
     }
 }

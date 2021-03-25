@@ -71,3 +71,9 @@ tasks.withType(JavaCompile) {
         options.release = targetVersion
     }
 }
+
+tasks.withType(JavaExec) {
+	if (System.getProperty('DEBUG', 'false') == 'true') {
+		jvmArgs '-Xdebug', 'Xrunjdwp:transport=dt_socket,server=y,suspend=y,adress=9099'
+	}
+}

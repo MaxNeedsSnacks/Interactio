@@ -5,6 +5,7 @@
   "refmap": "interactio.refmap.json",
   "mixins": [
     "LiquidBlockMixin",
+    "BubbleColumnMixin",
     "RecipeManagerMixin"
   ],
   "injectors": {

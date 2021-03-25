@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 public final class DynamicOutput {
     private enum OutputType {
@@ -46,7 +47,7 @@ public final class DynamicOutput {
     
     @Nullable
     public Fluid getFluid() {
-        return isFluid() ? fluidOutput.rollOnce(): null;
+        return isFluid() ? fluidOutput.rollOnce() : null;
     }
 
     public boolean isBlock() {
@@ -94,7 +95,9 @@ public final class DynamicOutput {
             world.setBlockAndUpdate(pos, this.getBlock().defaultBlockState());
         }
         else if (isFluid()) {
-            world.setBlockAndUpdate(pos, this.getFluid().defaultFluidState().createLegacyBlock());
+            Fluid fluid = this.getFluid();
+            if (fluid == null) fluid = Fluids.EMPTY;
+            world.setBlockAndUpdate(pos, fluid.defaultFluidState().createLegacyBlock());
         }
         else if (isItem()) {
             Collection<ItemStack> stacks = this.getItems();
@@ -113,15 +116,18 @@ public final class DynamicOutput {
         }
     }
 
-    public static DynamicOutput create(JsonObject json) {
+    public static DynamicOutput create(JsonObject json, String... blacklist) {
         // 4 cases to check
         if (json.has("block")) {
+            if (Arrays.asList(blacklist).contains("block")) throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
             // single block
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.BLOCK), Block.class);
         } else if (json.has("fluid")) {
+            if (Arrays.asList(blacklist).contains("fluid")) throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
             // single fluid
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.FLUID), Fluid.class);
         } else if (json.has("item")) {
+            if (Arrays.asList(blacklist).contains("item")) throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
             // single item
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ITEM), ItemStack.class);
         } else {
@@ -130,10 +136,13 @@ public final class DynamicOutput {
             if (json.has("type")) {
                 switch (GsonHelper.getAsString(json, "type")) {
                     case "item":
+                        if (Arrays.asList(blacklist).contains("item")) throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ITEM), ItemStack.class);
                     case "block":
+                        if (Arrays.asList(blacklist).contains("block")) throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.BLOCK), Block.class);
                     case "fluid":
+                        if (Arrays.asList(blacklist).contains("fluid")) throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.FLUID), Fluid.class);
                     default:
                         throw new JsonSyntaxException("Unsupported type for output on block explosion recipe!");
