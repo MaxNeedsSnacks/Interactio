@@ -209,6 +209,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
         List<ItemEntity> loopingEntities = Lists.newCopyOnWriteArrayList(inputs);
         
         runAll(recipe.onCraftStart, loopingEntities, info);
+        compareStacks(loopingEntities, used, recipe.itemInputs);
         do {
             runAll(recipe.preCraft, loopingEntities, info);
             shrinkAndUpdate(used);

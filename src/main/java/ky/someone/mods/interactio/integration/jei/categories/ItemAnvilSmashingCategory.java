@@ -1,8 +1,17 @@
 package ky.someone.mods.interactio.integration.jei.categories;
 
+import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
+
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
@@ -21,13 +30,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmashingRecipe> {
 
@@ -103,9 +105,7 @@ public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmash
         ingredients.setInputLists(VanillaTypes.ITEM, mappedInputs);
 
         // item output
-        ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput().itemOutput.stream()
-                .map(WeightedOutput.WeightedEntry::getResult)
-                .collect(Collectors.toList())));
+        setOutputLists(ingredients, recipe.getOutput());
     }
 
     private final Point center = new Point(45, 52);

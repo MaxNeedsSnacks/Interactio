@@ -1,5 +1,6 @@
 package ky.someone.mods.interactio.event;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -27,7 +29,7 @@ import net.minecraft.world.phys.Vec3;
 public enum InteractioEventHandler {
 
     ;
-
+    
     public static void init() {
         ExplosionEvent.DETONATE.register(InteractioEventHandler::boom);
         LightningEvent.STRIKE.register(InteractioEventHandler::bzzt);
@@ -75,9 +77,11 @@ public enum InteractioEventHandler {
 
         bolt.remove();
     }
+    
+    private static List<Block> anvils = Arrays.asList(Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL);
 
     public static void acme(Level level, BlockPos pos, BlockState fallState, BlockState landOn, FallingBlockEntity entity) {
-        if (fallState.getBlock() != Blocks.ANVIL) return;
+        if (!anvils.contains(fallState.getBlock())) return;
 
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos.offset(1, 1, 1)));
         BlockPos hitPos = pos.below();

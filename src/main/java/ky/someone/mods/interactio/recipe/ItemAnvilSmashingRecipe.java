@@ -93,7 +93,7 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
     public static class Serializer extends InWorldRecipeSerializer<ItemAnvilSmashingRecipe> {
         @Override
         public ItemAnvilSmashingRecipe fromJson(ResourceLocation id, JsonObject json) {
-            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"));
+            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"), "block", "fluid");
 
             List<ItemIngredient> inputs = this.parseItemIngredients(id, json, "inputs");
 

@@ -37,11 +37,12 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
         this.damage = damage;
         
         // after the craft, damage the anvil
-        this.postCraft.add((anvilPos, info) -> {
+        this.postCraft.add((hitPos, info) -> {
             Level world = info.getWorld();
             Random rand = world.getRandom();
+            BlockPos anvilPos = hitPos.above();
             
-            if (rand.nextDouble() < damage) {
+            if (rand.nextDouble() < this.damage) {
                 BlockState anvilState = world.getBlockState(anvilPos);
                 sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(anvilPos), 25);
                 BlockState dmg = AnvilBlock.damage(anvilState);
@@ -62,7 +63,7 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     // anvilPos will be the position of the anvil
     // hitPos will be the position of the block hit
     @Override
-    public void craft(BlockPos anvilPos, DefaultInfo info) { craftBlock(this, anvilPos, info); }
+    public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
@@ -79,7 +80,7 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     private static class Serializer extends InWorldRecipeSerializer<BlockAnvilSmashingRecipe> {
         @Override
         public BlockAnvilSmashingRecipe fromJson(ResourceLocation id, JsonObject json) {
-            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"));
+            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"), "fluid");
             BlockIngredient input = BlockIngredient.deserialize(GsonHelper.getAsJsonObject(json, "input"));
 
             double damage = Utils.parseChance(json, "damage");

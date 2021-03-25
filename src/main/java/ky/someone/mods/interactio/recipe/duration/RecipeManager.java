@@ -20,21 +20,24 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
     protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, RecipeManager<?,?,?>>> managers = new HashMap<>();
     
     @SuppressWarnings("unchecked")
-    public static <R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>> RecipeManager<R,T,S> get(Level world, Class<R> cls)
+    public static <R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>> RecipeManager<R,T,S> get(Level world, InWorldRecipeType<R> storage, Class<R> cls)
     {
         return (RecipeManager<R, T, S>) managers.computeIfAbsent(cls, k -> new WeakHashMap<>())
-                                                .computeIfAbsent(world, k -> new RecipeManager<>(world, cls));
+                                                .computeIfAbsent(world, k -> new RecipeManager<>(world, storage, cls));
     }
     
     protected Map<BlockPos, SimpleEntry<R, Integer>> existingRecipes;
     protected RecipeTracker<T, S, R> tracker;
     protected InWorldRecipeType<R> storage;
     
-    protected RecipeManager(Level world, Class<R> cls)
+    protected RecipeManager(Level world, InWorldRecipeType<R> storage, Class<R> cls)
     {
         this.existingRecipes = new HashMap<>();
+        this.storage = storage;
         this.tracker = RecipeTracker.get(world, cls);
     }
+    
+    public RecipeTracker<T,S,R> getTracker() { return this.tracker; }
 
     public static void tickAllRecipes(Level world)
     {
@@ -51,10 +54,11 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
             S state = tracker.getState(pos);
             R recipe = entry.getKey();
             int duration = entry.getValue();
-            if (recipe.canCraft(world, input, state))
+            if (input == null || state == null) toRemove.add(pos);
+            else if (recipe.canCraft(world, input, state))
             {
                 recipe.tick(input, state);
-                duration++;
+                entry.setValue(++duration);
                 if (recipe.isFinished(duration))
                 {
                     recipe.craft(input, new DefaultInfo(world, pos));

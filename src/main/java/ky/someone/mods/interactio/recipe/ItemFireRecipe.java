@@ -75,7 +75,7 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder
         @Override
         public ItemFireRecipe fromJson(ResourceLocation id, JsonObject json)
         {
-            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"));
+            DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"), "block", "fluid");
             
             ItemIngredient input = ItemIngredient.deserialize(json.get("input"));
             if (input.getIngredient().isEmpty())

@@ -35,7 +35,6 @@ public abstract class ModProxy implements IProxy {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
         Interactio.MOD_BUS.addListener(this::preInit);
-
     }
 
     private void preInit(FMLCommonSetupEvent event) {
