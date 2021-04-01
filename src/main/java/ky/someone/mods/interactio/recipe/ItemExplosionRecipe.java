@@ -21,7 +21,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 
 public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo> {
 
@@ -34,7 +33,7 @@ public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo
     }
 
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities) {
+    public boolean canCraft(List<ItemEntity> entities) {
         return testAll(this.startCraftConditions, entities, null)
                 && compareStacks(entities, this.itemInputs);
     }

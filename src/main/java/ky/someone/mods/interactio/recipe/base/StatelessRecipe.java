@@ -12,7 +12,6 @@ import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.CraftingInfo;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateHolder;
 
 public abstract class StatelessRecipe<R, U extends CraftingInfo> extends InWorldRecipe<R, StateHolder<?, ?>, U> {
@@ -24,9 +23,9 @@ public abstract class StatelessRecipe<R, U extends CraftingInfo> extends InWorld
 
     @Override
     @Deprecated // don't use this, obviously
-    public boolean canCraft(Level world, R inputs, @Nullable StateHolder<?, ?> state) {
-        return canCraft(world, inputs);
+    public boolean canCraft(R inputs, @Nullable StateHolder<?, ?> state) {
+        return canCraft(inputs);
     }
 
-    public abstract boolean canCraft(Level world, R inputs);
+    public abstract boolean canCraft(R inputs);
 }

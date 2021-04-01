@@ -16,7 +16,6 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
 
 public abstract class StatelessItemRecipe<U extends CraftingInfo> extends StatelessRecipe<List<ItemEntity>, U> {
 
@@ -31,7 +30,7 @@ public abstract class StatelessItemRecipe<U extends CraftingInfo> extends Statel
     }
     
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities) {
+    public boolean canCraft(List<ItemEntity> entities) {
         return testAll(this.startCraftConditions, entities, null)
                 && compareStacks(entities, this.itemInputs);
     }

@@ -63,7 +63,7 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
     }
 
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities, BlockState state) {
+    public boolean canCraft(List<ItemEntity> entities, BlockState state) {
         return testAll(this.startCraftConditions, entities, state)
                 && compareStacks(entities, this.itemInputs);
     }
@@ -85,7 +85,7 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
 
     @Override
     public RecipeType<?> getType() {
-        return InWorldRecipeType.ITEM_ANVIL_SMASHING;
+        return InWorldRecipeType.ITEM_ANVIL;
     }
     
     @Override public boolean hasInvulnerableOutput() { return false; }

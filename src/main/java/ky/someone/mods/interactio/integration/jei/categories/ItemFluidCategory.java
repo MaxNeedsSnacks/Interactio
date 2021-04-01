@@ -40,7 +40,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class ItemFluidCategory implements IRecipeCategory<ItemFluidRecipe> {
 
-    public static final ResourceLocation UID = InWorldRecipeType.FLUID_TRANSFORM.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.ITEM_FLUID.registryName;
 
     private final IGuiHelper guiHelper;
 
