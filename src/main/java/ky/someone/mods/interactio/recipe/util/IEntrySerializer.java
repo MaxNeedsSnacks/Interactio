@@ -5,6 +5,7 @@ import com.google.gson.JsonParseException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.block.Block;
@@ -71,6 +72,25 @@ public interface IEntrySerializer<T> {
 
         @Override
         public void write(FriendlyByteBuf buffer, Block content) {
+            buffer.writeRegistryId(content);
+        }
+    };
+    
+    IEntrySerializer<EntityType<?>> ENTITY = new IEntrySerializer<EntityType<?>>() {
+        @Override
+        public EntityType<?> read(JsonObject json) {
+            ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "entity"));
+            return Optional.ofNullable(ForgeRegistries.ENTITIES.getValue(id))
+                    .orElseThrow(() -> new JsonParseException("Unable to parse entity with id " + id + "!"));
+        }
+        @Override
+        public EntityType<?> read(FriendlyByteBuf buffer)
+        {
+            return buffer.readRegistryIdSafe(EntityType.class);
+        }
+        @Override
+        public void write(FriendlyByteBuf buffer, EntityType<?> content)
+        {
             buffer.writeRegistryId(content);
         }
     };

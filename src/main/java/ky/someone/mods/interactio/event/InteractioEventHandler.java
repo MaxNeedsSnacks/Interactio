@@ -8,14 +8,20 @@ import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.duration.DurationManager;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
+import ky.someone.mods.interactio.recipe.util.EntityInfo;
 import ky.someone.mods.interactio.recipe.util.ExplosionInfo;
 import me.shedaniel.architectury.event.events.BlockEvent;
+import me.shedaniel.architectury.event.events.EntityEvent;
 import me.shedaniel.architectury.event.events.ExplosionEvent;
 import me.shedaniel.architectury.event.events.LightningEvent;
 import me.shedaniel.architectury.event.events.TickEvent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Explosion;
@@ -34,6 +40,7 @@ public enum InteractioEventHandler {
         ExplosionEvent.DETONATE.register(InteractioEventHandler::boom);
         LightningEvent.STRIKE.register(InteractioEventHandler::bzzt);
         BlockEvent.FALLING_LAND.register(InteractioEventHandler::acme);
+        EntityEvent.LIVING_DEATH.register(InteractioEventHandler::oof);
         TickEvent.SERVER_WORLD_POST.register(DurationManager::tickAllRecipes);
     }
 
@@ -65,7 +72,7 @@ public enum InteractioEventHandler {
 
     public static void bzzt(LightningBolt bolt, Level level, Vec3 pos, List<Entity> toStrike) {
         if (!bolt.isAlive()) return;
-
+        
         List<ItemEntity> entities = toStrike.stream()
                 .filter(Utils::isItem)
                 .map(ItemEntity.class::cast)
@@ -75,6 +82,11 @@ public enum InteractioEventHandler {
         InWorldRecipeType.ITEM_LIGHTNING.applyAll(recipe -> recipe.canCraft(entities),
                 recipe -> recipe.craft(entities, new DefaultInfo(level, bolt.blockPosition())));
 
+        BlockPos target = bolt.blockPosition().below();
+        BlockState state = level.getBlockState(target);
+        InWorldRecipeType.BLOCK_LIGHTNING.applyAll(recipe -> recipe.canCraft(target, state),
+                recipe -> recipe.craft(target, new DefaultInfo(level, target)));
+        
         bolt.remove();
     }
     
@@ -83,7 +95,7 @@ public enum InteractioEventHandler {
     public static void acme(Level level, BlockPos pos, BlockState fallState, BlockState landOn, FallingBlockEntity entity) {
         if (!anvils.contains(fallState.getBlock())) return;
 
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos, pos.offset(1, 1, 1)));
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
         BlockPos hitPos = pos.below();
         BlockState hitState = level.getBlockState(hitPos);
 
@@ -93,5 +105,27 @@ public enum InteractioEventHandler {
         InWorldRecipeType.BLOCK_ANVIL.apply(recipe -> recipe.canCraft(pos, hitState),
                 recipe -> recipe.craft(pos, new DefaultInfo(level, hitPos)));
 
+    }
+    
+    public static InteractionResult oof(LivingEntity entity, DamageSource source) {
+        actualOof(entity, source);
+        return InteractionResult.PASS;
+    }
+    
+    private static void actualOof(LivingEntity entity, DamageSource source) {
+        if (!(source instanceof EntityDamageSource)) return;
+        if (source.getDirectEntity() == null) return;
+        
+        Level level = entity.level;
+        BlockPos pos = entity.blockPosition();
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
+        BlockPos onPos = pos.below();
+        BlockState onState = level.getBlockState(onPos);
+        
+        InWorldRecipeType.ITEM_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, items),
+                recipe -> recipe.craft(items, new EntityInfo(level, entity)));
+        
+        InWorldRecipeType.BLOCK_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, onPos, onState),
+                recipe -> recipe.craft(onPos, new EntityInfo(level, entity)));
     }
 }
