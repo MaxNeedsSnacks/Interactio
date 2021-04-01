@@ -13,7 +13,9 @@ import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateHolder;
 
 public abstract class DurationRecipe<T, S extends StateHolder<?, ?>> extends InWorldRecipe<T, S, DefaultInfo> {
@@ -27,6 +29,8 @@ public abstract class DurationRecipe<T, S extends StateHolder<?, ?>> extends InW
         this.duration = duration;
         this.tickConsumers = new LinkedList<>();
     }
+    
+    public abstract boolean canCraft(Level world, BlockPos pos, T inputs, S state);
     
     public void tick(T input, S state)
     {

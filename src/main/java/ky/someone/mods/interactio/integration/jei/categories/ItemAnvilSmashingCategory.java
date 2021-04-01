@@ -33,7 +33,7 @@ import net.minecraft.world.item.Items;
 
 public class ItemAnvilSmashingCategory implements IRecipeCategory<ItemAnvilSmashingRecipe> {
 
-    public static final ResourceLocation UID = InWorldRecipeType.ITEM_ANVIL_SMASHING.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.ITEM_ANVIL.registryName;
 
 //    private final IGuiHelper guiHelper;
 

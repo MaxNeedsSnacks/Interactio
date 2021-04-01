@@ -5,6 +5,11 @@ import static ky.someone.mods.interactio.Utils.getDouble;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,6 +23,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +33,7 @@ import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -81,9 +89,7 @@ public class FluidIngredient implements Predicate<FluidStack> {
             return stack.isEmpty();
         } else {
             this.determineMatchingStacks();
-            if (this.matchingStacks.contains(stack))
-                return stack.getAmount() >= count;
-            return false;
+            return matchingStacks.contains(stack);
         }
     }
 
@@ -94,7 +100,57 @@ public class FluidIngredient implements Predicate<FluidStack> {
      * @return True if the fluid matches the ingredient
      */
     public boolean test(Level level, @Nullable Fluid fluid) {
-        return test(fluid == null ? FluidStack.EMPTY : new FluidStack(fluid, 1));
+        return test(fluid == null ? FluidStack.EMPTY : new FluidStack(fluid, 1000));
+    }
+    
+    /**
+     * Test for a match using a fluid, considering fluid amount.
+     * 
+     * @param pos The position around which to look for source blocks
+     * @param fluid Fluid to check the ingredient against
+     * @return True if the fluid matches the ingredient and there are enough source blocks connected to the given position
+     */
+    public boolean test(Level level, BlockPos pos) {
+        return test(level, level.getFluidState(pos).getType())
+                ? findConnectedSources(level, pos).size() >= this.count
+                : false;
+    }
+    
+    /**
+     * @param center The position from which to search for source blocks. Assumed to itself be a source block
+     * @return A list of source blocks connected to the fluid at the given position
+     */
+    public List<BlockPos> findConnectedSources(Level level, BlockPos center)
+    {
+        Queue<BlockPos> toSearch = new LinkedList<>();
+        Set<BlockPos> searched = new HashSet<>();
+        List<BlockPos> sources = new LinkedList<>();
+        toSearch.add(center);
+        searched.add(center);
+        sources.add(center);
+        
+        while (!toSearch.isEmpty() && sources.size() < this.count)
+        {
+            BlockPos pos = toSearch.remove();
+            for (Direction dir : Direction.values())
+            {
+                BlockPos newPos = pos.relative(dir);
+                if (searched.contains(newPos))
+                    continue;
+                
+                FluidState state = level.getFluidState(newPos);
+                if (!test(level, state.getType()))
+                    continue;
+                toSearch.add(newPos);
+                searched.add(newPos);
+                if (!state.isSource())
+                    continue;
+                sources.add(newPos);
+                if (sources.size() >= this.count)
+                    return sources;
+            }
+        }
+        return sources;
     }
 
     /**

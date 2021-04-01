@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
+import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.recipe.base.DurationRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
@@ -15,33 +16,33 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateHolder;
 
-public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>>
+public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>>
 {
-    protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, RecipeManager<?,?,?>>> managers = new HashMap<>();
+    protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, DurationManager<?,?,?>>> managers = new HashMap<>();
     
     @SuppressWarnings("unchecked")
-    public static <R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>> RecipeManager<R,T,S> get(Level world, InWorldRecipeType<R> storage, Class<R> cls)
+    public static <R extends DurationRecipe<T,S>, T, S extends StateHolder<?,?>> DurationManager<R,T,S> get(Level world, InWorldRecipeType<R> storage, Class<R> cls)
     {
-        return (RecipeManager<R, T, S>) managers.computeIfAbsent(cls, k -> new WeakHashMap<>())
-                                                .computeIfAbsent(world, k -> new RecipeManager<>(world, storage, cls));
+        return (DurationManager<R, T, S>) managers.computeIfAbsent(cls, k -> new WeakHashMap<>())
+                                                .computeIfAbsent(world, k -> new DurationManager<>(world, storage, cls));
     }
     
     protected Map<BlockPos, SimpleEntry<R, Integer>> existingRecipes;
-    protected RecipeTracker<T, S, R> tracker;
+    protected RecipeDataTracker<T, S, R> tracker;
     protected InWorldRecipeType<R> storage;
     
-    protected RecipeManager(Level world, InWorldRecipeType<R> storage, Class<R> cls)
+    protected DurationManager(Level world, InWorldRecipeType<R> storage, Class<R> cls)
     {
         this.existingRecipes = new HashMap<>();
         this.storage = storage;
-        this.tracker = RecipeTracker.get(world, cls);
+        this.tracker = RecipeDataTracker.get(world, cls);
     }
     
-    public RecipeTracker<T,S,R> getTracker() { return this.tracker; }
+    public RecipeDataTracker<T,S,R> getTracker() { return this.tracker; }
 
     public static void tickAllRecipes(Level world)
     {
-        RecipeManager.managers.values().stream()
+        DurationManager.managers.values().stream()
             .map(map -> map.get(world)).filter(Objects::nonNull)
             .forEach(manager -> manager.tickRecipes(world));
     }
@@ -53,12 +54,14 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
             T input = tracker.getInput(pos);
             S state = tracker.getState(pos);
             R recipe = entry.getKey();
-            int duration = entry.getValue();
-            if (input == null || state == null) toRemove.add(pos);
-            else if (recipe.canCraft(world, input, state))
+            int duration = entry.getValue() + 1;
+            Interactio.LOGGER.warn("|><|" + duration + "|><|" + input + "|><|" + state);
+            if (input == null || state == null)
+                toRemove.add(pos);
+            else if (recipe.canCraft(world, pos, input, state))
             {
                 recipe.tick(input, state);
-                entry.setValue(++duration);
+                entry.setValue(duration);
                 if (recipe.isFinished(duration))
                 {
                     recipe.craft(input, new DefaultInfo(world, pos));
@@ -74,7 +77,7 @@ public class RecipeManager<R extends DurationRecipe<T,S>, T, S extends StateHold
         toRemove.clear();
         
         tracker.forEach((input, state, pos) -> {
-            storage.apply(recipe -> recipe.canCraft(world, input, state),
+            storage.apply(recipe -> recipe.canCraft(world, pos, input, state),
                           recipe -> trackOrCraft(world, pos, recipe, input));
         });
         tracker.clear();

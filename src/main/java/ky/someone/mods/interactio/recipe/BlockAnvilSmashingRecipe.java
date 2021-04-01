@@ -56,7 +56,7 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     }
 
     @Override
-    public boolean canCraft(Level world, BlockPos pos, BlockState state) {
+    public boolean canCraft(BlockPos pos, BlockState state) {
         return this.blockInput.test(state.getBlock()) && testAll(this.startCraftConditions, pos, state);
     }
 
@@ -72,7 +72,7 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
 
     @Override
     public RecipeType<?> getType() {
-        return InWorldRecipeType.BLOCK_ANVIL_SMASHING;
+        return InWorldRecipeType.BLOCK_ANVIL;
     }
     
     @Override public boolean hasInvulnerableOutput() { return false; }

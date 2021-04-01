@@ -6,6 +6,7 @@ import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.command.CommandItemInfo;
 import ky.someone.mods.interactio.command.CommandRegistryDump;
 import ky.someone.mods.interactio.command.RegistryArgument;
+import ky.someone.mods.interactio.recipe.Events;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
@@ -35,6 +36,8 @@ public abstract class ModProxy implements IProxy {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
         Interactio.MOD_BUS.addListener(this::preInit);
+        
+        Events.init();
     }
 
     private void preInit(FMLCommonSetupEvent event) {

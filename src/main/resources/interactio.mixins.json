@@ -4,8 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "interactio.refmap.json",
   "mixins": [
-    "LiquidBlockMixin",
-    "BubbleColumnMixin",
+  	"ItemEntityMixin",
     "RecipeManagerMixin"
   ],
   "injectors": {

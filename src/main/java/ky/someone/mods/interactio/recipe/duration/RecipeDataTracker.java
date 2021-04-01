@@ -13,21 +13,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.StateHolder;
 
-public class RecipeTracker<T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>>
+public class RecipeDataTracker<T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>>
 {
-    protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, RecipeTracker<?,?,?>>> trackers = new HashMap<>();
+    protected static Map<Class<? extends DurationRecipe<?,?>>, Map<Level, RecipeDataTracker<?,?,?>>> trackers = new HashMap<>();
     
     @SuppressWarnings("unchecked")
-    protected static <T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>> RecipeTracker<T, S, R> get(Level world, Class<R> cls)
+    protected static <T, S extends StateHolder<?,?>, R extends DurationRecipe<T, S>> RecipeDataTracker<T, S, R> get(Level world, Class<R> cls)
     {
-        return (RecipeTracker<T, S, R>) trackers.computeIfAbsent(cls, k -> new WeakHashMap<>())
-                                                .computeIfAbsent(world, k -> new RecipeTracker<>());
+        return (RecipeDataTracker<T, S, R>) trackers.computeIfAbsent(cls, k -> new WeakHashMap<>())
+                                                .computeIfAbsent(world, k -> new RecipeDataTracker<>());
     }
     
     protected Map<BlockPos, T> inputs;
     protected Map<BlockPos, S> states;
     
-    protected RecipeTracker()
+    protected RecipeDataTracker()
     {
         this.inputs = new HashMap<>();
         this.states = new HashMap<>();

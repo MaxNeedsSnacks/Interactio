@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class BlockAnvilSmashingCategory implements IRecipeCategory<BlockAnvilSmashingRecipe> {
 
-    public static final ResourceLocation UID = InWorldRecipeType.BLOCK_ANVIL_SMASHING.registryName;
+    public static final ResourceLocation UID = InWorldRecipeType.BLOCK_ANVIL.registryName;
 
 //    private final IGuiHelper guiHelper;
 

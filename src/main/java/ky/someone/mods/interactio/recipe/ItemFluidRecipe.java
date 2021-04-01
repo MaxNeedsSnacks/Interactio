@@ -17,6 +17,7 @@ import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -38,11 +39,18 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
         super(id, inputs, null, fluid, output, canRunParallel, duration, json);
         this.consumeFluid = consumeFluid;
         
-        this.postCraft.add(Events.defaultItemEvents.getOrDefault(new ResourceLocation("particle"), (t,u) -> {}));
+        this.postCraft.add(Events.defaultItemEvents.get(new ResourceLocation("particle")));
     }
     
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities, FluidState state)
+    public boolean canCraft(Level world, BlockPos pos, List<ItemEntity> entities, FluidState state)
+    {
+        return this.fluidInput.test(world, pos)
+                && canCraft(entities, state);
+    }
+    
+    @Override
+    public boolean canCraft(List<ItemEntity> entities, FluidState state)
     {
         return compareStacks(entities, this.itemInputs)
                 && testAll(this.startCraftConditions, entities, state);
@@ -65,7 +73,7 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
     @Override
     public RecipeType<?> getType()
     {
-        return InWorldRecipeType.FLUID_TRANSFORM;
+        return InWorldRecipeType.ITEM_FLUID;
     }
     
     public double getConsumeFluid() { return this.consumeFluid; }

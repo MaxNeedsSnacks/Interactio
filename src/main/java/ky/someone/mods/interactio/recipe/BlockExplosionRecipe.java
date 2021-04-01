@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockState, ExplosionInfo> {
@@ -26,7 +25,7 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     }
 
     @Override
-    public boolean canCraft(Level world, BlockPos pos, BlockState state) {
+    public boolean canCraft(BlockPos pos, BlockState state) {
         return this.blockInput.test(state.getBlock());
     }
 

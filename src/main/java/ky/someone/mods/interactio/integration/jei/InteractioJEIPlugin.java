@@ -56,12 +56,12 @@ public class InteractioJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(InWorldRecipeType.FLUID_TRANSFORM.getRecipes(), ItemFluidCategory.UID);
+        registration.addRecipes(InWorldRecipeType.ITEM_FLUID.getRecipes(), ItemFluidCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_EXPLODE.getRecipes(), ItemExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.BLOCK_EXPLODE.getRecipes(), BlockExplosionCategory.UID);
         registration.addRecipes(InWorldRecipeType.ITEM_LIGHTNING.getRecipes(), ItemLightningCategory.UID);
-        registration.addRecipes(InWorldRecipeType.ITEM_ANVIL_SMASHING.getRecipes(), ItemAnvilSmashingCategory.UID);
-        registration.addRecipes(InWorldRecipeType.BLOCK_ANVIL_SMASHING.getRecipes(), BlockAnvilSmashingCategory.UID);
+        registration.addRecipes(InWorldRecipeType.ITEM_ANVIL.getRecipes(), ItemAnvilSmashingCategory.UID);
+        registration.addRecipes(InWorldRecipeType.BLOCK_ANVIL.getRecipes(), BlockAnvilSmashingCategory.UID);
     }
     
     public static void setOutputLists(IIngredients ingredients, DynamicOutput output) {

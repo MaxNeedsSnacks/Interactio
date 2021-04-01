@@ -112,7 +112,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
      * @param state  State we want to check our inputs against.
      * @return Should this in-world craft be performed?
      */
-    public abstract boolean canCraft(Level world, T inputs, S state);
+    public abstract boolean canCraft(T inputs, S state);
 
     /**
      * Attempts to perform an in-world crafting recipe with the given parameters.

@@ -19,6 +19,7 @@ import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -27,10 +28,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.StateHolder;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
-public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder<?, ?>> {
+public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, BlockState> {
     
     public static final Serializer SERIALIZER = new Serializer();
     
@@ -42,7 +44,13 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder
     }
     
     @Override
-    public boolean canCraft(Level world, List<ItemEntity> entities, StateHolder<?,?> state)
+    public boolean canCraft(Level level, BlockPos pos, List<ItemEntity> entities, BlockState state)
+    {
+        return state.getBlock() instanceof BaseFireBlock && canCraft(entities, state);
+    }
+    
+    @Override
+    public boolean canCraft(List<ItemEntity> entities, BlockState state)
     {
         return testAll(this.startCraftConditions, entities, state)
                 && compareStacks(entities, this.itemInputs);
@@ -65,7 +73,7 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, StateHolder
     @Override
     public RecipeType<?> getType()
     {
-        return InWorldRecipeType.FLUID_TRANSFORM;
+        return InWorldRecipeType.ITEM_BURN;
     }
     
     @Override public boolean hasInvulnerableOutput() { return true; }
