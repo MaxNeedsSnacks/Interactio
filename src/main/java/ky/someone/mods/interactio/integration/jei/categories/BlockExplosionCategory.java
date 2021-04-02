@@ -1,6 +1,12 @@
 package ky.someone.mods.interactio.integration.jei.categories;
 
+import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
 import ky.someone.mods.interactio.recipe.BlockExplosionRecipe;
@@ -19,10 +25,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRecipe> {
 
@@ -87,21 +89,7 @@ public class BlockExplosionCategory implements IRecipeCategory<BlockExplosionRec
                 .collect(Collectors.toList()));
 
         // display resulting block as item, as well
-        if (recipe.getOutput().isBlock()) {
-            ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput()
-                    .blockOutput
-                    .stream()
-                    .map(WeightedOutput.WeightedEntry::getResult)
-                    .map(Block::asItem)
-                    .map(Item::getDefaultInstance)
-                    .collect(Collectors.toList())));
-        } else if (recipe.getOutput().isItem()) {
-            ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(recipe.getOutput()
-                    .itemOutput
-                    .stream()
-                    .map(WeightedOutput.WeightedEntry::getResult)
-                    .collect(Collectors.toList())));
-        }
+        setOutputLists(ingredients, recipe.getOutput());
     }
 
     @Override

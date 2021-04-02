@@ -8,20 +8,29 @@ import static ky.someone.mods.interactio.Utils.testAll;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import ky.someone.mods.interactio.Utils.TriPredicate;
+import ky.someone.mods.interactio.recipe.Events;
+import ky.someone.mods.interactio.recipe.Events.EventType;
 import ky.someone.mods.interactio.recipe.ingredient.BlockIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
@@ -50,7 +59,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
     protected final JsonObject json;
     
     /** Conditions required for the crafting to begin, run once during {@link #canCraft(Object, StateHolder)} */
-    protected final List<BiPredicate<T, S>> startCraftConditions;
+    protected final List<TriPredicate<T, S, U>> startCraftConditions;
     /** Conditions required for each individual craft to occur, run before each loop through the actual crafting process
      * in {@link #craft(Object, CraftingInfo)} */
     protected final List<BiPredicate<T, U>> keepCraftingConditions;
@@ -87,6 +96,8 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
         this.onCraftEnd = new LinkedList<>();
         
         this.keepCraftingConditions.add((t, u) -> canRunParallel);
+        
+        this.parseEvents();
     }
     
     /**
@@ -112,7 +123,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
      * @param state  State we want to check our inputs against.
      * @return Should this in-world craft be performed?
      */
-    public abstract boolean canCraft(T inputs, S state);
+    public abstract boolean canCraft(T inputs, S state, U info);
 
     /**
      * Attempts to perform an in-world crafting recipe with the given parameters.
@@ -170,6 +181,7 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
     public BlockIngredient getBlockInput() { return this.blockInput; }
     public FluidIngredient getFluidInput() { return this.fluidInput; }
     public DynamicOutput getOutput() { return this.output; }
+    public JsonObject getJson() { return this.json; }
     
     public static abstract class InWorldRecipeSerializer<R extends InWorldRecipe<?,?,?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<R>
     {
@@ -197,6 +209,28 @@ public abstract class InWorldRecipe<T, S extends StateHolder<?, ?>, U extends Cr
                 throw new JsonParseException(String.format("No valid inputs specified for recipe %s!", id));
             return inputs;
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void parseEvents()
+    {
+        Arrays.stream(EventType.values()).filter(type -> json.has(type.jsonName)).forEach(type -> {
+            JsonArray array = GsonHelper.getAsJsonArray(json, type.jsonName);
+            Stream<ResourceLocation> locs = Streams.stream(array.iterator())
+                                                   .filter(JsonElement::isJsonObject)
+                                                   .map(JsonElement::getAsJsonObject)
+                                                   .filter(obj -> obj.has("type"))
+                                                   .map(obj -> GsonHelper.getAsString(obj, "type"))
+                                                   .map(ResourceLocation::new);
+            switch (type) {
+                case START_PREDICATES: locs.map(Events.startPredicates::get).filter(Objects::nonNull).map(obj -> (TriPredicate<T,S,U>) obj).forEach(this.startCraftConditions::add); break;
+                case CONTINUE_PREDICATES: locs.map(Events.continuePredicates::get).filter(Objects::nonNull).map(obj -> (BiPredicate<T,U>) obj).forEach(this.keepCraftingConditions::add); break;
+                case CRAFT_START: locs.map(Events.events::get).filter(Objects::nonNull).map(obj -> (BiConsumer<T,U>) obj).forEach(this.onCraftStart::add); break;
+                case PRE_CRAFT: locs.map(Events.events::get).filter(Objects::nonNull).map(obj -> (BiConsumer<T,U>) obj).forEach(this.preCraft::add); break;
+                case POST_CRAFT: locs.map(Events.events::get).filter(Objects::nonNull).map(obj -> (BiConsumer<T,U>) obj).forEach(this.postCraft::add); break;
+                case CRAFT_END: locs.map(Events.events::get).filter(Objects::nonNull).map(obj -> (BiConsumer<T,U>) obj).forEach(this.onCraftEnd::add); break;
+            }
+        });
     }
     
     public static <S extends StateHolder<?,?>, I extends CraftingInfo> void craftItemList(InWorldRecipe<List<ItemEntity>, S, I> recipe, List<ItemEntity> inputs, I info)

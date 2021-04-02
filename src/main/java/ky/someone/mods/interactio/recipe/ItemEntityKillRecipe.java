@@ -32,14 +32,14 @@ public final class ItemEntityKillRecipe extends StatelessItemRecipe<EntityInfo> 
         this.entityInput = entityInput;
     }
 
-    public boolean canCraft(LivingEntity entity, List<ItemEntity> entities) {
-        return this.entityInput.test(entity) && canCraft(entities);
+    public boolean canCraft(LivingEntity entity, List<ItemEntity> entities, EntityInfo info) {
+        return this.entityInput.test(entity) && canCraft(entities, info);
     }
     
     @Override
-    public boolean canCraft(List<ItemEntity> entities) {
-        return testAll(this.startCraftConditions, entities, null)
-                && compareStacks(entities, this.itemInputs);
+    public boolean canCraft(List<ItemEntity> entities, EntityInfo info) {
+        return compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, null, info);
     }
 
     @Override

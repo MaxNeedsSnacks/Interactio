@@ -76,7 +76,8 @@ public interface IEntrySerializer<T> {
         }
     };
     
-    IEntrySerializer<EntityType<?>> ENTITY = new IEntrySerializer<EntityType<?>>() {
+    @SuppressWarnings("rawtypes")
+    IEntrySerializer<EntityType> ENTITY = new IEntrySerializer<EntityType>() {
         @Override
         public EntityType<?> read(JsonObject json) {
             ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "entity"));
@@ -89,7 +90,8 @@ public interface IEntrySerializer<T> {
             return buffer.readRegistryIdSafe(EntityType.class);
         }
         @Override
-        public void write(FriendlyByteBuf buffer, EntityType<?> content)
+        @SuppressWarnings("unchecked")
+        public void write(FriendlyByteBuf buffer, EntityType content)
         {
             buffer.writeRegistryId(content);
         }

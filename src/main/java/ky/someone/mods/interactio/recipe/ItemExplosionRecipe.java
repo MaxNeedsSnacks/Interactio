@@ -33,9 +33,9 @@ public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo
     }
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities) {
-        return testAll(this.startCraftConditions, entities, null)
-                && compareStacks(entities, this.itemInputs);
+    public boolean canCraft(List<ItemEntity> entities, ExplosionInfo info) {
+        return compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, null, info);
     }
 
     @Override

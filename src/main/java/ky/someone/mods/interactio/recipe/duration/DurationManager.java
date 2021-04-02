@@ -58,13 +58,13 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
             Interactio.LOGGER.warn("|><|" + duration + "|><|" + input + "|><|" + state);
             if (input == null || state == null)
                 toRemove.add(pos);
-            else if (recipe.canCraft(world, pos, input, state))
+            else if (recipe.canCraft(input, state, new DefaultInfo(world, pos, recipe.getJson())))
             {
                 recipe.tick(input, state);
                 entry.setValue(duration);
                 if (recipe.isFinished(duration))
                 {
-                    recipe.craft(input, new DefaultInfo(world, pos));
+                    recipe.craft(input, new DefaultInfo(world, pos, recipe.getJson()));
                     toRemove.add(pos);
                 }
                 tracker.clear(pos);
@@ -77,7 +77,7 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
         toRemove.clear();
         
         tracker.forEach((input, state, pos) -> {
-            storage.apply(recipe -> recipe.canCraft(world, pos, input, state),
+            storage.apply(recipe -> recipe.canCraft(input, state, new DefaultInfo(world, pos, recipe.getJson())),
                           recipe -> trackOrCraft(world, pos, recipe, input));
         });
         tracker.clear();
@@ -86,7 +86,7 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
     private void trackOrCraft(Level world, BlockPos pos, R recipe, T input)
     {
         if (recipe.getDuration() == 0)
-            recipe.craft(input, new DefaultInfo(world, pos));
+            recipe.craft(input, new DefaultInfo(world, pos, recipe.getJson()));
         else this.existingRecipes.put(pos, new SimpleEntry<>(recipe, 0));
     }
 }

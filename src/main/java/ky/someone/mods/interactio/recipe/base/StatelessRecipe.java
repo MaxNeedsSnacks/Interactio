@@ -23,9 +23,9 @@ public abstract class StatelessRecipe<R, U extends CraftingInfo> extends InWorld
 
     @Override
     @Deprecated // don't use this, obviously
-    public boolean canCraft(R inputs, @Nullable StateHolder<?, ?> state) {
-        return canCraft(inputs);
+    public boolean canCraft(R inputs, @Nullable StateHolder<?, ?> state, U info) {
+        return canCraft(inputs, info);
     }
 
-    public abstract boolean canCraft(R inputs);
+    public abstract boolean canCraft(R inputs, U info);
 }

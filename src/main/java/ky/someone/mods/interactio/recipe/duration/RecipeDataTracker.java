@@ -56,7 +56,7 @@ public class RecipeDataTracker<T, S extends StateHolder<?,?>, R extends Duration
         for (BlockPos pos : inputs.keySet())
         {   
             if (inputs.get(pos) == null || states.get(pos) == null) continue;
-            consumer.apply(inputs.get(pos), states.get(pos), pos);
+            consumer.accept(inputs.get(pos), states.get(pos), pos);
         }
     }
 }

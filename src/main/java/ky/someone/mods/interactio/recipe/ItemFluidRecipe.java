@@ -3,11 +3,8 @@ package ky.someone.mods.interactio.recipe;
 import static ky.someone.mods.interactio.Utils.compareStacks;
 import static ky.someone.mods.interactio.Utils.testAll;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiPredicate;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import ky.someone.mods.interactio.Utils;
@@ -17,7 +14,6 @@ import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -25,7 +21,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 
 public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState> {
@@ -39,21 +34,15 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
         super(id, inputs, null, fluid, output, canRunParallel, duration, json);
         this.consumeFluid = consumeFluid;
         
-        this.postCraft.add(Events.defaultItemEvents.get(new ResourceLocation("particle")));
+        this.postCraft.add(Events.events.get(new ResourceLocation("particle"))::accept);
     }
     
     @Override
-    public boolean canCraft(Level world, BlockPos pos, List<ItemEntity> entities, FluidState state)
+    public boolean canCraft(List<ItemEntity> entities, FluidState state, DefaultInfo info)
     {
-        return this.fluidInput.test(world, pos)
-                && canCraft(entities, state);
-    }
-    
-    @Override
-    public boolean canCraft(List<ItemEntity> entities, FluidState state)
-    {
-        return compareStacks(entities, this.itemInputs)
-                && testAll(this.startCraftConditions, entities, state);
+        return this.fluidInput.test(info.getWorld(), info.getPos())
+                && compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, state, info);
     }
     
     @Override
@@ -94,12 +83,6 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
             
             boolean parallel = GsonHelper.getAsBoolean(json, "parallel", false);
             int duration = (int) Utils.getDouble(json, "duration", 0);
-            
-            List<BiPredicate<List<ItemEntity>, FluidState>> startConditions = new ArrayList<>();
-            GsonHelper.getAsJsonArray(json, "startConditions", new JsonArray()).forEach(event -> {
-                ResourceLocation loc = new ResourceLocation(event.getAsString());
-                startConditions.add(Events.fluidItemPredicates.get(loc));
-            });
             
             return new ItemFluidRecipe(id, inputs, fluid, output, parallel, consumeFluid, duration, json);
         }

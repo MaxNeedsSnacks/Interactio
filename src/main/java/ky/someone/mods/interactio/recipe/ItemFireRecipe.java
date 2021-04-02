@@ -3,12 +3,9 @@ package ky.someone.mods.interactio.recipe;
 import static ky.someone.mods.interactio.Utils.compareStacks;
 import static ky.someone.mods.interactio.Utils.testAll;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiPredicate;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
@@ -19,7 +16,6 @@ import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -27,10 +23,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 
 public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, BlockState> {
     
@@ -40,20 +34,15 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, BlockState>
     {
         super(id, Arrays.asList(input), null, null, output, canRunParallel, duration, json);
         
-        this.postCraft.add(Events.defaultItemEvents.get(new ResourceLocation("particle")));
+        this.postCraft.add(Events.events.get(new ResourceLocation("particle"))::accept);
     }
     
     @Override
-    public boolean canCraft(Level level, BlockPos pos, List<ItemEntity> entities, BlockState state)
+    public boolean canCraft(List<ItemEntity> entities, BlockState state, DefaultInfo info)
     {
-        return state.getBlock() instanceof BaseFireBlock && canCraft(entities, state);
-    }
-    
-    @Override
-    public boolean canCraft(List<ItemEntity> entities, BlockState state)
-    {
-        return testAll(this.startCraftConditions, entities, state)
-                && compareStacks(entities, this.itemInputs);
+        return state.getBlock() instanceof BaseFireBlock
+                && compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, state, info);
     }
     
     @Override
@@ -91,12 +80,6 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, BlockState>
             
             boolean parallel = GsonHelper.getAsBoolean(json, "parallel", true);
             int duration = (int) Utils.getDouble(json, "duration", 0);
-            
-            List<BiPredicate<List<ItemEntity>, FluidState>> startConditions = new ArrayList<>();
-            GsonHelper.getAsJsonArray(json, "startConditions", new JsonArray()).forEach(event -> {
-                ResourceLocation loc = new ResourceLocation(event.getAsString());
-                startConditions.add(Events.fluidItemPredicates.get(loc));
-            });
             
             return new ItemFireRecipe(id, input, output, parallel, duration, json);
         }

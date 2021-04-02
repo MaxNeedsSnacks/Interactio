@@ -29,12 +29,11 @@ public final class BlockLightningRecipe extends InWorldRecipe<BlockPos, BlockSta
     }
 
     @Override
-    public boolean canCraft(BlockPos pos, BlockState state) {
-        return this.blockInput.test(state.getBlock()) && testAll(this.startCraftConditions, pos, state);
+    public boolean canCraft(BlockPos pos, BlockState state, DefaultInfo info) {
+        return this.blockInput.test(state.getBlock())
+                && testAll(this.startCraftConditions, pos, state, info);
     }
 
-    // anvilPos will be the position of the anvil
-    // hitPos will be the position of the block hit
     @Override
     public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
 
