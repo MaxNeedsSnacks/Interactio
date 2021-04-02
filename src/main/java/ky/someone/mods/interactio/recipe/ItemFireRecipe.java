@@ -33,8 +33,6 @@ public class ItemFireRecipe extends DurationRecipe<List<ItemEntity>, BlockState>
     public ItemFireRecipe(ResourceLocation id, ItemIngredient input, DynamicOutput output, boolean canRunParallel, int duration, JsonObject json)
     {
         super(id, Arrays.asList(input), null, null, output, canRunParallel, duration, json);
-        
-        this.postCraft.add(Events.events.get(new ResourceLocation("particle"))::accept);
     }
     
     @Override

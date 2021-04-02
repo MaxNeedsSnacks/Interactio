@@ -1,6 +1,7 @@
 package ky.someone.mods.interactio.event;
 
-import java.util.Arrays;
+import static ky.someone.mods.interactio.Utils.isAnvil;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +27,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -57,16 +56,16 @@ public enum InteractioEventHandler {
         List<BlockPos> blocks = explosion.getToBlow();
 
         InWorldRecipeType.ITEM_EXPLODE
-                .applyAll(recipe -> recipe.canCraft(items, new ExplosionInfo(level, explosion, recipe.getJson())),
-                        recipe -> recipe.craft(items, new ExplosionInfo(level, explosion, recipe.getJson())));
+                .applyAll(recipe -> recipe.canCraft(items, new ExplosionInfo(recipe, level, explosion)),
+                        recipe -> recipe.craft(items, new ExplosionInfo(recipe, level, explosion)));
 
         // since we're removing blocks from the affected block list, we need to do this
         blocks.stream().filter(pos -> !level.isEmptyBlock(pos)).forEach(pos -> {
             BlockState state = level.getBlockState(pos);
 
             InWorldRecipeType.BLOCK_EXPLODE
-                    .apply(recipe -> recipe.canCraft(pos, state, new ExplosionInfo(level, explosion, recipe.getJson())),
-                            recipe -> recipe.craft(pos, new ExplosionInfo(level, explosion, recipe.getJson())));
+                    .apply(recipe -> recipe.canCraft(pos, state, new ExplosionInfo(recipe, level, explosion)),
+                            recipe -> recipe.craft(pos, new ExplosionInfo(recipe, level, explosion)));
         });
     }
 
@@ -79,31 +78,29 @@ public enum InteractioEventHandler {
                 .filter(entity -> InWorldRecipeType.ITEM_LIGHTNING.isValidInput(entity.getItem()))
                 .collect(Collectors.toList());
 
-        InWorldRecipeType.ITEM_LIGHTNING.applyAll(recipe -> recipe.canCraft(entities, new DefaultInfo(level, bolt.blockPosition(), recipe.getJson())),
-                recipe -> recipe.craft(entities, new DefaultInfo(level, bolt.blockPosition(), recipe.getJson())));
+        InWorldRecipeType.ITEM_LIGHTNING.applyAll(recipe -> recipe.canCraft(entities, new DefaultInfo(recipe, level, bolt.blockPosition())),
+                recipe -> recipe.craft(entities, new DefaultInfo(recipe, level, bolt.blockPosition())));
 
         BlockPos target = bolt.blockPosition().below();
         BlockState state = level.getBlockState(target);
-        InWorldRecipeType.BLOCK_LIGHTNING.applyAll(recipe -> recipe.canCraft(target, state, new DefaultInfo(level, target, recipe.getJson())),
-                recipe -> recipe.craft(target, new DefaultInfo(level, target, recipe.getJson())));
+        InWorldRecipeType.BLOCK_LIGHTNING.applyAll(recipe -> recipe.canCraft(target, state, new DefaultInfo(recipe, level, target)),
+                recipe -> recipe.craft(target, new DefaultInfo(recipe, level, target)));
         
         bolt.remove();
     }
     
-    private static List<Block> anvils = Arrays.asList(Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL);
-
     public static void acme(Level level, BlockPos pos, BlockState fallState, BlockState landOn, FallingBlockEntity entity) {
-        if (!anvils.contains(fallState.getBlock())) return;
+        if (!isAnvil(fallState)) return;
 
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
         BlockPos hitPos = pos.below();
         BlockState hitState = level.getBlockState(hitPos);
 
-        InWorldRecipeType.ITEM_ANVIL.applyAll(recipe -> recipe.canCraft(items, hitState, new DefaultInfo(level, pos, recipe.getJson())),
-                recipe -> recipe.craft(items, new DefaultInfo(level, pos, recipe.getJson())));
+        InWorldRecipeType.ITEM_ANVIL.applyAll(recipe -> recipe.canCraft(items, hitState, new DefaultInfo(recipe, level, pos)),
+                recipe -> recipe.craft(items, new DefaultInfo(recipe, level, pos)));
 
-        InWorldRecipeType.BLOCK_ANVIL.apply(recipe -> recipe.canCraft(pos, hitState, new DefaultInfo(level, hitPos, recipe.getJson())),
-                recipe -> recipe.craft(pos, new DefaultInfo(level, hitPos, recipe.getJson())));
+        InWorldRecipeType.BLOCK_ANVIL.apply(recipe -> recipe.canCraft(pos, hitState, new DefaultInfo(recipe, level, hitPos)),
+                recipe -> recipe.craft(pos, new DefaultInfo(recipe, level, hitPos)));
 
     }
     
@@ -122,10 +119,10 @@ public enum InteractioEventHandler {
         BlockPos onPos = pos.below();
         BlockState onState = level.getBlockState(onPos);
         
-        InWorldRecipeType.ITEM_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, items, new EntityInfo(level, entity, recipe.getJson())),
-                recipe -> recipe.craft(items, new EntityInfo(level, entity, recipe.getJson())));
+        InWorldRecipeType.ITEM_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, items, new EntityInfo(recipe, level, entity)),
+                recipe -> recipe.craft(items, new EntityInfo(recipe, level, entity)));
         
-        InWorldRecipeType.BLOCK_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, onPos, onState, new EntityInfo(level, entity, recipe.getJson())),
-                recipe -> recipe.craft(onPos, new EntityInfo(level, entity, recipe.getJson())));
+        InWorldRecipeType.BLOCK_ENTITY_KILL.applyAll(recipe -> recipe.canCraft(entity, onPos, onState, new EntityInfo(recipe, level, entity)),
+                recipe -> recipe.craft(onPos, new EntityInfo(recipe, level, entity)));
     }
 }

@@ -23,7 +23,10 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     public BlockExplosionRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, JsonObject json) {
         super(id, null, blockInput, null, output, false, json);
         
-        this.postCraft.add((pos, info) -> info.getExplosion().getToBlow().remove(pos));
+        this.postCraft.put((pos, info, j) -> {
+            if (info.getRecipe().getOutput().isBlock() || info.getRecipe().getOutput().isFluid())
+                info.getExplosion().getToBlow().remove(pos);
+        }, null);
     }
 
     @Override

@@ -14,7 +14,6 @@ import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.FluidIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -22,8 +21,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.FluidState;
 
 public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState> {
@@ -36,26 +33,12 @@ public class ItemFluidRecipe extends DurationRecipe<List<ItemEntity>, FluidState
     {
         super(id, inputs, null, fluid, output, canRunParallel, duration, json);
         this.consumeFluid = consumeFluid;
-        
-        this.postCraft.add(Events.events.get(new ResourceLocation("particle"))::accept);
-        this.onCraftEnd.add((items, info) -> {
-            Level level = info.getWorld();
-            BlockPos pos = info.getPos();
-            List<BlockPos> sources = fluidInput.findConnectedSources(level, pos);
-            int numSources = sources.size();
-            int consumed = (int) (consumeFluid * numSources);
-            double remaining = consumeFluid * numSources - consumed;
-            if (level.random.nextDouble() < remaining) consumed++;
-            for (; consumed > 0 && sources.size() > 0; consumed--) {
-                level.setBlockAndUpdate(sources.remove(level.random.nextInt(sources.size())), Blocks.AIR.defaultBlockState());
-            }
-        });
     }
     
     @Override
     public boolean canCraft(List<ItemEntity> entities, FluidState state, DefaultInfo info)
     {
-        return this.fluidInput.test(info.getWorld(), info.getPos())
+        return this.fluidInput.test(info.getWorld(), info.getBlockPos())
                 && compareStacks(entities, this.itemInputs)
                 && testAll(this.startCraftConditions, entities, state, info);
     }
