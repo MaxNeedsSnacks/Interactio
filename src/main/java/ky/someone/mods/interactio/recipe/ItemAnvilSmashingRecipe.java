@@ -63,9 +63,9 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
     }
 
     @Override
-    public boolean canCraft(List<ItemEntity> entities, BlockState state) {
-        return testAll(this.startCraftConditions, entities, state)
-                && compareStacks(entities, this.itemInputs);
+    public boolean canCraft(List<ItemEntity> entities, BlockState state, DefaultInfo info) {
+        return compareStacks(entities, this.itemInputs)
+                && testAll(this.startCraftConditions, entities, state, info);
     }
 
     @Override

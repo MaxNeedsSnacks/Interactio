@@ -30,8 +30,8 @@ public abstract class StatelessItemRecipe<U extends CraftingInfo> extends Statel
     }
     
     @Override
-    public boolean canCraft(List<ItemEntity> entities) {
-        return testAll(this.startCraftConditions, entities, null)
+    public boolean canCraft(List<ItemEntity> entities, U info) {
+        return testAll(this.startCraftConditions, entities, null, info)
                 && compareStacks(entities, this.itemInputs);
     }
     

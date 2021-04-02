@@ -27,9 +27,9 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     }
 
     @Override
-    public boolean canCraft(BlockPos pos, BlockState state) {
-        return testAll(this.startCraftConditions, pos, state)
-                && this.blockInput.test(state.getBlock());
+    public boolean canCraft(BlockPos pos, BlockState state, ExplosionInfo info) {
+        return this.blockInput.test(state.getBlock())
+                && testAll(this.startCraftConditions, pos, state, info);
     }
 
     @Override

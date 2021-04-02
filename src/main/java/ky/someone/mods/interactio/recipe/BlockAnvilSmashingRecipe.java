@@ -56,26 +56,18 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     }
 
     @Override
-    public boolean canCraft(BlockPos pos, BlockState state) {
-        return this.blockInput.test(state.getBlock()) && testAll(this.startCraftConditions, pos, state);
+    public boolean canCraft(BlockPos pos, BlockState state, DefaultInfo info) {
+        return this.blockInput.test(state.getBlock())
+                && testAll(this.startCraftConditions, pos, state, info);
     }
 
     // anvilPos will be the position of the anvil
     // hitPos will be the position of the block hit
-    @Override
-    public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return InWorldRecipeType.BLOCK_ANVIL;
-    }
-    
+    @Override public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
+    @Override public RecipeSerializer<?> getSerializer() { return SERIALIZER; }
+    @Override public RecipeType<?> getType() { return InWorldRecipeType.BLOCK_ANVIL; }
     @Override public boolean hasInvulnerableOutput() { return false; }
+    public double getDamage() { return this.damage; }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockAnvilSmashingRecipe> {
         @Override

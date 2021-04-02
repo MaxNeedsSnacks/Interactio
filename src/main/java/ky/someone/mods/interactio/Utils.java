@@ -9,6 +9,8 @@ import java.util.function.BiPredicate;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Streams;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -16,6 +18,7 @@ import com.google.gson.JsonSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import ky.someone.mods.interactio.recipe.Events.EventType;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
@@ -25,6 +28,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
@@ -186,17 +190,35 @@ public final class Utils {
         return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
     
-    public static <T, U> void runAll(List<BiConsumer<T, U>> events, T t, U u)
-    {
-        events.forEach(consumer -> {
-            consumer.accept(t, u);
-        });
+    public static <T, U> void runAll(List<BiConsumer<T, U>> events, T t, U u) {
+        events.forEach(consumer -> consumer.accept(t, u));
     }
     
-    public static <T, U> boolean testAll(List<BiPredicate<T, U>> events, T t, U u)
-    {
+    public static <T, U, V> void runAll(List<TriConsumer<T, U, V>> events, T t, U u, V v) {
+        events.forEach(consumer -> consumer.accept(t, u, v));
+    }
+    
+    public static <T, U, V> boolean testAll(List<BiPredicate<T, U>> events, T t, U u) {
         return events.stream().map(predicate -> predicate.test(t, u)).reduce(true, (a,b) -> a && b);
     }
     
-    @FunctionalInterface public interface TriConsumer<T, U, V> { public void apply(T t, U u, V v); }
+    public static <T, U, V> boolean testAll(List<TriPredicate<T, U, V>> events, T t, U u, V v) {
+        return events.stream().map(predicate -> predicate.test(t, u, v)).reduce(true, (a,b) -> a && b);
+    }
+    
+    @FunctionalInterface public interface TriPredicate<T, U, V> { public boolean test(T t, U u, V v); }
+    @FunctionalInterface public interface TriConsumer<T, U, V> { public void accept(T t, U u, V v); }
+    
+    public static JsonObject getData(EventType type, ResourceLocation loc, JsonObject json) {
+        if (!json.has(type.jsonName)) return null;
+        JsonArray array = GsonHelper.getAsJsonArray(json, type.jsonName);
+        return Streams.stream(array.iterator())
+               .filter(JsonElement::isJsonObject)
+               .map(JsonElement::getAsJsonObject)
+               .filter(obj -> obj.has("type"))
+               .filter(obj -> GsonHelper.isStringValue(obj, "type"))
+               .filter(obj -> 
+                   new ResourceLocation(GsonHelper.getAsString(obj, "type")).equals(loc)
+               ).findFirst().orElse(null);
+    }
 }

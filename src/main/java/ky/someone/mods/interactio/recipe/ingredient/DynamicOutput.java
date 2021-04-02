@@ -15,18 +15,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 
+@SuppressWarnings("rawtypes")
 public final class DynamicOutput {
     private enum OutputType {
         BLOCK,
         ITEM,
-        FLUID
+        FLUID,
+        ENTITY
     }
     
     private final OutputType type;
@@ -34,6 +39,7 @@ public final class DynamicOutput {
     public final WeightedOutput<Block> blockOutput;
     public final WeightedOutput<ItemStack> itemOutput;
     public final WeightedOutput<Fluid> fluidOutput;
+    public final WeightedOutput<EntityType> entityOutput;
 
     @Nullable
     public Block getBlock() {
@@ -49,6 +55,11 @@ public final class DynamicOutput {
     public Fluid getFluid() {
         return isFluid() ? fluidOutput.rollOnce() : null;
     }
+    
+    @Nullable
+    public EntityType<?> getEntity() {
+        return isEntity() ? entityOutput.rollOnce() : null;
+    }
 
     public boolean isBlock() {
         return type == OutputType.BLOCK;
@@ -61,6 +72,10 @@ public final class DynamicOutput {
     public boolean isFluid() {
         return type == OutputType.FLUID;
     }
+    
+    public boolean isEntity() {
+        return type == OutputType.ENTITY;
+    }
 
     @SuppressWarnings("unchecked")
     private <C> DynamicOutput(@Nullable WeightedOutput<C> output, Class<C> cls)
@@ -70,6 +85,7 @@ public final class DynamicOutput {
             this.blockOutput = (WeightedOutput<Block>) output;
             this.fluidOutput = null;
             this.itemOutput = null;
+            this.entityOutput = null;
             this.type = OutputType.BLOCK;
         }
         else if (cls == ItemStack.class)
@@ -77,6 +93,7 @@ public final class DynamicOutput {
             this.blockOutput = null;
             this.itemOutput = (WeightedOutput<ItemStack>) output;
             this.fluidOutput = null;
+            this.entityOutput = null;
             this.type = OutputType.ITEM;
         }
         else if (cls == Fluid.class)
@@ -84,7 +101,16 @@ public final class DynamicOutput {
             this.blockOutput = null;
             this.itemOutput = null;
             this.fluidOutput = (WeightedOutput<Fluid>) output;
+            this.entityOutput = null;
             this.type = OutputType.FLUID;
+        }
+        else if (cls == EntityType.class)
+        {
+            this.blockOutput = null;
+            this.itemOutput = null;
+            this.fluidOutput = null;
+            this.entityOutput = (WeightedOutput<EntityType>) output;
+            this.type = OutputType.ENTITY;
         }
         else throw new IllegalArgumentException("Output type must be among " + Arrays.toString(OutputType.values()) + ", but " + cls.getSimpleName() + " was provided");
     }
@@ -114,6 +140,12 @@ public final class DynamicOutput {
                 world.addFreshEntity(newItem);
             });
         }
+        else if (isEntity()) {
+            EntityType<?> entityType = this.getEntity();
+            Entity entity = entityType.create(world);
+            entity.moveTo(Vec3.atBottomCenterOf(pos));
+            world.addFreshEntity(entity);
+        }
     }
 
     public static DynamicOutput create(JsonObject json, String... blacklist) {
@@ -130,6 +162,10 @@ public final class DynamicOutput {
             if (Arrays.asList(blacklist).contains("item")) throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
             // single item
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ITEM), ItemStack.class);
+        } else if (json.has("entity")) {
+            if (Arrays.asList(blacklist).contains("entity")) throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
+            // single entity
+            return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ENTITY), EntityType.class);
         } else {
             // assume it's a weighted output
             // try to get a type variable, or error otherwise
@@ -144,6 +180,9 @@ public final class DynamicOutput {
                     case "fluid":
                         if (Arrays.asList(blacklist).contains("fluid")) throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.FLUID), Fluid.class);
+                    case "entity":
+                        if (Arrays.asList(blacklist).contains("entity")) throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
+                        return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ENTITY), EntityType.class);
                     default:
                         throw new JsonSyntaxException("Unsupported type for output on block explosion recipe!");
                 }
@@ -163,6 +202,9 @@ public final class DynamicOutput {
         } else if (isFluid()) {
             buf.writeByte(2);
             fluidOutput.write(buf, IEntrySerializer.FLUID);
+        } else if (isEntity()) {
+            buf.writeByte(3);
+            entityOutput.write(buf, IEntrySerializer.ENTITY);
         } else throw new IllegalStateException("Wrong output type!");
     }
 
@@ -177,6 +219,9 @@ public final class DynamicOutput {
             // fluid
             case 2:
                 return new DynamicOutput(WeightedOutput.read(buf, IEntrySerializer.FLUID), Fluid.class);
+            // entity
+            case 3:
+                return new DynamicOutput(WeightedOutput.read(buf, IEntrySerializer.ENTITY), EntityType.class);
             // error
             default:
                 throw new IllegalStateException("Wrong output type id!");

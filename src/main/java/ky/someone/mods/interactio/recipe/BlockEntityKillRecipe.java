@@ -31,35 +31,27 @@ public final class BlockEntityKillRecipe extends InWorldRecipe<BlockPos, BlockSt
         this.entityInput = entityInput;
     }
 
-    public boolean canCraft(LivingEntity entity, BlockPos pos, BlockState state) {
-        return this.entityInput.test(entity) && canCraft(pos, state);
+    public boolean canCraft(LivingEntity entity, BlockPos pos, BlockState state, EntityInfo info) {
+        return this.entityInput.test(entity) && canCraft(pos, state, info);
     }
     
     @Override
-    public boolean canCraft(BlockPos pos, BlockState state) {
-        return testAll(this.startCraftConditions, pos, state)
-                && this.blockInput.test(state.getBlock());
+    public boolean canCraft(BlockPos pos, BlockState state, EntityInfo info) {
+        return this.blockInput.test(state.getBlock())
+                && testAll(this.startCraftConditions, pos, state, info);
     }
 
-    @Override
-    public void craft(BlockPos pos, EntityInfo info) { craftBlock(this, pos, info); }
+    @Override public void craft(BlockPos pos, EntityInfo info) { craftBlock(this, pos, info); }
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
         return NonNullList.of(Ingredient.EMPTY, this.itemInputs.stream().map(ItemIngredient::getIngredient).toArray(Ingredient[]::new));
     }
 
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return InWorldRecipeType.BLOCK_ENTITY_KILL;
-    }
-    
+    @Override public RecipeSerializer<?> getSerializer() { return SERIALIZER; }
+    @Override public RecipeType<?> getType() { return InWorldRecipeType.BLOCK_ENTITY_KILL; }
     @Override public boolean hasInvulnerableOutput() { return false; }
+    public EntityIngredient getEntityInput() { return this.entityInput; }
 
     public static class Serializer extends InWorldRecipeSerializer<BlockEntityKillRecipe> {
         @Override
