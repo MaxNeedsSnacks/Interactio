@@ -1,7 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
 import static ky.someone.mods.interactio.Utils.compareStacks;
-import static ky.someone.mods.interactio.Utils.sendParticle;
 import static ky.someone.mods.interactio.Utils.testAll;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.ItemIngredient;
 import ky.someone.mods.interactio.recipe.util.ExplosionInfo;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -28,8 +26,6 @@ public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo
 
     public ItemExplosionRecipe(ResourceLocation id, List<ItemIngredient> inputs, DynamicOutput output, JsonObject json) {
         super(id, inputs, null, null, output, true, json);
-        
-        this.postCraft.add((entities, info) -> sendParticle(ParticleTypes.END_ROD, info.getWorld(), info.getExplosion().getPosition()));
     }
 
     @Override

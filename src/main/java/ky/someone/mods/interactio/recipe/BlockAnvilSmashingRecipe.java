@@ -1,58 +1,28 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.sendParticle;
 import static ky.someone.mods.interactio.Utils.testAll;
-
-import java.util.Random;
 
 import com.google.gson.JsonObject;
 
-import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.BlockIngredient;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AnvilBlock;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, BlockState, DefaultInfo> {
 
     public static final Serializer SERIALIZER = new Serializer();
 
-    protected final double damage;
 
-    public BlockAnvilSmashingRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, double damage, JsonObject json) {
+    public BlockAnvilSmashingRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, JsonObject json) {
         super(id, null, blockInput, null, output, false, json);
-        this.damage = damage;
-        
-        // after the craft, damage the anvil
-        this.postCraft.add((hitPos, info) -> {
-            Level world = info.getWorld();
-            Random rand = world.getRandom();
-            BlockPos anvilPos = hitPos.above();
-            
-            if (rand.nextDouble() < this.damage) {
-                BlockState anvilState = world.getBlockState(anvilPos);
-                sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(anvilPos), 25);
-                BlockState dmg = AnvilBlock.damage(anvilState);
-                if (dmg == null) {
-                    world.setBlockAndUpdate(anvilPos, Blocks.AIR.defaultBlockState());
-                    world.levelEvent(1029, anvilPos, 0);
-                }
-                else world.setBlockAndUpdate(anvilPos, dmg);
-            }
-        });
     }
 
     @Override
@@ -67,7 +37,6 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
     @Override public RecipeSerializer<?> getSerializer() { return SERIALIZER; }
     @Override public RecipeType<?> getType() { return InWorldRecipeType.BLOCK_ANVIL; }
     @Override public boolean hasInvulnerableOutput() { return false; }
-    public double getDamage() { return this.damage; }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockAnvilSmashingRecipe> {
         @Override
@@ -75,9 +44,7 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
             DynamicOutput output = DynamicOutput.create(GsonHelper.getAsJsonObject(json, "output"), "fluid");
             BlockIngredient input = BlockIngredient.deserialize(GsonHelper.getAsJsonObject(json, "input"));
 
-            double damage = Utils.parseChance(json, "damage");
-
-            return new BlockAnvilSmashingRecipe(id, input, output, damage, json);
+            return new BlockAnvilSmashingRecipe(id, input, output, json);
         }
     }
 }

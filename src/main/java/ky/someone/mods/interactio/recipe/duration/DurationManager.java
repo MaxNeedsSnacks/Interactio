@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
-import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.recipe.base.DurationRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.util.DefaultInfo;
@@ -54,17 +53,17 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
             T input = tracker.getInput(pos);
             S state = tracker.getState(pos);
             R recipe = entry.getKey();
+            DefaultInfo info = new DefaultInfo(recipe, world, pos);
             int duration = entry.getValue() + 1;
-            Interactio.LOGGER.warn("|><|" + duration + "|><|" + input + "|><|" + state);
             if (input == null || state == null)
                 toRemove.add(pos);
-            else if (recipe.canCraft(input, state, new DefaultInfo(world, pos, recipe.getJson())))
+            else if (recipe.canCraft(input, state, info))
             {
-                recipe.tick(input, state);
+                recipe.tick(input, state, info);
                 entry.setValue(duration);
                 if (recipe.isFinished(duration))
                 {
-                    recipe.craft(input, new DefaultInfo(world, pos, recipe.getJson()));
+                    recipe.craft(input, info);
                     toRemove.add(pos);
                 }
                 tracker.clear(pos);
@@ -77,7 +76,7 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
         toRemove.clear();
         
         tracker.forEach((input, state, pos) -> {
-            storage.apply(recipe -> recipe.canCraft(input, state, new DefaultInfo(world, pos, recipe.getJson())),
+            storage.apply(recipe -> recipe.canCraft(input, state, new DefaultInfo(recipe, world, pos)),
                           recipe -> trackOrCraft(world, pos, recipe, input));
         });
         tracker.clear();
@@ -86,7 +85,7 @@ public class DurationManager<R extends DurationRecipe<T,S>, T, S extends StateHo
     private void trackOrCraft(Level world, BlockPos pos, R recipe, T input)
     {
         if (recipe.getDuration() == 0)
-            recipe.craft(input, new DefaultInfo(world, pos, recipe.getJson()));
+            recipe.craft(input, new DefaultInfo(recipe, world, pos));
         else this.existingRecipes.put(pos, new SimpleEntry<>(recipe, 0));
     }
 }

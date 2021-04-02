@@ -17,8 +17,10 @@ import com.google.gson.JsonSyntaxException;
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -114,13 +116,13 @@ public class EntityIngredient extends RecipeIngredient<EntityType<?>> {
         } else if (json.has("entity")) {
             EntityType<?> entity = IEntrySerializer.ENTITY.read(json);
             return new SingleEntityList(entity);
-//        } else if (json.has("tag")) {
-//            ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "tag"));
-//            Tag<EntityType<?>> tag = EntityTags.getAllTags().getTag(id);
-//            if (tag == null) {
-//                throw new JsonSyntaxException("Unknown entity tag '" + id + "'");
-//            }
-//            return new TagList(tag);
+        } else if (json.has("tag")) {
+            ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "tag"));
+            Tag<EntityType<?>> tag = EntityTypeTags.getAllTags().getTag(id);
+            if (tag == null) {
+                throw new JsonSyntaxException("Unknown entity tag '" + id + "'");
+            }
+            return new TagList(tag);
         }
 
         throw new JsonSyntaxException("Entity ingredient should have either 'tag' or 'entity'");
