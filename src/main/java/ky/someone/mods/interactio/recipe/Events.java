@@ -1,6 +1,7 @@
 package ky.someone.mods.interactio.recipe;
 
 import static ky.someone.mods.interactio.Utils.isAnvil;
+import static ky.someone.mods.interactio.Utils.parseChance;
 
 import java.util.HashMap;
 import java.util.List;
@@ -60,18 +61,18 @@ public class Events
         events.put(new ResourceLocation("particle"), (inputs, info, json) -> sendParticle(info));
         tickEvents.put(new ResourceLocation("particle"), (inputs, state, info, json) -> sendParticle(info));
         
-        events.put(new ResourceLocation("consumeFluids"), (inputs, info, json) -> {
+        events.put(new ResourceLocation("consume_fluids"), (inputs, info, json) -> {
             FluidIngredient fluidInput = info.getRecipe().getFluidInput();
             if (fluidInput == null) return;
 
-            double consumeFluid = Utils.parseChance(json, "consumeFluid");
+            double chance = parseChance(json, "chance");
             
             Level level = info.getWorld();
             BlockPos pos = info.getBlockPos();
             List<BlockPos> sources = fluidInput.findConnectedSources(level, pos);
             int numSources = sources.size();
-            int consumed = (int) (consumeFluid * numSources);
-            double remaining = consumeFluid * numSources - consumed;
+            int consumed = (int) (chance * numSources);
+            double remaining = chance * numSources - consumed;
             if (level.random.nextDouble() < remaining) consumed++;
             
             if (info.getRecipe().getOutput().isBlock() || info.getRecipe().getOutput().isFluid()) {
@@ -84,8 +85,8 @@ public class Events
             }
         });
         
-        events.put(new ResourceLocation("breakAnvil"), (inputs, info, json) -> {
-            double damage = Utils.getDouble(json, "damage");
+        events.put(new ResourceLocation("damage_anvil"), (inputs, info, json) -> {
+            double chance = parseChance(json, "chance");
             
             Level world = info.getWorld();
             Random rand = world.random;
@@ -96,7 +97,7 @@ public class Events
                 anvilPos = info.getBlockPos();
             }
             
-            if (rand.nextDouble() < damage) {
+            if (rand.nextDouble() < chance) {
                 BlockState anvilState = world.getBlockState(anvilPos);
                 if (!isAnvil(anvilState)) return;
                 Utils.sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(anvilPos), 25);
@@ -109,8 +110,8 @@ public class Events
             }
         });
         
-        continuePredicates.put(new ResourceLocation("breakAnvil"), (inputs, info, json) -> {
-            double damage = Utils.getDouble(json, "damage");
+        continuePredicates.put(new ResourceLocation("damage_anvil"), (inputs, info, json) -> {
+            double chance = parseChance(json, "chance");
             
             Level world = info.getWorld();
             Random rand = world.random;
@@ -121,7 +122,7 @@ public class Events
                 anvilPos = info.getBlockPos();
             }
             
-            if (rand.nextDouble() < damage) {
+            if (rand.nextDouble() < chance) {
                 BlockState anvilState = world.getBlockState(anvilPos);
                 if (!isAnvil(anvilState)) return false;
                 Utils.sendParticle(new BlockParticleOption(ParticleTypes.BLOCK, anvilState), world, Vec3.atBottomCenterOf(anvilPos), 25);
