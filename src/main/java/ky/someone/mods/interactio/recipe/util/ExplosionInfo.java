@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ExplosionInfo extends CraftingInfo {
     private final Explosion explosion;
 
-    public ExplosionInfo(InWorldRecipe<?,?,?> recipe, Level world, Explosion explosion) {
+    public ExplosionInfo(InWorldRecipe<?, ?, ?> recipe, Level world, Explosion explosion) {
         super(recipe, world);
         this.explosion = explosion;
     }
@@ -19,14 +19,12 @@ public final class ExplosionInfo extends CraftingInfo {
     }
 
     @Override
-    public Vec3 getPos()
-    {
+    public Vec3 getPos() {
         return getExplosion().getPosition();
     }
-    
+
     @Override
-    public BlockPos getBlockPos()
-    {
+    public BlockPos getBlockPos() {
         return new BlockPos(getExplosion().getPosition());
     }
 }

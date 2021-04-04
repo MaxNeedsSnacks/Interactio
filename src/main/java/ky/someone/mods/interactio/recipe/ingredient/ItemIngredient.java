@@ -1,22 +1,20 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Random;
-import java.util.stream.IntStream;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Random;
+import java.util.stream.IntStream;
 
 public class ItemIngredient extends RecipeIngredient<ItemStack> {
 
@@ -122,8 +120,7 @@ public class ItemIngredient extends RecipeIngredient<ItemStack> {
     }
 
     @Override
-    public Collection<ItemStack> getMatching()
-    {
+    public Collection<ItemStack> getMatching() {
         return Arrays.asList((isEmpty ? Ingredient.EMPTY : ingredient).getItems());
     }
 }

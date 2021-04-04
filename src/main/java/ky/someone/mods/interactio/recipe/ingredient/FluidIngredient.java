@@ -1,27 +1,9 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import static ky.someone.mods.interactio.Utils.getDouble;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,6 +17,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.fluids.FluidStack;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static ky.someone.mods.interactio.Utils.getDouble;
 
 /**
  * An {@code Ingredient}-equivalent for fluids based partially on SilentChaos512's implementation,
@@ -50,13 +41,15 @@ public class FluidIngredient implements Predicate<FluidStack> {
     private Collection<FluidStack> matchingStacks;
     private int count;
 
-    protected FluidIngredient(Stream<? extends IFluidList> fluidLists) { this(fluidLists, 1); }
-    
+    protected FluidIngredient(Stream<? extends IFluidList> fluidLists) {
+        this(fluidLists, 1);
+    }
+
     protected FluidIngredient(Stream<? extends IFluidList> fluidLists, int count) {
         this.acceptedFluids = fluidLists.filter(NON_EMPTY).toArray(IFluidList[]::new);
         this.count = count;
     }
-    
+
 
     /**
      * Get a list of all {@link FluidStack}s which match this ingredient. Used for JEI support.
@@ -102,42 +95,39 @@ public class FluidIngredient implements Predicate<FluidStack> {
     public boolean test(Level level, @Nullable Fluid fluid) {
         return test(fluid == null ? FluidStack.EMPTY : new FluidStack(fluid, 1000));
     }
-    
+
     /**
-     * Test for a match using a fluid, considering fluid amount.
-     * 
-     * @param pos The position around which to look for source blocks
-     * @param fluid Fluid to check the ingredient against
+     * Test for a match using a fluid source in-world,
+     * counting connected source blocks to find a match.
+     *
+     * @param level Target level in which to look for source blocks
+     * @param pos   The position around which to look for source blocks
      * @return True if the fluid matches the ingredient and there are enough source blocks connected to the given position
      */
     public boolean test(Level level, BlockPos pos) {
         return test(level, level.getFluidState(pos).getType())
-                ? findConnectedSources(level, pos).size() >= this.count
-                : false;
+                && findConnectedSources(level, pos).size() >= this.count;
     }
-    
+
     /**
      * @param center The position from which to search for source blocks. Assumed to itself be a source block
      * @return A list of source blocks connected to the fluid at the given position
      */
-    public List<BlockPos> findConnectedSources(Level level, BlockPos center)
-    {
+    public List<BlockPos> findConnectedSources(Level level, BlockPos center) {
         Queue<BlockPos> toSearch = new LinkedList<>();
         Set<BlockPos> searched = new HashSet<>();
         List<BlockPos> sources = new LinkedList<>();
         toSearch.add(center);
         searched.add(center);
         sources.add(center);
-        
-        while (!toSearch.isEmpty() && sources.size() < this.count)
-        {
+
+        while (!toSearch.isEmpty() && sources.size() < this.count) {
             BlockPos pos = toSearch.remove();
-            for (Direction dir : Direction.values())
-            {
+            for (Direction dir : Direction.values()) {
                 BlockPos newPos = pos.relative(dir);
                 if (searched.contains(newPos))
                     continue;
-                
+
                 FluidState state = level.getFluidState(newPos);
                 if (!test(level, state.getType()))
                     continue;

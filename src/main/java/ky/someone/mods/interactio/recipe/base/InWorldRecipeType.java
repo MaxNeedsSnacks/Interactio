@@ -1,44 +1,23 @@
 package ky.someone.mods.interactio.recipe.base;
 
-import static ky.someone.mods.interactio.Interactio.LOGGER;
-import static ky.someone.mods.interactio.Interactio.MOD_BUS;
-import static ky.someone.mods.interactio.Interactio.MOD_ID;
-import static ky.someone.mods.interactio.Interactio.PROXY;
+import com.google.common.collect.ImmutableList;
+import ky.someone.mods.interactio.Interactio;
+import ky.someone.mods.interactio.recipe.*;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
-
-import ky.someone.mods.interactio.Interactio;
-import ky.someone.mods.interactio.recipe.BlockAnvilSmashingRecipe;
-import ky.someone.mods.interactio.recipe.BlockEntityKillRecipe;
-import ky.someone.mods.interactio.recipe.BlockExplosionRecipe;
-import ky.someone.mods.interactio.recipe.BlockLightningRecipe;
-import ky.someone.mods.interactio.recipe.ItemAnvilSmashingRecipe;
-import ky.someone.mods.interactio.recipe.ItemEntityKillRecipe;
-import ky.someone.mods.interactio.recipe.ItemExplosionRecipe;
-import ky.someone.mods.interactio.recipe.ItemFireRecipe;
-import ky.someone.mods.interactio.recipe.ItemFluidRecipe;
-import ky.someone.mods.interactio.recipe.ItemLightningRecipe;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import static ky.someone.mods.interactio.Interactio.*;
 
 public class InWorldRecipeType<T extends InWorldRecipe<?, ?, ?>> implements RecipeType<T> {
 

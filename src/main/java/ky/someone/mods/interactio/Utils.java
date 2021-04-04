@@ -1,21 +1,9 @@
 package ky.someone.mods.interactio;
 
-import java.awt.Point;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Streams;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -39,25 +27,29 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
+import java.util.stream.StreamSupport;
+
 public final class Utils {
 
-    private static List<Block> anvils = Arrays.asList(Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL);
-    
     public static boolean isAnvil(Block block) {
-        return anvils.contains(block);
+        return block instanceof AnvilBlock;
     }
-    
+
     public static boolean isAnvil(BlockState state) {
         return isAnvil(state.getBlock());
     }
-    
+
     public static boolean isItem(Entity e) {
         return e instanceof ItemEntity;
     }
@@ -204,42 +196,61 @@ public final class Utils {
         double newY = Math.sin(rad) * (in.x - about.x) + Math.cos(rad) * (in.y - about.y) + about.y;
         return new Point((int) Math.round(newX), (int) Math.round(newY));
     }
-    
+
     public static <T, U> void runAll(Map<RecipeEvent<T, U>, JsonObject> events, T t, U u) {
         events.forEach((event, json) -> event.accept(t, u, json));
     }
-    
-    public static <T, U, V> void runAll(Map<RecipeTickEvent<T, U>, JsonObject> events, T t, U u, DefaultInfo info) {
+
+    public static <T, U> void runAll(Map<RecipeTickEvent<T, U>, JsonObject> events, T t, U u, DefaultInfo info) {
         events.forEach((event, json) -> event.accept(t, u, info, json));
     }
-    
+
     public static <T, U, V> boolean testAll(Map<RecipeStartPredicate<T, U, V>, JsonObject> events, T t, U u, V v) {
-        return events.entrySet().stream().map(entry -> entry.getKey().test(t, u, v, entry.getValue())).reduce(true, (a,b) -> a && b);
+        return events.entrySet().stream().map(entry -> entry.getKey().test(t, u, v, entry.getValue())).reduce(true, (a, b) -> a && b);
     }
-    
-    public static <T, U, V> boolean testAll(Map<RecipeContinuePredicate<T, U>, JsonObject> events, T t, U u) {
-        return events.entrySet().stream().map(entry -> entry.getKey().test(t, u, entry.getValue())).reduce(true, (a,b) -> a && b);
+
+    public static <T, U> boolean testAll(Map<RecipeContinuePredicate<T, U>, JsonObject> events, T t, U u) {
+        return events.entrySet().stream().map(entry -> entry.getKey().test(t, u, entry.getValue())).reduce(true, (a, b) -> a && b);
     }
-    
-    @FunctionalInterface public interface RecipeStartPredicate<T,U,V> { public boolean test(T t, U u, V v, JsonObject json); }
-    @FunctionalInterface public interface RecipeContinuePredicate<T,U> { public boolean test(T t, U u, JsonObject json); }
-    @FunctionalInterface public interface RecipeEvent<T,U> { public void accept(T t, U u, JsonObject json); }
-    @FunctionalInterface public interface RecipeTickEvent<T,U> { public void accept(T t, U u, DefaultInfo info, JsonObject json); }
-    @FunctionalInterface public interface TriConsumer<T,U,V> { public void accept(T t, U u, V v); }
-    
+
+    @FunctionalInterface
+    public interface RecipeStartPredicate<T, U, V> {
+        boolean test(T t, U u, V v, JsonObject json);
+    }
+
+    @FunctionalInterface
+    public interface RecipeContinuePredicate<T, U> {
+        boolean test(T t, U u, JsonObject json);
+    }
+
+    @FunctionalInterface
+    public interface RecipeEvent<T, U> {
+        void accept(T t, U u, JsonObject json);
+    }
+
+    @FunctionalInterface
+    public interface RecipeTickEvent<T, U> {
+        void accept(T t, U u, DefaultInfo info, JsonObject json);
+    }
+
+    @FunctionalInterface
+    public interface TriConsumer<T, U, V> {
+        void accept(T t, U u, V v);
+    }
+
     public static JsonObject getData(EventType type, ResourceLocation loc, JsonObject json) {
         if (!json.has(type.jsonName)) return null;
         JsonArray array = GsonHelper.getAsJsonArray(json, type.jsonName);
-        return Streams.stream(array.iterator())
-               .filter(JsonElement::isJsonObject)
-               .map(JsonElement::getAsJsonObject)
-               .filter(obj -> obj.has("type"))
-               .filter(obj -> GsonHelper.isStringValue(obj, "type"))
-               .filter(obj -> 
-                   new ResourceLocation(GsonHelper.getAsString(obj, "type")).equals(loc)
-               ).findFirst().orElse(null);
+        return StreamSupport.stream(array.spliterator(), false)
+                .filter(JsonElement::isJsonObject)
+                .map(JsonElement::getAsJsonObject)
+                .filter(obj -> obj.has("type"))
+                .filter(obj -> GsonHelper.isStringValue(obj, "type"))
+                .filter(obj ->
+                        new ResourceLocation(GsonHelper.getAsString(obj, "type")).equals(loc)
+                ).findFirst().orElse(null);
     }
-    
+
     public static JsonObject getData(EventType[] types, ResourceLocation loc, JsonObject json) {
         return Arrays.stream(types).map(type -> getData(type, loc, json)).filter(Objects::nonNull).findFirst().orElse(null);
     }

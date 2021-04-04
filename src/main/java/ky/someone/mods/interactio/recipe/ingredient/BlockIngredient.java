@@ -1,19 +1,9 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,6 +14,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * An {@code Ingredient}-equivalent for blocks, based heavily on the vanilla implementation.
@@ -195,14 +193,12 @@ public class BlockIngredient extends RecipeIngredient<Block> {
     }
 
     @Override
-    protected void updateEmpty()
-    {
-        
+    protected void updateEmpty() {
+
     }
 
     @Override
-    public boolean roll()
-    {
+    public boolean roll() {
         return false;
     }
 }

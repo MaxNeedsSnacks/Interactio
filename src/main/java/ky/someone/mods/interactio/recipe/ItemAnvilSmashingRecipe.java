@@ -1,12 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.compareStacks;
-import static ky.someone.mods.interactio.Utils.testAll;
-
-import java.util.List;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
@@ -20,6 +14,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import java.util.List;
+
+import static ky.someone.mods.interactio.Utils.compareStacks;
+import static ky.someone.mods.interactio.Utils.testAll;
 
 public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity>, BlockState, DefaultInfo> {
 
@@ -54,8 +53,11 @@ public final class ItemAnvilSmashingRecipe extends InWorldRecipe<List<ItemEntity
     public RecipeType<?> getType() {
         return InWorldRecipeType.ITEM_ANVIL;
     }
-    
-    @Override public boolean hasInvulnerableOutput() { return false; }
+
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return false;
+    }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemAnvilSmashingRecipe> {
         @Override

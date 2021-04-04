@@ -1,19 +1,9 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,6 +14,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * An {@code Ingredient}-equivalent for entitys, based heavily on the vanilla implementation.
@@ -76,7 +74,7 @@ public class EntityIngredient extends RecipeIngredient<EntityType<?>> {
     /**
      * Test for a match using a entity.
      *
-     * @param state Entity state to check the ingredient against
+     * @param entity Entity to check the ingredient against
      * @return True if the entity matches the ingredient
      */
     public boolean test(@Nullable LivingEntity entity) {
@@ -196,14 +194,12 @@ public class EntityIngredient extends RecipeIngredient<EntityType<?>> {
     }
 
     @Override
-    protected void updateEmpty()
-    {
-        
+    protected void updateEmpty() {
+
     }
 
     @Override
-    public boolean roll()
-    {
+    public boolean roll() {
         return false;
     }
 }

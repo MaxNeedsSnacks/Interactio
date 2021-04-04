@@ -1,9 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.testAll;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
@@ -17,10 +14,12 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import static ky.someone.mods.interactio.Utils.testAll;
+
 public final class BlockLightningRecipe extends InWorldRecipe<BlockPos, BlockState, DefaultInfo> {
 
     public static final Serializer SERIALIZER = new Serializer();
-    
+
     private final double chance;
 
     public BlockLightningRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, double chance, JsonObject json) {
@@ -35,7 +34,9 @@ public final class BlockLightningRecipe extends InWorldRecipe<BlockPos, BlockSta
     }
 
     @Override
-    public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
+    public void craft(BlockPos hitPos, DefaultInfo info) {
+        craftBlock(this, hitPos, info);
+    }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
@@ -46,12 +47,15 @@ public final class BlockLightningRecipe extends InWorldRecipe<BlockPos, BlockSta
     public RecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_LIGHTNING;
     }
-    
+
     public double getChance() {
         return this.chance;
     }
-    
-    @Override public boolean hasInvulnerableOutput() { return true; }
+
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return true;
+    }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockLightningRecipe> {
         @Override

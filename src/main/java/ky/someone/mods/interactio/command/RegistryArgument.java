@@ -33,7 +33,6 @@ public class RegistryArgument implements ArgumentType<ForgeRegistry<?>> {
 
     @Override
     public ForgeRegistry<?> parse(StringReader reader) throws CommandSyntaxException {
-        reader.getCursor();
         ResourceLocation resLoc = ResourceLocation.read(reader);
 
         ForgeRegistry<?> reg = RegistryManager.ACTIVE.getRegistry(resLoc);

@@ -1,7 +1,5 @@
 package ky.someone.mods.interactio.proxy;
 
-import javax.annotation.Nullable;
-
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.command.CommandItemInfo;
 import ky.someone.mods.interactio.command.CommandRegistryDump;
@@ -22,6 +20,8 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 
+import javax.annotation.Nullable;
+
 public abstract class ModProxy implements IProxy {
 
     private MinecraftServer server = null;
@@ -36,7 +36,7 @@ public abstract class ModProxy implements IProxy {
         MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
         Interactio.MOD_BUS.addListener(this::preInit);
-        
+
         Events.init();
     }
 

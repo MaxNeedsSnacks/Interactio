@@ -1,14 +1,7 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Random;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.core.BlockPos;
@@ -25,6 +18,11 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Random;
+
 @SuppressWarnings("rawtypes")
 public final class DynamicOutput {
     private enum OutputType {
@@ -33,9 +31,9 @@ public final class DynamicOutput {
         FLUID,
         ENTITY
     }
-    
+
     private final OutputType type;
-    
+
     public final WeightedOutput<Block> blockOutput;
     public final WeightedOutput<ItemStack> itemOutput;
     public final WeightedOutput<Fluid> fluidOutput;
@@ -50,12 +48,12 @@ public final class DynamicOutput {
     public Collection<ItemStack> getItems() {
         return isItem() ? itemOutput.roll() : null;
     }
-    
+
     @Nullable
     public Fluid getFluid() {
         return isFluid() ? fluidOutput.rollOnce() : null;
     }
-    
+
     @Nullable
     public EntityType<?> getEntity() {
         return isEntity() ? entityOutput.rollOnce() : null;
@@ -68,79 +66,68 @@ public final class DynamicOutput {
     public boolean isItem() {
         return type == OutputType.ITEM;
     }
-    
+
     public boolean isFluid() {
         return type == OutputType.FLUID;
     }
-    
+
     public boolean isEntity() {
         return type == OutputType.ENTITY;
     }
 
     @SuppressWarnings("unchecked")
-    private <C> DynamicOutput(@Nullable WeightedOutput<C> output, Class<C> cls)
-    {
-        if (cls == Block.class)
-        {
+    private <C> DynamicOutput(@Nullable WeightedOutput<C> output, Class<C> cls) {
+        if (cls == Block.class) {
             this.blockOutput = (WeightedOutput<Block>) output;
             this.fluidOutput = null;
             this.itemOutput = null;
             this.entityOutput = null;
             this.type = OutputType.BLOCK;
-        }
-        else if (cls == ItemStack.class)
-        {
+        } else if (cls == ItemStack.class) {
             this.blockOutput = null;
             this.itemOutput = (WeightedOutput<ItemStack>) output;
             this.fluidOutput = null;
             this.entityOutput = null;
             this.type = OutputType.ITEM;
-        }
-        else if (cls == Fluid.class)
-        {
+        } else if (cls == Fluid.class) {
             this.blockOutput = null;
             this.itemOutput = null;
             this.fluidOutput = (WeightedOutput<Fluid>) output;
             this.entityOutput = null;
             this.type = OutputType.FLUID;
-        }
-        else if (cls == EntityType.class)
-        {
+        } else if (cls == EntityType.class) {
             this.blockOutput = null;
             this.itemOutput = null;
             this.fluidOutput = null;
             this.entityOutput = (WeightedOutput<EntityType>) output;
             this.type = OutputType.ENTITY;
-        }
-        else throw new IllegalArgumentException("Output type must be among " + Arrays.toString(OutputType.values()) + ", but " + cls.getSimpleName() + " was provided");
+        } else
+            throw new IllegalArgumentException("Output type must be among " + Arrays.toString(OutputType.values()) + ", but " + cls.getSimpleName() + " was provided");
     }
-    
+
     public void spawn(Level world, BlockPos pos, boolean invulnerable) {
         Random rand = world.getRandom();
         if (isBlock()) {
             world.setBlockAndUpdate(pos, this.getBlock().defaultBlockState());
-        }
-        else if (isFluid()) {
+        } else if (isFluid()) {
             Fluid fluid = this.getFluid();
             if (fluid == null) fluid = Fluids.EMPTY;
             world.setBlockAndUpdate(pos, fluid.defaultFluidState().createLegacyBlock());
-        }
-        else if (isItem()) {
+        } else if (isItem()) {
             Collection<ItemStack> stacks = this.getItems();
             stacks.forEach(stack -> {
                 double x = pos.getX() + Mth.nextDouble(rand, 0.25, 0.75);
                 double y = pos.getY() + Mth.nextDouble(rand, 0.5, 1);
                 double z = pos.getZ() + Mth.nextDouble(rand, 0.25, 0.75);
-                
+
                 double vel = Mth.nextDouble(rand, 0.1, 0.25);
-                
+
                 ItemEntity newItem = new ItemEntity(world, x, y, z, stack.copy());
                 newItem.setDeltaMovement(0, vel, 0);
-                if (invulnerable) newItem.setInvulnerable(invulnerable);
+                if (invulnerable) newItem.setInvulnerable(true);
                 world.addFreshEntity(newItem);
             });
-        }
-        else if (isEntity()) {
+        } else if (isEntity()) {
             EntityType<?> entityType = this.getEntity();
             Entity entity = entityType.create(world);
             entity.moveTo(Vec3.atBottomCenterOf(pos));
@@ -151,19 +138,23 @@ public final class DynamicOutput {
     public static DynamicOutput create(JsonObject json, String... blacklist) {
         // 4 cases to check
         if (json.has("block")) {
-            if (Arrays.asList(blacklist).contains("block")) throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
+            if (Arrays.asList(blacklist).contains("block"))
+                throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
             // single block
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.BLOCK), Block.class);
         } else if (json.has("fluid")) {
-            if (Arrays.asList(blacklist).contains("fluid")) throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
+            if (Arrays.asList(blacklist).contains("fluid"))
+                throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
             // single fluid
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.FLUID), Fluid.class);
         } else if (json.has("item")) {
-            if (Arrays.asList(blacklist).contains("item")) throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
+            if (Arrays.asList(blacklist).contains("item"))
+                throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
             // single item
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ITEM), ItemStack.class);
         } else if (json.has("entity")) {
-            if (Arrays.asList(blacklist).contains("entity")) throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
+            if (Arrays.asList(blacklist).contains("entity"))
+                throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
             // single entity
             return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ENTITY), EntityType.class);
         } else {
@@ -172,16 +163,20 @@ public final class DynamicOutput {
             if (json.has("type")) {
                 switch (GsonHelper.getAsString(json, "type")) {
                     case "item":
-                        if (Arrays.asList(blacklist).contains("item")) throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
+                        if (Arrays.asList(blacklist).contains("item"))
+                            throw new JsonSyntaxException("Recipe cannot produce Item outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ITEM), ItemStack.class);
                     case "block":
-                        if (Arrays.asList(blacklist).contains("block")) throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
+                        if (Arrays.asList(blacklist).contains("block"))
+                            throw new JsonSyntaxException("Recipe cannot produce Block outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.BLOCK), Block.class);
                     case "fluid":
-                        if (Arrays.asList(blacklist).contains("fluid")) throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
+                        if (Arrays.asList(blacklist).contains("fluid"))
+                            throw new JsonSyntaxException("Recipe cannot produce Fluid outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.FLUID), Fluid.class);
                     case "entity":
-                        if (Arrays.asList(blacklist).contains("entity")) throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
+                        if (Arrays.asList(blacklist).contains("entity"))
+                            throw new JsonSyntaxException("Recipe cannot produce Entity outputs!");
                         return new DynamicOutput(Utils.singleOrWeighted(json, IEntrySerializer.ENTITY), EntityType.class);
                     default:
                         throw new JsonSyntaxException("Unsupported type for output on block explosion recipe!");

@@ -75,7 +75,7 @@ public interface IEntrySerializer<T> {
             buffer.writeRegistryId(content);
         }
     };
-    
+
     @SuppressWarnings("rawtypes")
     IEntrySerializer<EntityType> ENTITY = new IEntrySerializer<EntityType>() {
         @Override
@@ -84,15 +84,15 @@ public interface IEntrySerializer<T> {
             return Optional.ofNullable(ForgeRegistries.ENTITIES.getValue(id))
                     .orElseThrow(() -> new JsonParseException("Unable to parse entity with id " + id + "!"));
         }
+
         @Override
-        public EntityType<?> read(FriendlyByteBuf buffer)
-        {
+        public EntityType<?> read(FriendlyByteBuf buffer) {
             return buffer.readRegistryIdSafe(EntityType.class);
         }
+
         @Override
         @SuppressWarnings("unchecked")
-        public void write(FriendlyByteBuf buffer, EntityType content)
-        {
+        public void write(FriendlyByteBuf buffer, EntityType content) {
             buffer.writeRegistryId(content);
         }
     };

@@ -1,15 +1,7 @@
 package ky.someone.mods.interactio.integration.jei;
 
-import java.util.Collections;
-import java.util.stream.Collectors;
-
 import ky.someone.mods.interactio.Interactio;
-import ky.someone.mods.interactio.integration.jei.categories.BlockAnvilSmashingCategory;
-import ky.someone.mods.interactio.integration.jei.categories.BlockExplosionCategory;
-import ky.someone.mods.interactio.integration.jei.categories.ItemFluidCategory;
-import ky.someone.mods.interactio.integration.jei.categories.ItemAnvilSmashingCategory;
-import ky.someone.mods.interactio.integration.jei.categories.ItemExplosionCategory;
-import ky.someone.mods.interactio.integration.jei.categories.ItemLightningCategory;
+import ky.someone.mods.interactio.integration.jei.categories.*;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput;
@@ -24,6 +16,9 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @JeiPlugin
 public class InteractioJEIPlugin implements IModPlugin {
@@ -63,25 +58,22 @@ public class InteractioJEIPlugin implements IModPlugin {
         registration.addRecipes(InWorldRecipeType.ITEM_ANVIL.getRecipes(), ItemAnvilSmashingCategory.UID);
         registration.addRecipes(InWorldRecipeType.BLOCK_ANVIL.getRecipes(), BlockAnvilSmashingCategory.UID);
     }
-    
+
     public static void setOutputLists(IIngredients ingredients, DynamicOutput output) {
         if (output.isItem()) {
             ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(output.itemOutput.stream()
                     .map(WeightedOutput.WeightedEntry::getResult)
                     .collect(Collectors.toList())));
-        }
-        else if (output.isBlock()) {
+        } else if (output.isBlock()) {
             ingredients.setOutputLists(VanillaTypes.ITEM, Collections.singletonList(output.blockOutput.stream()
                     .map(WeightedOutput.WeightedEntry::getResult)
                     .map(ItemStack::new)
                     .collect(Collectors.toList())));
-        }
-        else if (output.isFluid()) {
+        } else if (output.isFluid()) {
             ingredients.setOutputLists(VanillaTypes.FLUID, Collections.singletonList(output.fluidOutput.stream()
-                .map(WeightedOutput.WeightedEntry::getResult)
-                .map(fluid -> new FluidStack(fluid, 1000))
-                .collect(Collectors.toList())));
-        }
-        else throw new IllegalArgumentException("Output is not a valid type!");
+                    .map(WeightedOutput.WeightedEntry::getResult)
+                    .map(fluid -> new FluidStack(fluid, 1000))
+                    .collect(Collectors.toList())));
+        } else throw new IllegalArgumentException("Output is not a valid type!");
     }
 }

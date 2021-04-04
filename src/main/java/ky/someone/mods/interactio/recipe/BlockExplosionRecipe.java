@@ -1,9 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.testAll;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.BlockIngredient;
@@ -16,13 +13,15 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import static ky.someone.mods.interactio.Utils.testAll;
+
 public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockState, ExplosionInfo> {
 
     public static final Serializer SERIALIZER = new Serializer();
 
     public BlockExplosionRecipe(ResourceLocation id, BlockIngredient blockInput, DynamicOutput output, JsonObject json) {
         super(id, null, blockInput, null, output, false, json);
-        
+
         this.postCraft.put((pos, info, j) -> {
             if (info.getRecipe().getOutput().isBlock() || info.getRecipe().getOutput().isFluid())
                 info.getExplosion().getToBlow().remove(pos);
@@ -36,7 +35,9 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     }
 
     @Override
-    public void craft(BlockPos pos, ExplosionInfo info) { craftBlock(this, pos, info); }
+    public void craft(BlockPos pos, ExplosionInfo info) {
+        craftBlock(this, pos, info);
+    }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
@@ -47,8 +48,11 @@ public final class BlockExplosionRecipe extends InWorldRecipe<BlockPos, BlockSta
     public RecipeType<?> getType() {
         return InWorldRecipeType.BLOCK_EXPLODE;
     }
-    
-    @Override public boolean hasInvulnerableOutput() { return false; }
+
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return false;
+    }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockExplosionRecipe> {
         @Override
