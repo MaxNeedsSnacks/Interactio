@@ -1,12 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.compareStacks;
-import static ky.someone.mods.interactio.Utils.testAll;
-
-import java.util.List;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.base.StatelessItemRecipe;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
@@ -19,6 +13,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+
+import java.util.List;
+
+import static ky.someone.mods.interactio.Utils.compareStacks;
+import static ky.someone.mods.interactio.Utils.testAll;
 
 public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo> {
 
@@ -53,8 +52,11 @@ public final class ItemExplosionRecipe extends StatelessItemRecipe<ExplosionInfo
     public RecipeType<?> getType() {
         return InWorldRecipeType.ITEM_EXPLODE;
     }
-    
-    @Override public boolean hasInvulnerableOutput() { return false; }
+
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return false;
+    }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemExplosionRecipe> {
         @Override

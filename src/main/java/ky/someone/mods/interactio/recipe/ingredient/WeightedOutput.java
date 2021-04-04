@@ -1,30 +1,20 @@
 package ky.someone.mods.interactio.recipe.ingredient;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Objects;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import javax.annotation.Nullable;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.recipe.ingredient.WeightedOutput.WeightedEntry;
 import ky.someone.mods.interactio.recipe.util.IEntrySerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 
-@SuppressWarnings("serial")
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 public class WeightedOutput<E> extends LinkedHashSet<WeightedEntry<E>> {
 
     public final Random random;
@@ -108,10 +98,6 @@ public class WeightedOutput<E> extends LinkedHashSet<WeightedEntry<E>> {
         return size() == 1 && emptyWeight == 0;
     }
 
-    // 0.0 - 0.4 empty
-    // 0.4 - 0.7 tomato
-    // 0.7 - 0.9 orange
-    // 0.9 - 1 apple
     private void updateChances() {
         ranges.clear();
         ranges.put(0.0, null);

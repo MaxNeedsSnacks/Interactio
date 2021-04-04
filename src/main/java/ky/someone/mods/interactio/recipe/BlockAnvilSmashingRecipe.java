@@ -1,9 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import static ky.someone.mods.interactio.Utils.testAll;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipe;
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.ingredient.BlockIngredient;
@@ -15,6 +12,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.state.BlockState;
+
+import static ky.someone.mods.interactio.Utils.testAll;
 
 public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, BlockState, DefaultInfo> {
 
@@ -33,10 +32,25 @@ public final class BlockAnvilSmashingRecipe extends InWorldRecipe<BlockPos, Bloc
 
     // anvilPos will be the position of the anvil
     // hitPos will be the position of the block hit
-    @Override public void craft(BlockPos hitPos, DefaultInfo info) { craftBlock(this, hitPos, info); }
-    @Override public RecipeSerializer<?> getSerializer() { return SERIALIZER; }
-    @Override public RecipeType<?> getType() { return InWorldRecipeType.BLOCK_ANVIL; }
-    @Override public boolean hasInvulnerableOutput() { return false; }
+    @Override
+    public void craft(BlockPos hitPos, DefaultInfo info) {
+        craftBlock(this, hitPos, info);
+    }
+
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return SERIALIZER;
+    }
+
+    @Override
+    public RecipeType<?> getType() {
+        return InWorldRecipeType.BLOCK_ANVIL;
+    }
+
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return false;
+    }
 
     private static class Serializer extends InWorldRecipeSerializer<BlockAnvilSmashingRecipe> {
         @Override

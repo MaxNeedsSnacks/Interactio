@@ -8,14 +8,11 @@ import me.shedaniel.architectury.event.events.RecipeUpdateEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -32,8 +29,6 @@ public class Interactio {
 
     public static UUID CHAT_ID = UUID.randomUUID();
 
-//    private final String PROTOCOL_VERSION = "1";
-
     public Interactio() {
 
         // static base variables
@@ -44,15 +39,6 @@ public class Interactio {
         InteractioEventHandler.init();
 
         RecipeUpdateEvent.EVENT.register((rm) -> InWorldRecipeType.clearCache());
-    }
-
-    public static String getVersion() {
-        Optional<? extends ModContainer> o = ModList.get().getModContainerById(MOD_ID);
-        return o.isPresent() ? o.get().getModInfo().getVersion().toString() : "0.0.0";
-    }
-
-    public static boolean isDev() {
-        return getVersion().equals("0.0.0");
     }
 
     public static ResourceLocation id(String path) {

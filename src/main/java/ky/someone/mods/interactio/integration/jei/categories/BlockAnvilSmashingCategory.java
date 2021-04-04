@@ -1,14 +1,7 @@
 package ky.someone.mods.interactio.integration.jei.categories;
 
-import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
-
-import java.awt.Point;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
@@ -28,6 +21,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+
+import java.awt.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
 
 public class BlockAnvilSmashingCategory implements IRecipeCategory<BlockAnvilSmashingRecipe> {
 

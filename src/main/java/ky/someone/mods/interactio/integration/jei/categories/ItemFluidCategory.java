@@ -1,19 +1,8 @@
 package ky.someone.mods.interactio.integration.jei.categories;
 
-import static ky.someone.mods.interactio.Utils.rotatePointAbout;
-import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
-
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-
 import ky.someone.mods.interactio.Interactio;
 import ky.someone.mods.interactio.Utils;
 import ky.someone.mods.interactio.integration.jei.util.TooltipCallbacks;
@@ -37,6 +26,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static ky.someone.mods.interactio.Utils.rotatePointAbout;
+import static ky.someone.mods.interactio.integration.jei.InteractioJEIPlugin.setOutputLists;
 
 public class ItemFluidCategory implements IRecipeCategory<ItemFluidRecipe> {
 
@@ -147,11 +146,11 @@ public class ItemFluidCategory implements IRecipeCategory<ItemFluidRecipe> {
         if (recipe.getOutput().isFluid()) {
             WeightedOutput<Fluid> output = recipe.getOutput().fluidOutput;
             WeightedOutput.WeightedEntry<Fluid> empty = new WeightedOutput.WeightedEntry<>(Fluids.EMPTY, output.emptyWeight);
-        
+
             fluidStackGroup.init(1, false, width - 20 + 1, center.y + 1);
             if (output.emptyWeight > 0) fluidOutputs.get(0).add(new FluidStack(empty.getResult(), 1000));
             fluidStackGroup.set(1, fluidOutputs.get(0));
-            
+
             itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
                 TooltipCallbacks.returnChance(idx, input, tooltip, returnChances);
             });
@@ -159,11 +158,10 @@ public class ItemFluidCategory implements IRecipeCategory<ItemFluidRecipe> {
             fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
                 TooltipCallbacks.weightedOutput(input, stack.getFluid(), tooltip, output, empty, false);
             });
-        }
-        else if (recipe.getOutput().isItem()) {
+        } else if (recipe.getOutput().isItem()) {
             WeightedOutput<ItemStack> output = recipe.getOutput().itemOutput;
             WeightedOutput.WeightedEntry<ItemStack> empty = new WeightedOutput.WeightedEntry<>(Items.BARRIER.getDefaultInstance(), output.emptyWeight);
-            
+
             itemStackGroup.init(++i, false, width - 20, center.y);
             if (output.emptyWeight > 0) itemOutputs.get(0).add(empty.getResult());
             itemStackGroup.set(i, itemOutputs.get(0));
@@ -171,7 +169,7 @@ public class ItemFluidCategory implements IRecipeCategory<ItemFluidRecipe> {
             itemStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
                 TooltipCallbacks.weightedOutput(input, stack, tooltip, output, empty, true);
             });
-            
+
             fluidStackGroup.addTooltipCallback((idx, input, stack, tooltip) -> {
                 if (input && recipe.getConsumeFluid() > 0) {
                     tooltip.add(Utils.translate("interactio.jei.consume_chance", null, Utils.formatChance(recipe.getConsumeFluid(), ChatFormatting.ITALIC)));

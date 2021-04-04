@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 public class DefaultInfo extends CraftingInfo {
     protected final BlockPos pos;
 
-    public DefaultInfo(InWorldRecipe<?,?,?> recipe, Level world, BlockPos pos) {
+    public DefaultInfo(InWorldRecipe<?, ?, ?> recipe, Level world, BlockPos pos) {
         super(recipe, world);
         this.pos = pos;
     }
@@ -17,7 +17,7 @@ public class DefaultInfo extends CraftingInfo {
     public Vec3 getPos() {
         return Vec3.atCenterOf(this.pos);
     }
-    
+
     @Override
     public BlockPos getBlockPos() {
         return this.pos;

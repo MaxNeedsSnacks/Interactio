@@ -1,7 +1,6 @@
 package ky.someone.mods.interactio.core.mixin;
 
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;

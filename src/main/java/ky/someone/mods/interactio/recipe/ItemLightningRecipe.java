@@ -1,9 +1,6 @@
 package ky.someone.mods.interactio.recipe;
 
-import java.util.List;
-
 import com.google.gson.JsonObject;
-
 import ky.someone.mods.interactio.recipe.base.InWorldRecipeType;
 import ky.someone.mods.interactio.recipe.base.StatelessItemRecipe;
 import ky.someone.mods.interactio.recipe.ingredient.DynamicOutput;
@@ -13,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+
+import java.util.List;
 
 public final class ItemLightningRecipe extends StatelessItemRecipe<DefaultInfo> {
 
@@ -32,7 +31,10 @@ public final class ItemLightningRecipe extends StatelessItemRecipe<DefaultInfo> 
         return InWorldRecipeType.ITEM_LIGHTNING;
     }
 
-    @Override public boolean hasInvulnerableOutput() { return true; }
+    @Override
+    public boolean hasInvulnerableOutput() {
+        return true;
+    }
 
     public static class Serializer extends InWorldRecipeSerializer<ItemLightningRecipe> {
         @Override
