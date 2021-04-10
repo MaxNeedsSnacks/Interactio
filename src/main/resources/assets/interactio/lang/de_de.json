@@ -1,0 +1,15 @@
+{
+	"interactio.jei.return_chance": "Wird zu %s nicht verbraucht",
+	"interactio.jei.consume_chance": "Wird zu %s verbraucht",
+	"interactio.jei.weighted_output_empty": "Nichts!",
+	"interactio.jei.weighted_output_chance": "Wahrscheinlichkeit: %s",
+	"interactio.jei.weighted_output_roll_count": "(aus %s Ziehungen)",
+	"interactio.jei.weighted_output_roll_unique": "%s einmaligen",
+	"interactio.jei.item_fluid_transform": "Flüssigkeit zu Item",
+	"interactio.jei.fluid_fluid_transform": "Flüssigkeiten Transformation",
+	"interactio.jei.item_explode": "Items sprengen",
+	"interactio.jei.block_explode": "Blöcke sprengen",
+	"interactio.jei.item_lightning": "Items mit Blitz treffen",
+	"interactio.jei.item_anvil_smashing": "Items mit Amboss zerstampfen",
+	"interactio.jei.block_anvil_smashing": "Blöcke mit Amboss zerstampfen"
+  }
