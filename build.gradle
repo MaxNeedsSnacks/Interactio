@@ -1,6 +1,6 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
-    id "forgified-fabric-loom" version "0.6.67"
+    id "forgified-fabric-loom" version "0.6-SNAPSHOT"
     id "java"
     id "idea"
 }
@@ -28,9 +28,23 @@ repositories {
     }
     maven {
         url = "https://dvs1.progwml6.com/files/maven/"
+        content {
+            includeGroup "mezz.jei"
+        }
     }
     maven {
-        url = "https://maven.shedaniel.me"
+        url = "https://maven.architectury.dev"
+        content {
+            includeGroup "me.shedaniel"
+            includeGroup "dev.architectury"
+        }
+    }
+    maven {
+        url = "https://maven.saps.dev/minecraft"
+        content {
+            includeGroup "dev.ftb.mods"
+            includeGroup "dev.latvian.mods"
+        }
     }
 }
 
@@ -38,16 +52,13 @@ dependencies {
     minecraft("com.mojang:minecraft:${project.minecraft_version}")
 
     mappings(minecraft.officialMojangMappings())
-    //mappings("de.oceanlabs.mcp:mcp_snapshot:20201028-1.16.3")
 
     forge("net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
 
-    modCompile("me.shedaniel:architectury-forge:${architectury_version}")
+    modApi("me.shedaniel:architectury-forge:${architectury_version}")
 
-    modCompile("mezz.jei:jei-1.16.4:${jei_version}")
-
-    modCompile("curse.maven:kubejs-238086:3189113")
-    modCompile("curse.maven:rhino-416294:3187177")
+    modImplementation("mezz.jei:jei-1.16.4:${jei_version}")
+    modImplementation("dev.latvian.mods:kubejs-forge:1605.3.+")
 
     modRuntime("curse.maven:top-245211:3157997")
 
