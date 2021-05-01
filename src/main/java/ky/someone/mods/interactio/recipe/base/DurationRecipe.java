@@ -56,7 +56,7 @@ public abstract class DurationRecipe<T, S extends StateHolder<?, ?>> extends InW
             if (!object.has("type")) continue;
             ResourceLocation type = new ResourceLocation(GsonHelper.getAsString(object, "type"));
 
-            RecipeTickEvent<T, S> event = (RecipeTickEvent<T, S>) Events.events.get(type);
+            RecipeTickEvent<T, S> event = (RecipeTickEvent<T, S>) Events.tickEvents.get(type);
             if (event != null) this.tickConsumers.put(event, object);
         }
     }
