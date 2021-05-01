@@ -21,15 +21,10 @@ loom {
 
 repositories {
     maven {
-        url "https://www.cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven {
-        url = "https://dvs1.progwml6.com/files/maven/"
+        url "https://modmaven.dev/"
         content {
             includeGroup "mezz.jei"
+            includeGroup "mcjty.theoneprobe"
         }
     }
     maven {
@@ -50,20 +45,19 @@ repositories {
 
 dependencies {
     minecraft("com.mojang:minecraft:${project.minecraft_version}")
-
     mappings(minecraft.officialMojangMappings())
-
+    
     forge("net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
 
     modApi("me.shedaniel:architectury-forge:${architectury_version}")
 
     modImplementation("mezz.jei:jei-1.16.4:${jei_version}")
-    modImplementation("dev.latvian.mods:kubejs-forge:1605.3.+")
+    modImplementation("dev.latvian.mods:kubejs-forge:[1605.3.7-build.188, 1605.4)")
 
-    modRuntime("curse.maven:top-245211:3157997")
+    modRuntime("mcjty.theoneprobe:TheOneProbe-1.16:1.16-3.+")
 
     // nullable annoations
-    compileOnly("com.google.code.findbugs:jsr305:3.+")
+    implementation("com.google.code.findbugs:jsr305:3.+")
 }
 
 processResources {
